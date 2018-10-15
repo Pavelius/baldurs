@@ -190,8 +190,8 @@
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="tokens.cpp" />
-    <ClCompile Include="util.cpp" />
-    <ClCompile Include="util_spells_index.cpp" />
+    <ClCompile Include="main_util.cpp" />
+    <ClCompile Include="spells_index_util.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="control.cpp" />
     <ClCompile Include="win_draw.cpp" />

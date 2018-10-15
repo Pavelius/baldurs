@@ -5,8 +5,8 @@
 *.sln.docstates
 
 # User-specific files (MonoDevelop/Xamarin Studio)
-util.cpp
-util_spells_index.cpp
+*_util.cpp
+*_spells_index.cpp
 origin/
 data/
 *.userprefs
