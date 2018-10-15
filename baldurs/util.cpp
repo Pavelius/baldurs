@@ -15,7 +15,7 @@
 
 static const char*		path_to_source = "d:/games/IWD2";
 static const char*		path_to_dest = "data";
-static const char*		path_to_dest_original = "original";
+static const char*		path_to_dest_original = "origin";
 static bool				use_cleanup = false;
 extern const char*		util_spells_index[];
 
@@ -1544,7 +1544,7 @@ static void convert_character(const char* url) {
 	if(strcmp(pn, "T2") == 0
 		|| strcmp(pn, "T3") == 0)
 		return;
-	convert_animation(temp, animation_character);
+	convert_animation(temp, animation_character, "characters");
 }
 
 static void convert_bam_pma_animated(const char* su, const char* folder = "pma") {
@@ -2553,6 +2553,8 @@ int util_main() {
 	load_key();
 	if(!key)
 		return -1;
+	unpack_type(TypeBam);
+	convert_files("bam", "C*A1.bam", convert_character);
 	//make_all_stuff();
 	//convert_all_wed();
 	//convert_wed("AR1100");
