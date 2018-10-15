@@ -3,7 +3,7 @@
 using namespace draw;
 
 const char* root = "data/pma";
-const char* chra = "data/pma";
+const char* chra = "data/characters";
 
 res::element res::elements[] = {{"NONE"}, {"CURSORS", root}, {"CURSARW", root}, {"COLGRAD", root}, {"COLOR", root},
 {"GACTN", root},

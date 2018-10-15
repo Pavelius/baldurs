@@ -1424,7 +1424,7 @@ static pattern animation_character[] = {{"G11", 0 * 9, 9}, // Move
 };
 
 static void initialize_animation(const char* name, pattern* p0, int& frame_count, int& cicle_count, int& index_count) {
-	unsigned short frame_indexes[4096];
+	unsigned short frame_indexes[256*64];
 	frame_count = 0;
 	cicle_count = 0;
 	index_count = 0;
@@ -1571,14 +1571,14 @@ static void convert_bam_res(const char* su, const char* folder) {
 	convert_bam_pma_animated(rname, folder);
 }
 
-static void convert_animation(const char* prefix, const char* name, pattern* data) {
+static void convert_animation(const char* prefix, const char* name, pattern* data, const char* folder) {
 	char temp[9];
 	zcpy(temp, prefix);
 	zcat(temp, name);
-	convert_animation(temp, data);
+	convert_animation(temp, data, folder);
 }
 
-static void convert_weapons() {
+static void convert_weapons(const char* folder) {
 	static pattern w1h[] = {{"G1", 0 * 9, 9}, // Move
 	{"G1", 7 * 9, 9}, // Stand quite
 	{"G1", 8 * 9, 9}, // Stand quite and relax
@@ -1722,10 +1722,10 @@ static void convert_weapons() {
 	};
 	// Source files
 	for(auto& e : source) {
-		convert_animation("WQS", e.name, e.data);
-		convert_animation("WQN", e.name, e.data);
-		convert_animation("WQM", e.name, e.data);
-		convert_animation("WQL", e.name, e.data);
+		convert_animation("WQS", e.name, e.data, folder);
+		convert_animation("WQN", e.name, e.data, folder);
+		convert_animation("WQM", e.name, e.data, folder);
+		convert_animation("WQL", e.name, e.data, folder);
 	}
 	// Update resource names
 	char temp[260];
@@ -2542,7 +2542,7 @@ static void make_all_stuff(bool include_debug = false) {
 	convert_scrolls();
 	convert_spells_avatars();
 	convert_portrait();
-	convert_weapons();
+	convert_weapons("characters");
 	convert_files("bam", "C*A1.bam", convert_character);
 	convert_form();
 	convert_container();
@@ -2553,8 +2553,7 @@ int util_main() {
 	load_key();
 	if(!key)
 		return -1;
-	unpack_type(TypeBam);
-	convert_files("bam", "C*A1.bam", convert_character);
+	//unpack_type(TypeTis);
 	//make_all_stuff();
 	//convert_all_wed();
 	//convert_wed("AR1100");
