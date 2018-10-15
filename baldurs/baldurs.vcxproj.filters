@@ -1,0 +1,315 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="util.cpp">
+      <Filter>Инструменты</Filter>
+    </ClCompile>
+    <ClCompile Include="util_spells_index.cpp">
+      <Filter>Инструменты</Filter>
+    </ClCompile>
+    <ClCompile Include="draw.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="resources.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="screenshoot.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="spells.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="dice.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="point.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="stringcreator.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="collection.cpp">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClCompile>
+    <ClCompile Include="crt.cpp">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClCompile>
+    <ClCompile Include="io.cpp">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClCompile>
+    <ClCompile Include="win_draw.cpp">
+      <Filter>Библиотека\Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="win_io_file.cpp">
+      <Filter>Библиотека\Платформа</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_text.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_textf.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="names.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="portraits.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="creature.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="coloration.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="container.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="door.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="floattext.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="region.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="feats.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="entrance.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="area.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="mslog.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="selectable.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="actor.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="tokens.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite_store.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="zip.cpp">
+      <Filter>Библиотека\Сжатие</Filter>
+    </ClCompile>
+    <ClCompile Include="bstream.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="converter.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="crt_parse.cpp">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClCompile>
+    <ClCompile Include="surface_serial.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="szdup.cpp">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClCompile>
+    <ClCompile Include="archive.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
+    <ClCompile Include="variant.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="race.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="alignment.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="class.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="ability.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="gender.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="skill.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="loadsave.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_picker.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_party.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_creature.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_edit.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_area.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="animation.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="resource_dynamic.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_hotkey.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_invertory.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_sheet.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="save.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_scroll.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_help.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_setting.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="setting.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_minimap.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_spellbook.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="feature.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_dialog.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_button.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="draw.h">
+      <Filter>Библиотека\Графика</Filter>
+    </ClInclude>
+    <ClInclude Include="resources.h">
+      <Filter>Библиотека\Графика</Filter>
+    </ClInclude>
+    <ClInclude Include="screenshoot.h">
+      <Filter>Библиотека\Графика</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="dice.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="point.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="rect.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="rects.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="stringcreator.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="collection.h">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClInclude>
+    <ClInclude Include="crt.h">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClInclude>
+    <ClInclude Include="initializer_list.h">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClInclude>
+    <ClInclude Include="io.h">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClInclude>
+    <ClInclude Include="win.h">
+      <Filter>Библиотека\Платформа</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Логика</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="bstream.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="converter.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="iterator.h">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClInclude>
+    <ClInclude Include="archive.h">
+      <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Графика">
+      <UniqueIdentifier>{f3d8bb08-630c-4fab-b114-bf46add93166}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Инструменты">
+      <UniqueIdentifier>{72695cb6-7015-42d3-8947-c780a59bbde0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Библиотека">
+      <UniqueIdentifier>{33a32442-0246-495a-887e-4f8d71785a49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Библиотека\Классы">
+      <UniqueIdentifier>{cadfd45c-2ee3-4e83-8162-0cda3f7346fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Библиотека\Графика">
+      <UniqueIdentifier>{d204c7d0-3d48-4b5f-a0c7-98acc3dab531}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Библиотека\Ядро">
+      <UniqueIdentifier>{1e8c2bb5-d862-48f4-bc33-e7f9e528563c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Библиотека\Платформа">
+      <UniqueIdentifier>{59b6acf4-04ce-4bae-a2c1-f8cee6eecfed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Логика">
+      <UniqueIdentifier>{4c4b65bd-b5e6-425e-bb80-f8fef1713409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Библиотека\Сжатие">
+      <UniqueIdentifier>{1c5812e4-92db-47db-a49b-a3376d2e68ae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

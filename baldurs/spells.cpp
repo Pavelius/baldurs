@@ -1,0 +1,218 @@
+#include "main.h"
+
+spell_info spell_data[] = {{"No spell"},
+//
+{"Armor of Faith", "Доспех веры", SchoolAbjuration, 14, {{Cleric, 1}}, },
+{"Bane", "Погибель", SchoolAbjuration, 10, {{Cleric, 1}}, },
+{"Bless", "Благословение", SchoolAbjuration, 0, {{Cleric, 1}}, },
+{"Burning Hands", "Огненные руки", SchoolAbjuration, 161, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Charm Person", "Очаровать персону", SchoolAbjuration, 162, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Chill Touch", "Холодное касание", SchoolAbjuration, 173, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Chromatic Orb", "Радужный шар", SchoolAbjuration, 174, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Color Spray", "Цветные брызги", SchoolAbjuration, 163, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Command", "Команда", SchoolAbjuration, 1, {{Cleric, 1}}, },
+{"Cure Light Wounds", "Исцелить легкое ранение", SchoolAbjuration, 2, {{Cleric, 1}}, },
+{"Doom", "Рок", SchoolAbjuration, 13, {{Cleric, 1}}, },
+{"Eagle's Splendor", "Орлинное великолепие", SchoolAbjuration, 164, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Entangle", "Опутать", SchoolAbjuration, 4, {{Cleric, 1}, {Druid, 1}}, },
+{"Faerie Fire", "Огонь фей", SchoolAbjuration, 15, {{Cleric, 1}}, },
+{"Frost Fingers", "Морозящие пальцы", SchoolAbjuration, 16, {{Cleric, 1}}, },
+{"Generic Abjuration", "Общая защита", SchoolAbjuration, 168, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Grease", "Смазка", SchoolAbjuration, 159, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Ice Dagger", "Ледяной кинжал", SchoolAbjuration, 178, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Identify", "Опознание", SchoolAbjuration, 166, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Inflict Light Wounds", "Нанести легое ранение", SchoolAbjuration, 11, {{Cleric, 1}}, },
+{"Larloch's Minor Drain", "Слабое иссушение Ларлоха", SchoolAbjuration, 175, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Mage Armor", "Доспех мага", SchoolAbjuration, 160, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Magic Missile", "Волшебный снаряд", SchoolAbjuration, 168, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Magic Stone", "Волшеный камень", SchoolAbjuration, 5, {{Cleric, 1}}, },
+{"Minor Mirror Image", "Слабое зеркальное отображение", SchoolAbjuration, 176, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Protection From Evil", "Защита от зла", SchoolAbjuration, 6, {{Wizard, 1}, {Sorcerer, 1}, {Cleric, 1}}, },
+{"Protection from Petrification", "Защита от окаменения", SchoolAbjuration, 165, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Remove Fear", "Убрать страх", SchoolAbjuration, 7, {{Cleric, 1}}, },
+{"Sanctuary", "Убежище", SchoolAbjuration, 8, {{Cleric, 1}}, },
+{"Shield", "Щит", SchoolAbjuration, 170, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Shillelagh", "Древесный жезл", SchoolAbjuration, 9, {{Druid, 1}}, },
+{"Shocking Grasp", "Шокирующая хватка", SchoolAbjuration, 171, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Sleep", "Сон", SchoolAbjuration, 172, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Spook", "Бабай", SchoolAbjuration, 177, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Summon Monster I", "Вызов монстра I", SchoolAbjuration, 179, {{Wizard, 1}, {Sorcerer, 1}}, },
+{"Sunscorch", "Солнечные ожог", SchoolAbjuration, 12, {{Cleric, 1}}, },
+{"Aganazzar's Scorcher", "Испепелитель Аганазарра", SchoolAbjuration, 194, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Aid", "Помощь", SchoolAbjuration, 18, {{Cleric, 2}}, },
+{"Alicorn Lance", "Копье Аликорна", SchoolAbjuration, 33, {{Cleric, 2}}, },
+{"Barkskin", "Кора-кожа", SchoolAbjuration, 19, {{Cleric, 2}}, },
+{"Beast Claw", "Звериные когти", SchoolAbjuration, 34, {{Cleric, 2}}, },
+{"Blindness", "Слепота", SchoolAbjuration, 199, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Blur", "Размытость", SchoolAbjuration, 180, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Bull's Strength", "Бычья сила", SchoolAbjuration, 192, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Cat's Grace", "Кошачья грация", SchoolAbjuration, 200, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Chant", "Песнопение", SchoolAbjuration, 20, {{Cleric, 2}}, },
+{"Charm Person or Animal", "Очаровать персону или животное", SchoolAbjuration, 21, {{Cleric, 2}}, },
+{"Cure Moderate Wounds", "Исцелить среднее ранение", SchoolAbjuration, 31, {{Cleric, 2}}, },
+{"Deafness", "Глухота", SchoolAbjuration, 201, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Death Armor", "Броня смерти", SchoolAbjuration, 205, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Decastave", "", SchoolAbjuration, 198, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Delay Poison", "Замедлить яд", SchoolAbjuration, 29, {{Cleric, 2}}, },
+{"Draw Upon Holy Might", "Наполнение святой силой", SchoolAbjuration, 32, {{Cleric, 2}}, },
+{"Find Traps", "Найти ловушки", SchoolAbjuration, 22, {{Cleric, 2}}, },
+{"Flame Blade", "Огненный меч", SchoolAbjuration, 23, {{Cleric, 2}}, },
+{"Gedlee's Electric Loop", "Электрическая дуга Гедли", SchoolAbjuration, 204, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Ghoul Touch", "Касание упыря", SchoolAbjuration, 195, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Goodberry", "Целебные ягодки", SchoolAbjuration, 24, {{Cleric, 2}}, },
+{"Hold Person", "Остановить персону", SchoolAbjuration, 25, {{Wizard, 3}, {Sorcerer, 3}, {Cleric, 2}}, },
+{"Horror", "Ужас", SchoolAbjuration, 183, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Inflict Moderate Wounds", "Нанести среднее ранение", SchoolAbjuration, 35, {{Cleric, 2}}, },
+{"Invisibility", "Невидимость", SchoolAbjuration, 184, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Knock", "Стук-стук", SchoolAbjuration, 185, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Luck", "Удача", SchoolAbjuration, 187, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Melf's Acid Arrow", "Кислотная стрела Мелфа", SchoolAbjuration, 189, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Minor Elemental Barrier", "Слабый барьер стихии", SchoolAbjuration, 27, {{Cleric, 2}}, },
+{"Mirror Image", "Зеркальное отображение", SchoolAbjuration, 190, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Moon Motes", "Лунная пыль", SchoolAbjuration, 40, {{Cleric, 2}}, },
+{"Power Word Sleep", "Слово силы, Усни", SchoolAbjuration, 202, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Rainstorm", "Буря дождя", SchoolAbjuration, 38, {{Cleric, 2}}, },
+{"Ray of Enfeeblement", "Луч слабости", SchoolAbjuration, 203, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Remove Fatigue", "Убрать усталость", SchoolAbjuration, 37, {{Cleric, 2}}, },
+{"Resist Fear", "Сопротивление страху", SchoolAbjuration, 188, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"See Invisibility", "Увидеть незримое", SchoolAbjuration, 182, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Silence", "Тишина", SchoolAbjuration, 28, {{Cleric, 2}}, },
+{"Snilloc's Snowball Swarm", "Снегопад Сниллока", SchoolAbjuration, 197, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Spell Shield", "Щит заклинаний", SchoolAbjuration, 36, {{Cleric, 2}}, },
+{"Spiritual Weapon", "Оружие веры", SchoolAbjuration, 30, {{Cleric, 2}}, },
+{"Stinking Cloud", "Тошнотворный туман", SchoolAbjuration, 191, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Summon Cow", "Вызвать быка", SchoolAbjuration, 159, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Summon Monster II", "Вызов монста II", SchoolAbjuration, 206, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Tortoise Shell", "Черепаший панцирь", SchoolAbjuration, 39, {{Cleric, 2}}, },
+{"Vocalize", "Звонкий голос", SchoolAbjuration, 196, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Web", "Паутина", SchoolAbjuration, 193, {{Wizard, 2}, {Sorcerer, 2}}, },
+{"Animate Dead", "Анимировать мертвых", SchoolAbjuration, 42, {{Wizard, 5}, {Sorcerer, 5}, {Cleric, 3}}, },
+{"Blink", "Мигание", SchoolAbjuration, 226, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Call Lightning", "Призвать молнию", SchoolAbjuration, 43, {{Cleric, 3}}, },
+{"Circle of Bones", "Круг из костей", SchoolAbjuration, 59, {{Cleric, 3}}, },
+{"Contagion", "Болезнь", SchoolAbjuration, 56, {{Wizard, 4}, {Sorcerer, 4}, {Cleric, 2}}, },
+{"Dire Charm", "Ужасное очарование", SchoolAbjuration, 219, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Dispel Magic", "Рассеять магию", SchoolAbjuration, 44, {{Wizard, 3}, {Sorcerer, 3}, {Cleric, 3}}, },
+{"Exaltation", "Возвышение", SchoolAbjuration, 57, {{Cleric, 3}}, },
+{"Explosive Runes", "Взрывающиеся руны", SchoolAbjuration, 217, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Fireball", "Огненный шар", SchoolAbjuration, 209, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Flame Arrow", "Пламенная стрела", SchoolAbjuration, 208, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Ghost Armor", "Призрачный доспех", SchoolAbjuration, 220, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Glyph of Warding", "Глиф защиты", SchoolAbjuration, 45, {{Cleric, 3}}, },
+{"Halt Undead", "Остановить мертвого", SchoolAbjuration, 223, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Haste", "Ускорение", SchoolAbjuration, 210, {{Wizard, 3}, {Sorcerer, 3}, {Cleric, 3}}, },
+{"Hold Animal", "Остановить животное", SchoolAbjuration, 46, {{Cleric, 3}}, },
+{"Holy Smite", "Святая кара", SchoolAbjuration, 64, {{Cleric, 3}}, },
+{"Icelance", "Ледяная пика", SchoolAbjuration, 221, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Invisibility Purge", "", SchoolAbjuration, 50, {{Cleric, 3}}, },
+{"Invisibility Sphere", "Сфера невидимости", SchoolAbjuration, 224, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Lance of Disruption", "Копье разрыва", SchoolAbjuration, 222, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Lightning Bolt", "Молния", SchoolAbjuration, 212, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Melf's Minute Meteors", "Миниатюрные метеориты Мелфа", SchoolAbjuration, 225, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Miscast Magic", "", SchoolAbjuration, 51, {{Cleric, 3}}, },
+{"Mold Touch", "", SchoolAbjuration, 62, {{Cleric, 3}}, },
+{"Moonblade", "Лунный клинок", SchoolAbjuration, 58, {{Cleric, 3}}, },
+{"Negative Energy Protection", "Защита от негативной энергии", SchoolAbjuration, 66, {{Cleric, 3}}, },
+{"Nondetection", "Неопределимость", SchoolAbjuration, 214, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Prayer", "Молитва", SchoolAbjuration, 54, {{Cleric, 3}}, },
+{"Protection From Arrows", "Защита от стрел", SchoolAbjuration, 215, {{Wizard, 3}, {Sorcerer, 3}, {Cleric, 3}}, },
+{"Protection From Fire", "Защита от огня", SchoolAbjuration, 47, {{Cleric, 3}}, },
+{"Remove Curse", "Убрать проклятие", SchoolAbjuration, 48, {{Wizard, 4}, {Sorcerer, 4}, {Cleric, 3}}, },
+{"Remove Disease", "Убрать болезнь", SchoolAbjuration, 55, {{Cleric, 3}}, },
+{"Remove Paralysis", "Убрать паралич", SchoolAbjuration, 49, {{Cleric, 3}}, },
+{"Rigid Thinking", "", SchoolAbjuration, 52, {{Cleric, 3}}, },
+{"Skull Trap", "Ловушка черепа", SchoolAbjuration, 217, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Slow", "Замедление", SchoolAbjuration, 216, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Spike Growth", "Рост шипов", SchoolAbjuration, 60, {{Cleric, 3}}, },
+{"Storm Shell", "", SchoolAbjuration, 63, {{Cleric, 3}}, },
+{"Strength of One", "Сила одного", SchoolAbjuration, 53, {{Cleric, 3}}, },
+{"Summon Monster III", "Вызов монстра III", SchoolAbjuration, 213, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Unholy Blight", "", SchoolAbjuration, 65, {{Cleric, 3}}, },
+{"Vampiric Touch", "Касание вампира", SchoolAbjuration, 218, {{Wizard, 3}, {Sorcerer, 3}}, },
+{"Beltyn's Burning Blood", "", SchoolAbjuration, 241, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Blood Rage", "", SchoolAbjuration, 83, {{Cleric, 4}}, },
+{"Cloak of Fear", "Покров страха", SchoolAbjuration, 78, {{Cleric, 4}}, },
+{"Cloud of Pestilence", "", SchoolAbjuration, 85, {{Cleric, 4}}, },
+{"Cure Serious Wounds", "Исцелить серьезное ранение", SchoolAbjuration, 70, {{Cleric, 4}}, },
+{"Death Ward", "Оберег от смерти", SchoolAbjuration, 92, {{Cleric, 4}}, },
+{"Defensive Harmony", "", SchoolAbjuration, -1, {{Cleric, 4}}, },
+{"Dimension Door", "Дверь между измерениями", SchoolAbjuration, 228, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Emotion: Despair", "Эмоция: Отчаяние", SchoolAbjuration, 235, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Emotion: Fear", "Эмоция: Страх", SchoolAbjuration, 244, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Emotion: Hope", "Эмоция: Надежда", SchoolAbjuration, 245, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Emotion: Rage", "Эмоция: Ярость", SchoolAbjuration, 243, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Fire Shield (Blue)", "", SchoolAbjuration, 250, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Fire Shield (Red)", "", SchoolAbjuration, 251, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Freedom of Movement", "", SchoolAbjuration, 72, {{Cleric, 4}}, },
+{"Giant Vermin", "", SchoolAbjuration, 79, {{Cleric, 4}}, },
+{"Holy Power", "", SchoolAbjuration, 93, {{Cleric, 4}}, },
+{"Ice Blade", "", SchoolAbjuration, 96, {{Cleric, 4}}, },
+{"Ice Storm", "", SchoolAbjuration, 229, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Improved Invisibility", "", SchoolAbjuration, 230, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Inflict Serious Wounds", "", SchoolAbjuration, 84, {{Cleric, 4}}, },
+{"Magic Circle Against Evil", "", SchoolAbjuration, 77, {{Cleric, 4}}, },
+{"Malison", "", SchoolAbjuration, 236, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Mental Domination", "", SchoolAbjuration, -1, {{Cleric, 4}}, },
+{"Minor Globe of Invulnerability", "", SchoolAbjuration, 231, {{Wizard, 4}, {Sorcerer, 4}, {Cleric, 4}}, },
+{"Mordenkainen's Force Missiles", "", SchoolAbjuration, 246, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Neutralize Poison", "", SchoolAbjuration, 73, {{Cleric, 4}}, },
+{"Otiluke's Resilient Sphere", "", SchoolAbjuration, 237, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Poison", "", SchoolAbjuration, 86, {{Cleric, 4}}, },
+{"Produce Fire", "", SchoolAbjuration, 80, {{Cleric, 4}}, },
+{"Protection from Lightning", "", SchoolAbjuration, 76, {{Cleric, 4}}, },
+{"Recitation", "", SchoolAbjuration, 82, {{Cleric, 4}}, },
+{"Restoration", "", SchoolAbjuration, 94, {{Cleric, 4}}, },
+{"Shadow Conjuration", "Призыв теней", SchoolAbjuration, 242, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Shout", "Крик", SchoolAbjuration, 247, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Spider Spawn", "", SchoolAbjuration, 252, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Spirit Armor", "Доспех духа", SchoolAbjuration, 238, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Star Metal Cudgel", "", SchoolAbjuration, 88, {{Cleric, 4}}, },
+{"Stoneskin", "Каменная кожа", SchoolAbjuration, 233, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Summon Monster IV", "", SchoolAbjuration, 232, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Summon Nature's Ally I", "", SchoolAbjuration, 17, {{Cleric, 4}}, },
+{"Summon Nature's Ally II", "", SchoolAbjuration, 41, {{Cleric, 4}}, },
+{"Summon Nature's Ally III", "", SchoolAbjuration, 69, {{Cleric, 4}}, },
+{"Summon Nature's Ally IV", "", SchoolAbjuration, 71, {{Cleric, 4}}, },
+{"Thorn Spray", "", SchoolAbjuration, 90, {{Cleric, 4}}, },
+{"Vitriolic Sphere", "", SchoolAbjuration, 248, {{Wizard, 4}, {Sorcerer, 4}}, },
+{"Wall of Fire", "Стена огня", SchoolAbjuration, 95, {{Cleric, 4}}, },
+{"Wall of Moonlight", "Стена лунного света", SchoolAbjuration, 91, {{Cleric, 4}}, },
+};
+assert_enum(spell, LastSpell);
+getstr_enum(spell);
+
+//void get_spell_description(char* result, int rec) {
+//	szprint(result, "###%1\n", "",bsgets(rec, Name));
+//	const char* pb = bsgets(rec, Description);
+//	// School
+//	int shc = bsget(rec, SpellSchool);
+//	zcat(result, bsgets(shc, Name));
+//	for(int i = FirstSchoolSubtype; i <= LastSchoolSubtype; i++) {
+//		int val = bsget(rec, i);
+//		if(!val)
+//			continue;
+//		szprint(zend(result), " (%1)", "",bsgets(i, Name));
+//		break;
+//	}
+//	zcat(result, "\n");
+//	// Levels, like 'Wizard 1, Sorcerer 1'
+//	int k = 0;
+//	for(int i = FirstClass; i <= LastClass; i++) {
+//		int val = bsget(rec, i);
+//		if(!val)
+//			continue;
+//		if(k)
+//			zcat(result, ", "",");
+//		szprint(zend(result), "%1 %2i", "",bsgets(i, Name), val);
+//		k++;
+//	}
+//	// Description
+//	if(pb && pb[0]) {
+//		zcat(result, pb);
+//		zcat(result, "\n");
+//	}
+//}
+
+bool creature::is(spell_s id, class_s cls, int level) {
+	return spell_data[id].levels[cls] >= level;
+}
