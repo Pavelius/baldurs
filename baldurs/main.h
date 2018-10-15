@@ -709,6 +709,7 @@ struct creature : actor {
 	void				setquick(int value) { active_weapon = value; }
 	void				sheet();
 	void				spellbook();
+	static void			spellinfo(spell_s id);
 	static void			moveto(const char* location, const char* entrance = 0);
 	static void			updategame();
 private:

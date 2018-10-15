@@ -24,7 +24,7 @@ static void add_power() {
 	auto type = power_class[power_index];
 	auto player = creature::getplayer();
 	auto count = player->getprepared(id, type);
-	player->setprepared(id, type, count+1);
+	player->setprepared(id, type, count + 1);
 }
 
 static void remove_power() {
@@ -33,7 +33,12 @@ static void remove_power() {
 	auto player = creature::getplayer();
 	auto count = player->getprepared(id, type);
 	if(count)
-		player->setprepared(id, type, count-1);
+		player->setprepared(id, type, count - 1);
+}
+
+static void info_power() {
+	auto id = (spell_s)hot.param;
+	creature::spellinfo(id);
 }
 
 static struct scrollspell : scrolllist {
@@ -109,9 +114,9 @@ void creature::spellbook() {
 		}
 		// Создадим фильтр доступных
 		auto pb = known.data;
-		auto pe = pb + sizeof(known.data)/ sizeof(known.data[0]);
-		for(auto e = FirstSpell; e <= LastSpell; e=(spell_s)(e+1)) {
-			if(spell_data[e].levels[current_power.clas]!=current_level)
+		auto pe = pb + sizeof(known.data) / sizeof(known.data[0]);
+		for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
+			if(spell_data[e].levels[current_power.clas] != current_level)
 				continue;
 			if(!isknown(e))
 				continue;
@@ -128,8 +133,12 @@ void creature::spellbook() {
 				rect rc = {x, y, x + 79, y + 39};
 				label(x, y, 29, 18, szprints(temp, zendof(temp), "%1i/%2i", e.count, e.count_maximum));
 				draw::image(x + 37, y - 7, gres(res::SPELLS), spell_data[id].frame, 0);
-				if(area(rc)==AreaHilitedPressed && hot.key == MouseLeft && hot.pressed)
-					draw::execute(remove_power, id);
+				if(area(rc) == AreaHilitedPressed) {
+					if(hot.key == MouseLeft)
+						draw::execute(remove_power, id);
+					else if(hot.key == MouseRight)
+						draw::execute(info_power, id);
+				}
 				x += 79;
 				if(((++index) % 3) == 0) {
 					x = 254;
@@ -138,5 +147,21 @@ void creature::spellbook() {
 			}
 		}
 		view({492, 79, 702, 409}, {708, 79, 720, 409}, 43, known);
+	}
+}
+
+void creature::spellinfo(spell_s id) {
+	screenshoot e(true);
+	while(ismodal()) {
+		e.restore();
+		auto x = (getwidth() - 429) / 2, y = (getheight() - 446) / 2;
+		image(x, y, gres(res::GUISPL), 2, 0);
+		label(x + 22, y + 22, 343, 20, "Информация про заклинание");
+		label(x + 22, y + 52, 343, 20, getstr(id));
+		image(x + 375, y + 22, gres(res::SPELLS), id, 0);
+		//rectb({x + 23, y + 83, x + 23 + 363, y + 83 + 312}, colors::green);
+		//rectb({x + 396, y + 82, x + 408, y + 395}, colors::white);
+		button(x + 135, y + 402, cmpr(buttoncancel), 0, res::GBTNMED, 0, 1, 2, 3, "Закрыть", KeyEscape, 0);
+		domodal();
 	}
 }
