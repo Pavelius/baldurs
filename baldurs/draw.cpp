@@ -678,122 +678,23 @@ static void alc32(unsigned char* d, int d_scan, const unsigned char* s, int heig
 	}
 }
 
-static unsigned char* skip_v3(unsigned char* s, int h) {
-	const int		cbs = 1;
-	const int		cbd = 1;
-	if(!s || !h)
-		return s;
+static unsigned char* skip_rle832(unsigned char* s, int h) {
 	while(true) {
 		unsigned char c = *s++;
 		if(c == 0) {
 			if(--h == 0)
-				return s;
+				break;
 		} else if(c <= 0x9F) {
 			if(c <= 0x7F)
-				s += c * cbs;
-			else {
-				if(c == 0x80)
-					c = *s++;
-				else
-					c -= 0x80;
-				s++;
-				s += c * cbs;
-			}
-		} else if(c == 0xA0)
-			s++;
+				s += c;
+			else if(c == 0x80)
+				*s++;
+		} else {
+			if(c == 0xA0)
+				(*s++);
+		}
 	}
-	//unsigned char* d = p1;
-	//if(!alpha)
-	//	return;
-	//while(true) {
-	//	unsigned char c = *s++;
-	//	if(c == 0) {
-	//		p1 += d1;
-	//		s1 += d1;
-	//		s2 += d1;
-	//		if(--h == 0)
-	//			break;
-	//		d = p1;
-	//	} else if(c <= 0x9F) {
-	//		unsigned char ap = alpha, cb;
-	//		bool need_correct_s = false;
-	//		// count
-	//		if(c <= 0x7F) {
-	//			need_correct_s = true;
-	//			cb = c;
-	//		} else if(c == 0x80) {
-	//			cb = *s++;
-	//			ap >>= 1;
-	//		} else {
-	//			cb = c - 0x80;
-	//			ap >>= 1;
-	//		}
-	//		// clip left invisible part
-	//		if(d + cb * cbd <= s1 || d > s2) {
-	//			d += cb * cbd;
-	//			if(need_correct_s)
-	//				s += cb;
-	//			continue;
-	//		} else if(d < s1) {
-	//			unsigned char sk = (s1 - d) / cbd;
-	//			d += sk * cbd;
-	//			if(need_correct_s)
-	//				s += sk;
-	//			cb -= sk;
-	//		}
-	//		// visible part
-	//		if(ap == alpha) {
-	//			if(ap == 0xFF) {
-	//				do {
-	//					if(d >= s2)
-	//						break;
-	//					*((color*)d) = pallette[*s++];
-	//					d += cbd;
-	//				} while(--cb);
-	//			} else {
-	//				do {
-	//					if(d >= s2)
-	//						break;
-	//					unsigned char* s1 = (unsigned char*)&pallette[*s++];
-	//					d[0] = (((int)d[0] * (255 - ap)) + ((s1[0])*(ap))) >> 8;
-	//					d[1] = (((int)d[1] * (255 - ap)) + ((s1[1])*(ap))) >> 8;
-	//					d[2] = (((int)d[2] * (255 - ap)) + ((s1[2])*(ap))) >> 8;
-	//					d += cbd;
-	//				} while(--cb);
-	//			}
-	//		} else if(ap == 0x7F) {
-	//			do {
-	//				if(d >= s2)
-	//					break;
-	//				d[0] >>= 1;
-	//				d[1] >>= 1;
-	//				d[2] >>= 1;
-	//				d += cbd;
-	//			} while(--cb);
-	//		} else {
-	//			ap = 255 - ap;
-	//			do {
-	//				if(d >= s2)
-	//					break;
-	//				d[0] = (((int)d[0] * ap)) >> 8;
-	//				d[1] = (((int)d[1] * ap)) >> 8;
-	//				d[2] = (((int)d[2] * ap)) >> 8;
-	//				d += cbd;
-	//			} while(--cb);
-	//		}
-	//		// right clip part
-	//		if(cb) {
-	//			if(need_correct_s)
-	//				s += cb;
-	//			d += cb * cbd;
-	//		}
-	//	} else {
-	//		if(c == 0xA0)
-	//			d += (*s++)*cbd;
-	//		else
-	//			d += (c - 0xA0)*cbd;
-	//	}
-	//}
+	return s;
 }
 
 static unsigned char* skip_rle32(unsigned char* s, int h) {
@@ -1775,7 +1676,7 @@ void draw::image(int x, int y, const sprite* e, int id, int flags, unsigned char
 			case sprite::ALC: s = skip_alc(s, clipping.y1 - y); break;
 			case sprite::RAW: s += (clipping.y1 - y)*f.sx * 3; break;
 			case sprite::RAW8: s += (clipping.y1 - y)*f.sx; break;
-			case sprite::RLE8: s = skip_v3(s, clipping.y1 - y); break;
+			case sprite::RLE8: s = skip_rle832(s, clipping.y1 - y); break;
 			case sprite::RLE: s = skip_rle32(s, clipping.y1 - y); break;
 			default: break;
 			}
@@ -1788,7 +1689,7 @@ void draw::image(int x, int y, const sprite* e, int id, int flags, unsigned char
 			case sprite::ALC: s = skip_alc(s, y2 - clipping.y2); break;
 			case sprite::RAW: s += (y2 - clipping.y2)*f.sx * 3; break;
 			case sprite::RAW8: s += (y2 - clipping.y2)*f.sx; break;
-			case sprite::RLE8: s = skip_v3(s, y2 - clipping.y2); break;
+			case sprite::RLE8: s = skip_rle832(s, y2 - clipping.y2); break;
 			case sprite::RLE: s = skip_rle32(s, y2 - clipping.y2); break;
 			default: break;
 			}
