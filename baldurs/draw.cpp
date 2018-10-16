@@ -1953,7 +1953,7 @@ int sprite::getanim(int index, int tick) const {
 		return 0;
 	if(flags&NoIndex)
 		return c->start + tick % c->count;
-	return gindex(c->start + tick % c->count);
+	return getindex(c->start + tick % c->count);
 }
 
 int sprite::glyph(unsigned sym) const {
