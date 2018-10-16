@@ -286,6 +286,8 @@ static drawable* render_area(rect rc, const point origin, const point hotspot) {
 			auto p = static_cast<region*>(result);
 			if(p->type == RegionTravel)
 				sb.addn("Region lead to %1, %2", p->move_to_area, p->move_to_entrance);
+			else if(p->type == RegionTriger)
+				sb.addn("Trigger");
 			else
 				sb.addn("Region info in %1i, %2i", p->launch.x, p->launch.y);
 		} else
@@ -408,6 +410,11 @@ void creature::adventure() {
 		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
 		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
 		auto current = render_area(rcs, origin, hotspot);
+		if(region_data.consist(current)) {
+			auto p = static_cast<region*>(current);
+			if(p->type == RegionTriger)
+				current = 0;
+		}
 		if(settings.show_search)
 			render_search(rcs, camera.x - rcs.width() / 2, camera.y - rcs.height() / 2);
 		if(current) {
