@@ -176,6 +176,7 @@
     <ClCompile Include="resources.cpp" />
     <ClCompile Include="resource_dynamic.cpp" />
     <ClCompile Include="save.cpp" />
+    <ClCompile Include="school.cpp" />
     <ClCompile Include="screenshoot.cpp" />
     <ClCompile Include="selectable.cpp" />
     <ClCompile Include="setting.cpp" />

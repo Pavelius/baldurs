@@ -217,6 +217,9 @@
     <ClCompile Include="spells_index_util.cpp">
       <Filter>Инструменты</Filter>
     </ClCompile>
+    <ClCompile Include="school.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

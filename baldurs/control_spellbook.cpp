@@ -48,7 +48,7 @@ static struct scrollspell : scrolllist {
 		static int offset[8] = {1, 0, -1, -2, -1, -2, -3, -4};
 		auto id = data[n].spell;
 		auto oy = offset[n - origin];
-		draw::image(rc.x1 + 2, rc.y1 + oy, gres(res::SPELLS), spell_data[id].frame, 0);
+		draw::image(rc.x1 + 2, rc.y1 + oy, gres(res::SPELLS), id, 0);
 		label(rc.x1 + 38, rc.y1 + oy - 4, rc.width() - 46, rc.height() - 2, getstr(data[n]), 0);
 		if(free > 0) {
 			if(area(rc) == AreaHilitedPressed && hot.key == MouseLeft)
@@ -132,7 +132,7 @@ void creature::spellbook() {
 				auto id = e.id;
 				rect rc = {x, y, x + 79, y + 39};
 				label(x, y, 29, 18, szprints(temp, zendof(temp), "%1i/%2i", e.count, e.count_maximum));
-				draw::image(x + 37, y - 7, gres(res::SPELLS), spell_data[id].frame, 0);
+				draw::image(x + 37, y - 7, gres(res::SPELLS), id, 0);
 				if(area(rc) == AreaHilitedPressed) {
 					if(hot.key == MouseLeft)
 						draw::execute(remove_power, id);

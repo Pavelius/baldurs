@@ -12,8 +12,8 @@
 
 enum school_s : unsigned char {
 	NoSchool,
-	SchoolAbjuration, SchoolConjuration, SchoolDivination, SchoolEnchantment,
-	SchoolEvocation, SchoolIllusion, SchoolNecromancy, SchoolTransmutation,
+	Abjuration, Conjuration, Divination, Enchantment,
+	Evocation, Illusion, Necromancy, Transmutation,
 };
 enum school_type_s : unsigned char {
 	Calling, Creation, HealingConjuration, Summoning,
@@ -23,47 +23,16 @@ enum school_type_s : unsigned char {
 enum spell_s : unsigned short {
 	NoSpell,
 	// Spells level 1
-	SpellArmorOfFaith, SpellBane, SpellBless, SpellBurningHands,
-	SpellCharmPerson, SpellChillTouch, SpellChromaticOrb, SpellColorSpray, SpellCommand,
-	SpellCureLightWounds, SpellDoom, SpellEagleSSplendor, SpellEntangle, SpellFaerieFire,
-	SpellFrostFingers, SpellGenericAbjuration, SpellGrease, SpellIceDagger, SpellIdentify,
-	SpellInflictLightWounds, SpellLarlochSMinorDrain, SpellMageArmor, SpellMagicMissile, SpellMagicStone,
-	SpellMinorMirrorImage, SpellProtectionFromEvil, SpellProtectionFromPetrification, SpellRemoveFear, SpellSanctuary,
-	SpellShield, SpellShillelagh, SpellShockingGrasp, SpellSleep, SpellSpook,
-	SpellSummonMonsterI, SpellSunscorch,
-	// Spells level 2
-	SpellAganazzarSScorcher, SpellAid, SpellAlicornLance, SpellBarkskin, SpellBeastClaw,
-	SpellBlindness, SpellBlur, SpellBullSStrength, SpellCatSGrace, SpellChant,
-	SpellCharmPersonOrAnimal, SpellCureModerateWounds, SpellDeafness, SpellDeathArmor, SpellDecastave,
-	SpellDelayPoison, SpellDrawUponHolyMight, SpellFindTraps, SpellFlameBlade, SpellGedleeSElectricLoop,
-	SpellGhoulTouch, SpellGoodberry, SpellHoldPerson, SpellHorror, SpellInflictModerateWounds,
-	SpellInvisibility, SpellKnock, SpellLuck, SpellMelfSAcidArrow, SpellMinorElementalBarrier,
-	SpellMirrorImage, SpellMoonMotes, SpellPowerWordSleep, SpellRainstorm, SpellRayOfEnfeeblement,
-	SpellRemoveFatigue, SpellResistFear, SpellSeeInvisibility, SpellSilence, SpellSnillocSSnowballSwarm,
-	SpellSpellShield, SpellSpiritualWeapon, SpellStinkingCloud, SpellSummonCow, SpellSummonMonsterII,
-	SpellTortoiseShell, SpellVocalize, SpellWeb,
-	// Spells level 3
-	SpellAnimateDead, SpellBlink, SpellCallLightning, SpellCircleOfBones, SpellContagion,
-	SpellDireCharm, SpellDispelMagic, SpellExaltation, SpellExplosiveRunes, SpellFireball,
-	SpellFlameArrow, SpellGhostArmor, SpellGlyphOfWarding, SpellHaltUndead, SpellHaste,
-	SpellHoldAnimal, SpellHolySmite, SpellIcelance, SpellInvisibilityPurge, SpellInvisibilitySphere,
-	SpellLanceOfDisruption, SpellLightningBolt, SpellMelfSMinuteMeteors, SpellMiscastMagic, SpellMoldTouch,
-	SpellMoonblade, SpellNegativeEnergyProtection, SpellNondetection, SpellPrayer, SpellProtectionFromArrows,
-	SpellProtectionFromFire, SpellRemoveCurse, SpellRemoveDisease, SpellRemoveParalysis, SpellRigidThinking,
-	SpellSkullTrap, SpellSlow, SpellSpikeGrowth, SpellStormShell, SpellStrengthOfOne,
-	SpellSummonMonsterIII, SpellUnholyBlight, SpellVampiricTouch,
-	// Spells level 4
-	SpellBeltynSBurningBlood, SpellBloodRage, SpellCloakOfFear, SpellCloudOfPestilence, SpellCureSeriousWounds,
-	SpellDeathWard, SpellDefensiveHarmony, SpellDimensionDoor, SpellEmotionDespair, SpellEmotionFear,
-	SpellEmotionHope, SpellEmotionRage, SpellFireShieldBlue, SpellFireShieldRed, SpellFreedomOfMovement,
-	SpellGiantVermin, SpellHolyPower, SpellIceBlade, SpellIceStorm, SpellImprovedInvisibility,
-	SpellInflictSeriousWounds, SpellMagicCircleAgainstEvil, SpellMalison, SpellMentalDomination, SpellMinorGlobeOfInvulnerability,
-	SpellMordenkainenSForceMissiles, SpellNeutralizePoison, SpellOtilukeSResilientSphere, SpellPoison, SpellProduceFire,
-	SpellProtectionFromLightning, SpellRecitation, SpellRestoration, SpellShadowConjuration, SpellShout,
-	SpellSpiderSpawn, SpellSpiritArmor, SpellStarMetalCudgel, SpellStoneskin, SpellSummonMonsterIV,
-	SpellSummonNatureSAllyI, SpellSummonNatureSAllyII, SpellSummonNatureSAllyIII, SpellSummonNatureSAllyIV, SpellThornSpray,
-	SpellVitriolicSphere, SpellWallOfFire, SpellWallOfMoonlight,
-	FirstSpell = SpellArmorOfFaith, LastSpell = SpellWallOfMoonlight,
+	ArmorOfFaith, Bane, Bless, Command,
+	CureLightWounds, Doom, Entangle, FaerieFire, FlameStrike,
+	FrostFingers, GlyphOfWarding, HoldPerson, InflictLightWounds, MagicStone,
+	ProtectionFromEvil, RemoveFear, RemoveParalysis, Sanctuary, Shillelagh,
+	Sunscorch, Antichickenator, BurningHands, CharmPerson, ChillTouch,
+	ChromaticOrb, ColorSpray, DispelMagic, EagleSSplendor, GenericAbjuration,
+	Grease, IceDagger, Identify, LarlochSMinorDrain, MageArmor,
+	MagicMissile, MinorMirrorImage, ProtectionFromPetrification, Shield, ShockingGrasp,
+	Sleep, Spook, SummonMonsterI,
+	FirstSpell = ArmorOfFaith, LastSpell = SummonMonsterI,
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
@@ -459,11 +428,20 @@ private:
 	};
 };
 struct spell_info {
+	struct duration_info {
+		unsigned char	levels;
+		unsigned char	rounds;
+	};
 	const char*			id;
 	const char*			name;
+	char				rsname[10];
 	school_s			school;
-	int					frame;
 	aset<char, LastClass+1, class_s> levels;
+	duration_info		duration;
+};
+struct school_info {
+	const char*			id;
+	const char*			name;
 };
 struct portrait_info {
 	const char*			name;
@@ -824,6 +802,7 @@ extern portrait_info			portrait_data[];
 extern race_info				race_data[];
 extern adat<region, 256>		region_data;
 extern setting					settings;
+extern school_info				school_data[];
 extern skill_info				skill_data[];
 extern spell_info				spell_data[];
 extern adat<point, 256 * 256>	verticles;
