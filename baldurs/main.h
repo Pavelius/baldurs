@@ -326,7 +326,7 @@ struct drawable {
 	virtual rect		getrect() const = 0;
 	virtual int			getzorder() const { return 100; }// Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
 	virtual bool		hittest(point position) const { return false; }
-	virtual bool		isvisible() const { return false; }
+	virtual bool		isvisible() const { return true; }
 	virtual bool		isvisibleactive() const { return false; } // Drawable visible only when active.
 	virtual void		painting(point position) const = 0; // How to paint drawable.
 	virtual void		update() {}
@@ -353,12 +353,13 @@ struct scrollbutton : runable, scrolltext {
 	virtual void		row(rect rc, int n) = 0;
 };
 struct cursorset {
-	cursorset(res::tokens r = res::CURSORS, int f = 267);
+	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
 	~cursorset();
-	void				set(res::tokens r = res::CURSORS, int f = 267);
+	static void			set(res::tokens rid = res::CURSORS, int frame = 267, bool single = false);
 private:
-	res::tokens			r;
-	int					f;
+	res::tokens			rid;
+	int					frame;
+	bool				single;
 };
 struct coloration {
 	unsigned char		skin;
@@ -524,7 +525,8 @@ struct region : selectable {
 	rect				getrect() const override { return box; }
 	int					getcursor() const override;
 	aref<point>			getpoints() const override { return points; }
-
+	virtual bool		isvisible() const { return type!=RegionTriger; }
+	void				painting(point screen) const {}
 };
 struct container : selectable {
 	int					type;
@@ -743,7 +745,7 @@ private:
 	unsigned			spells_known[LastSpell / 32 + 1];
 	item				wears[LastQuickItem + 1];
 	unsigned char		active_weapon;
-	unsigned char		portrait;
+	unsigned short		portrait;
 	unsigned char		sorcerers_used_powers[9];
 	adat<preparation, 24> powers;
 	unsigned			experience;

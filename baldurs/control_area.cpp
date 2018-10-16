@@ -194,6 +194,8 @@ static void correct_camera(const rect& rc, point& camera) {
 static void add(const rect& srceen, drawablet& source, drawable& e) {
 	if(!e.getrect().intersect(srceen))
 		return;
+	if(!e.isvisible())
+		return;
 	source.add(&e);
 }
 
@@ -263,8 +265,7 @@ static drawable* render_area(rect rc, const point origin, const point hotspot) {
 			if(p->isvisibleactive()) {
 				if(p != result)
 					continue;
-			} else if(!p->isvisible())
-				continue;
+			}
 			*pp++ = p;
 		}
 		drawables.count = pp - drawables.data;
@@ -410,16 +411,11 @@ void creature::adventure() {
 		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
 		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
 		auto current = render_area(rcs, origin, hotspot);
-		if(region_data.consist(current)) {
-			auto p = static_cast<region*>(current);
-			if(p->type == RegionTriger)
-				current = 0;
-		}
 		if(settings.show_search)
 			render_search(rcs, camera.x - rcs.width() / 2, camera.y - rcs.height() / 2);
 		if(current) {
 			if(container_data.consist(current))
-				cur.set(res::CURSORS, 2);
+				cur.set(res::CURSORS, 2, true);
 			else
 				cur.set(res::CURSORS, current->getcursor());
 		}

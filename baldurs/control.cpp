@@ -199,17 +199,18 @@ void draw::view(rect rc, scrollbutton& e) {
 	}
 }
 
-cursorset::cursorset(res::tokens r, int f) : r(cursor_sprite), f(cursor_frame) {
-	set(r, f);
+cursorset::cursorset(res::tokens rid, int frame, bool single) : rid(cursor_sprite), frame(cursor_frame), single(cursor_single) {
+	set(rid, frame, single);
 }
 
 cursorset::~cursorset() {
-	set(r, f);
+	set(rid, frame, single);
 }
 
-void cursorset::set(res::tokens r, int f) {
-	cursor_sprite = r;
-	cursor_frame = f;
+void cursorset::set(res::tokens rid, int frame, bool single) {
+	cursor_sprite = rid;
+	cursor_frame = frame;
+	cursor_single = single;
 }
 
 void draw::execute(void(*proc)(), int param) {
@@ -254,7 +255,7 @@ static void after_render() {
 	auto press_frame = cursor_frame + 1;
 	if(cursor_single)
 		press_frame = cursor_frame;
-	draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite), hot.pressed ? cursor_frame : press_frame, 0);
+	draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite), hot.pressed ? press_frame : cursor_frame, 0);
 }
 
 bool draw::ismodal() {
