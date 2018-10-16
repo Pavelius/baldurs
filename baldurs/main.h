@@ -371,7 +371,7 @@ struct coloration {
 	//
 	explicit operator bool() const { return skin == hair == minor == major == 0; }
 	constexpr coloration() : skin(0), hair(0), minor(0), major(0), armor(28), metal(30), leather(23) {}
-	void				set(unsigned char skin, unsigned char hair, unsigned char minor, unsigned char major);
+	void				set(short unsigned portrait);
 	void				upload(color* col) const;
 };
 struct door_tile {
@@ -475,6 +475,7 @@ struct portrait_info {
 	class_s				perks[8];
 	bool				is(gender_s id) const;
 	bool				is(race_s id) const;
+	bool				is(class_s id) const;
 	static aref<portrait_info> getelements();
 };
 struct race_info {
@@ -602,6 +603,8 @@ struct actor : drawable {
 	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animation_s animation = AnimateStand, int orientation = 2, item armor = NoItem, item weapon = NoItem, item offhand = NoItem, item helm = NoItem);
 	void				pickcolors(const point skin, const point hair, const point major, const point minor);
 	static void			pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
+	short unsigned		random_portrait() const;
+	static short unsigned random_portrait(gender_s gender, race_s race, class_s type);
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
 	void				set(animation_s value);

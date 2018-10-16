@@ -66,6 +66,7 @@ static bool			keep_hot;
 static hotinfo		keep_hot_value;
 static res::tokens	cursor_sprite = res::CURSORS;
 static int			cursor_frame = 0;
+static int			cursor_single = false;
 static bool			break_modal;
 static int			break_result;
 
@@ -250,8 +251,10 @@ static void before_render() {
 }
 
 static void after_render() {
-	draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite),
-		cursor_frame + (hot.pressed ? 1 : 0), 0);
+	auto press_frame = cursor_frame + 1;
+	if(cursor_single)
+		press_frame = cursor_frame;
+	draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite), hot.pressed ? cursor_frame : press_frame, 0);
 }
 
 bool draw::ismodal() {

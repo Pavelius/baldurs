@@ -195,11 +195,7 @@ static int choose_portrait(const char* title, const char* step_title, gender_s g
 //}
 
 void actor::choose_apearance(const char* title, const char* step_title) {
-	coloration ch;
-	ch.major = portrait_data[getportrait()].major;
-	ch.minor = portrait_data[getportrait()].minor;
-	ch.skin = portrait_data[getportrait()].skin;
-	ch.hair = portrait_data[getportrait()].hair;
+	coloration ch; ch.set(getportrait());
 	while(ismodal()) {
 		background(res::GUICGB, 0);
 		draw::image(23, 151, res::PORTL, getportrait());

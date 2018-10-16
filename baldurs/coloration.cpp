@@ -1,12 +1,5 @@
 #include "main.h"
 
-void coloration::set(unsigned char skin, unsigned char hair, unsigned char minor, unsigned char major) {
-	this->skin = skin;
-	this->hair = hair;
-	this->minor = minor;
-	this->major = major;
-}
-
 void coloration::upload(color* col) const {
 	draw::set(col, metal, 0x04);//metal
 	draw::set(col, minor, 0x10);//minor

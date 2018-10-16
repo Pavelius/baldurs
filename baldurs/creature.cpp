@@ -137,10 +137,9 @@ void creature::apply(class_s id) {
 		set(e);
 	for(auto e : class_data[id].armor_proficiency)
 		set(e);
-	if(getcharlevel() == 1) {
-		portrait = xrand(1, 10);
+	if(getcharlevel() == 1)
 		hits_rolled = class_data[id].hd;
-	} else
+	else
 		hits_rolled += xrand(1, class_data[id].hd);
 }
 
@@ -251,7 +250,7 @@ void creature::add(stringbuilder& sb, variant value) const {
 	if(!value.number)
 		return;
 	if(sb)
-		sb.add("\n:::");
+		sb.add("\n");
 	if(value.type != Alignment) {
 		sb.add(getstr(value.type));
 		sb.add(": ");
@@ -414,6 +413,7 @@ void creature::create(class_s type, race_s race, gender_s gender) {
 	apply(type, 1, false);
 	apply(race, 1, false);
 	update_levels();
+	portrait = random_portrait();
 	update_portrait();
 	random_name();
 }

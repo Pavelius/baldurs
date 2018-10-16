@@ -333,12 +333,8 @@ void actor::update_animation() {
 
 void actor::update_portrait() {
 	auto i = getportrait();
-	if(i) {
-		colors.major = portrait_data[i].major;
-		colors.minor = portrait_data[i].minor;
-		colors.skin = portrait_data[i].skin;
-		colors.hair = portrait_data[i].hair;
-	}
+	if(i)
+		colors.set(i);
 }
 
 bool actor::hittest(point pt) const {

@@ -94,56 +94,57 @@ bool portrait_info::is(race_s id) const {
 	return false;
 }
 
+bool portrait_info::is(class_s id) const {
+	for(auto e : races) {
+		if(id == e)
+			return true;
+	}
+	return false;
+}
+
 bool portrait_info::is(gender_s id) const {
 	return gender==id;
 }
 
-aref<portrait_info> portrait_info::getelements() {
-	return aref<portrait_info>(portrait_data);
+void coloration::set(short unsigned portrait) {
+	major = portrait_data[portrait].major;
+	minor = portrait_data[portrait].minor;
+	skin = portrait_data[portrait].skin;
+	hair = portrait_data[portrait].hair;
 }
 
-//static int get_random_portrait_by_perk(int gender, int race, int cls) {
-//	const auto maximum = sizeof(portrait_data) / sizeof(portrait_data[0]);
-//	int data[maximum + 2];
-//	int* p = data;
-//	for(int rec = 0; rec <= maximum; rec++) {
-//		portrait& e = portrait_data[rec];
-//		if(e.gender != gender)
-//			continue;
-//		if(race && !has(e, race))
-//			continue;
-//		if(cls && !has(e, cls))
-//			continue;
-//		*p++ = rec;
-//	}
-//	*p = 0;
-//	if(p == data)
-//		return 0;
-//	return data[rand() % (p - data)];
-//}
-//
-//int game::generate::portrait(int gender, int race, int cls) {
-//	int result = 0;
-//	result = get_random_portrait_by_perk(gender, race, cls);
-//	if(result)
-//		return result;
-//	result = get_random_portrait_by_perk(gender, race, 0);
-//	if(result)
-//		return result;
-//	return get_random_portrait_by_perk(gender, 0, 0);
-//}
+aref<portrait_info> portrait_info::getelements() {
+	return portrait_data;
+}
 
-//unsigned char* valid_colors(int type) {
-//	static unsigned char hair[] = {6, 0, 2, 1, 4, 111, 80, 3, 81, 7, 82, 79, 0xFF};
-//	static unsigned char hair_wood[] = {1, 2, 4, 7, 112, 114, 0xFF};
-//	static unsigned char hair_dark[] = {79, 110, 5, 3, 0, 0xFF};
-//	static unsigned char skin[] = {107, 8, 114, 9, 10, 85, 84, 12, 16, 15, 17, 108, 106, 113, 14, 13, 105, 83, 0xFF};
-//	static unsigned char major[] = {41, 39, 38, 47, 54, 66, 51, 40, 100, 49, 58, 60, 22, 46, 63, 94, 107, 50, 62, 37, 65, 0xFF};
-//	static unsigned char minor[] = {65, 27, 49, 60, 66, 26, 41, 37, 58, 14, 46, 98, 53, 48, 24, 56, 40, 54, 103, 25, 102, 91, 47, 63, 51, 45, 38, 39, 0xFF};
-//	switch(type) {
-//	case ColorSkin: return skin;
-//	case ColorHair: return hair;
-//	case ColorMajor: return major;
-//	default: return minor;
-//	}
-//}
+short unsigned actor::random_portrait(gender_s gender, race_s race, class_s type) {
+	const auto maximum = sizeof(portrait_data) / sizeof(portrait_data[0]);
+	short unsigned data[maximum + 1];
+	auto pb = data;
+	for(short unsigned i = 0; i < maximum; i++) {
+		auto& e = portrait_data[i];
+		if(e.gender != gender)
+			continue;
+		if(race && !e.is(race))
+			continue;
+		if(type && !e.is(type))
+			continue;
+		*pb++ = i;
+	}
+	if(pb == data)
+		return 0;
+	return data[rand() % (pb - data)];
+}
+
+short unsigned actor::random_portrait() const {
+	auto race = getrace();
+	auto gender = getgender();
+	auto type = getclass();
+	auto result = random_portrait(gender, race, type);
+	if(result)
+		return result;
+	result = random_portrait(gender, race, Commoner);
+	if(result)
+		return result;
+	return random_portrait(gender, NoRace, Commoner);
+}
