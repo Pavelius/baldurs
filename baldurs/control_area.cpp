@@ -410,8 +410,12 @@ void creature::adventure() {
 		auto current = render_area(rcs, origin, hotspot);
 		if(settings.show_search)
 			render_search(rcs, camera.x - rcs.width() / 2, camera.y - rcs.height() / 2);
-		if(current)
-			cur.set(res::CURSORS, current->getcursor());
+		if(current) {
+			if(container_data.consist(current))
+				cur.set(res::CURSORS, 2);
+			else
+				cur.set(res::CURSORS, current->getcursor());
+		}
 		else if(hot.mouse.in(rcs)) {
 			auto index = map::getindex(hotspot);
 			if(map::isblock(index))
@@ -442,6 +446,7 @@ void creature::adventure() {
 					}
 				} else if(container_data.consist(current)) {
 					auto p = static_cast<container*>(current);
+
 				} else if(door_data.consist(current)) {
 					auto p = static_cast<door*>(current);
 					if(!hot.pressed)

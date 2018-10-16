@@ -66,11 +66,11 @@ static bool			keep_hot;
 static hotinfo		keep_hot_value;
 static res::tokens	cursor_sprite = res::CURSORS;
 static int			cursor_frame = 0;
+static bool			break_modal;
+static int			break_result;
 
 void draw::initialize() {
 	// Initilaize all plugins
-	for(auto p = plugin::first; p; p = p->next)
-		p->initialize();
 	pallette.read("data/core/MPALETTE.bmp", 0, 32);
 	draw::create(-1, -1, 800, 600, 0, 32);
 	draw::setcaption("Балдурс Гейт");
@@ -211,31 +211,6 @@ void cursorset::set(res::tokens r, int f) {
 	cursor_frame = f;
 }
 
-static struct input_plugin : draw::plugin {
-
-	void before() override {
-		current_command = 0;
-		current_execute = 0;
-	}
-
-	void after() override {
-		draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite),
-			cursor_frame + (hot.pressed ? 1 : 0), 0);
-	}
-
-	bool translate(int id) override {
-		switch(id) {
-		case 0:
-			exit(0);
-			break;
-		default:
-			return false;
-		}
-		return true;
-	}
-
-} plugin_instance;
-
 void draw::execute(void(*proc)(), int param) {
 	current_execute = proc;
 	hot.param = param;
@@ -247,20 +222,53 @@ void draw::execute(const hotinfo& value) {
 	keep_hot_value = value;
 }
 
+int draw::getresult() {
+	return break_result;
+}
+
+void draw::breakmodal(int result) {
+	break_modal = true;
+	break_result = result;
+}
+
+void draw::buttoncancel() {
+	breakmodal(0);
+}
+
+void draw::buttonok() {
+	breakmodal(1);
+}
+
 static void update_timestamp() {
 	auto previous = timestamp;
 	timestamp = clock();
+}
+
+static void before_render() {
+	current_command = 0;
+	current_execute = 0;
+}
+
+static void after_render() {
+	draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite),
+		cursor_frame + (hot.pressed ? 1 : 0), 0);
+}
+
+bool draw::ismodal() {
+	before_render();
+	if(!break_modal)
+		return true;
+	break_modal = false;
+	return false;
 }
 
 void draw::domodal() {
 	update_timestamp();
 	if(current_execute) {
 		auto proc = current_execute;
-		for(auto p = plugin::first; p; p = p->next)
-			p->before();
+		before_render();
 		proc();
-		for(auto p = plugin::first; p; p = p->next)
-			p->before();
+		before_render();
 		hot.key = InputUpdate;
 		return;
 	}
@@ -268,13 +276,10 @@ void draw::domodal() {
 		keep_hot = false;
 		hot = keep_hot_value;
 	} else {
-		for(auto p = plugin::first; p; p = p->next)
-			p->after();
+		after_render();
 		hot.key = draw::rawinput();
 	}
 	update_timestamp();
-	for(auto p = plugin::first; p; p = p->next) {
-		if(p->translate(hot.key))
-			break;
-	}
+	if(!hot.key)
+		exit(0);
 }

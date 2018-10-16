@@ -40,11 +40,8 @@ char				draw::link[4096];
 hotinfo				draw::hot;
 // Locale draw variables
 static draw::surface default_surface;
-draw::plugin*	draw::plugin::first;
 draw::surface*		draw::canvas = &default_surface;
 const bool			line_antialiasing = true;
-static bool			break_modal;
-static int			break_result;
 // Drag
 static int			drag_id;
 static drag_part_s	drag_part;
@@ -438,7 +435,6 @@ static void rle32m(unsigned char* p1, int d1, unsigned char* s, int h, const uns
 }
 
 static void rle832(unsigned char* p1, int d1, unsigned char* s, int h, const unsigned char* s1, const unsigned char* s2, unsigned char alpha, const color* pallette) {
-	const int cbs = 3;
 	const int cbd = 32 / 8;
 	unsigned char* d = p1;
 	if(!alpha)
@@ -706,6 +702,98 @@ static unsigned char* skip_v3(unsigned char* s, int h) {
 		} else if(c == 0xA0)
 			s++;
 	}
+	//unsigned char* d = p1;
+	//if(!alpha)
+	//	return;
+	//while(true) {
+	//	unsigned char c = *s++;
+	//	if(c == 0) {
+	//		p1 += d1;
+	//		s1 += d1;
+	//		s2 += d1;
+	//		if(--h == 0)
+	//			break;
+	//		d = p1;
+	//	} else if(c <= 0x9F) {
+	//		unsigned char ap = alpha, cb;
+	//		bool need_correct_s = false;
+	//		// count
+	//		if(c <= 0x7F) {
+	//			need_correct_s = true;
+	//			cb = c;
+	//		} else if(c == 0x80) {
+	//			cb = *s++;
+	//			ap >>= 1;
+	//		} else {
+	//			cb = c - 0x80;
+	//			ap >>= 1;
+	//		}
+	//		// clip left invisible part
+	//		if(d + cb * cbd <= s1 || d > s2) {
+	//			d += cb * cbd;
+	//			if(need_correct_s)
+	//				s += cb;
+	//			continue;
+	//		} else if(d < s1) {
+	//			unsigned char sk = (s1 - d) / cbd;
+	//			d += sk * cbd;
+	//			if(need_correct_s)
+	//				s += sk;
+	//			cb -= sk;
+	//		}
+	//		// visible part
+	//		if(ap == alpha) {
+	//			if(ap == 0xFF) {
+	//				do {
+	//					if(d >= s2)
+	//						break;
+	//					*((color*)d) = pallette[*s++];
+	//					d += cbd;
+	//				} while(--cb);
+	//			} else {
+	//				do {
+	//					if(d >= s2)
+	//						break;
+	//					unsigned char* s1 = (unsigned char*)&pallette[*s++];
+	//					d[0] = (((int)d[0] * (255 - ap)) + ((s1[0])*(ap))) >> 8;
+	//					d[1] = (((int)d[1] * (255 - ap)) + ((s1[1])*(ap))) >> 8;
+	//					d[2] = (((int)d[2] * (255 - ap)) + ((s1[2])*(ap))) >> 8;
+	//					d += cbd;
+	//				} while(--cb);
+	//			}
+	//		} else if(ap == 0x7F) {
+	//			do {
+	//				if(d >= s2)
+	//					break;
+	//				d[0] >>= 1;
+	//				d[1] >>= 1;
+	//				d[2] >>= 1;
+	//				d += cbd;
+	//			} while(--cb);
+	//		} else {
+	//			ap = 255 - ap;
+	//			do {
+	//				if(d >= s2)
+	//					break;
+	//				d[0] = (((int)d[0] * ap)) >> 8;
+	//				d[1] = (((int)d[1] * ap)) >> 8;
+	//				d[2] = (((int)d[2] * ap)) >> 8;
+	//				d += cbd;
+	//			} while(--cb);
+	//		}
+	//		// right clip part
+	//		if(cb) {
+	//			if(need_correct_s)
+	//				s += cb;
+	//			d += cb * cbd;
+	//		}
+	//	} else {
+	//		if(c == 0xA0)
+	//			d += (*s++)*cbd;
+	//		else
+	//			d += (c - 0xA0)*cbd;
+	//	}
+	//}
 }
 
 static unsigned char* skip_rle32(unsigned char* s, int h) {
@@ -2076,48 +2164,10 @@ void surface::convert(int new_bpp, color* pallette) {
 	bpp = iabs(new_bpp);
 }
 
-plugin::plugin(int priority) : next(0), priority(priority) {
-	if(!first)
-		first = this;
-	else {
-		auto p = first;
-		while(p->next && p->next->priority < priority)
-			p = p->next;
-		this->next = p->next;
-		p->next = this;
-	}
-}
-
-bool draw::ismodal() {
-	for(auto p = plugin::first; p; p = p->next)
-		p->before();
-	if(!break_modal)
-		return true;
-	break_modal = false;
-	return false;
-}
-
-void draw::breakmodal(int result) {
-	break_modal = true;
-	break_result = result;
-}
-
-void draw::buttoncancel() {
-	breakmodal(0);
-}
-
-void draw::buttonok() {
-	breakmodal(1);
-}
-
 void draw::buttonparam() {
 	auto h = hot;
 	h.key = h.param;
 	h.param = 0;
 	h.pressed = false;
 	execute(h);
-}
-
-int draw::getresult() {
-	return break_result;
 }
