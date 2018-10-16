@@ -779,7 +779,6 @@ int						dlgcho(const char* text, const char* a1, unsigned f1, const char* a2, u
 void					dlgmsg(const char* text);
 void					ellipse(const rect& rc, color c);
 int						field(rect rc, char* result, unsigned maximum);
-drawable*				gamearea(rect rc, const point camera);
 unsigned				getframe();
 unsigned				getframe(int fps);
 inline void				image(int x, int y, res::tokens token, int id, int flags = 0, unsigned char alpha = 0xFF) { draw::image(x, y, gres(token), id, flags, alpha); }
