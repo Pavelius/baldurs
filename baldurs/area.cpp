@@ -32,6 +32,25 @@ static const unsigned char orientations_7b7[49] = {
 	2, 1, 1, 0, 15, 15, 14,
 };
 
+int map::getday(unsigned value) {
+	return value / (24 * 60);
+}
+
+int map::gethour(unsigned value) {
+	return (value / 60) % 24;
+}
+
+const char* map::getpassedtime(char* result, const char* result_maximum, unsigned value) {
+	result[0] = 0;
+	int h = gethour(value);
+	int d = getday(value);
+	if(d)
+		szprints(szsep(result), result_maximum, "%1i %2", d, (d == 1) ? "day" : "days");
+	if(h)
+		szprints(szsep(result), result_maximum, "%1i %2", h, (h == 1) ? "hour" : "hours");
+	return result;
+}
+
 unsigned char* map::ptr(const char* name) {
 	if(strcmp(name, "LM") == 0)
 		return lightmap;

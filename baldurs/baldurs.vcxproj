@@ -156,9 +156,6 @@
     <ClCompile Include="feats.cpp" />
     <ClCompile Include="feature.cpp" />
     <ClCompile Include="floattext.cpp" />
-    <ClCompile Include="game.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="gender.cpp" />
     <ClCompile Include="control_invertory.cpp" />
     <ClCompile Include="io.cpp" />

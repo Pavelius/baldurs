@@ -85,9 +85,6 @@
     <ClCompile Include="area.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="game.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="mslog.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
