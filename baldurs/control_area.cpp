@@ -224,8 +224,6 @@ drawable* draw::gamearea(rect rc, const point camera) {
 	screen.y2 = screen.y1 + rc.height();
 	// Нарисуем тайлы
 	render_tiles(rc, screen.x1, screen.y1);
-	if(settings.show_search)
-		render_search(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
 	for(auto& e : players) {
 		if(e)
@@ -407,13 +405,15 @@ void creature::adventure() {
 			render_panel(rcs);
 		correct_camera(rcs, camera);
 		auto current = gamearea(rcs, camera);
+		if(settings.show_search)
+			render_search(rcs, camera.x - rcs.width() / 2, camera.y - rcs.height()/2);
 		if(current)
 			cur.set(res::CURSORS, current->getcursor());
 		else if(hot.mouse.in(rcs)) {
-			point mouse;
-			mouse.x = hot.mouse.x - rcs.x1 + camera.x;
-			mouse.y = hot.mouse.y - rcs.y1 + camera.y;
-			auto index = map::getindex(mouse);
+			point hotspot;
+			hotspot.x = camera.x - rcs.width() / 2 + (hot.mouse.x - rcs.x1);
+			hotspot.y = camera.y - rcs.height() / 2 + (hot.mouse.y - rcs.y1);
+			auto index = map::getindex(hotspot);
 			if(map::isblock(index))
 				cur.set(res::CURSORS, 6);
 			else

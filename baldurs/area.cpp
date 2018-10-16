@@ -2,6 +2,7 @@
 
 enum map_states {
 	StateBlocked = 0x80,
+	StateExplored = 0x40
 };
 
 static unsigned char	max_height;
