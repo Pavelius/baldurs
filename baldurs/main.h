@@ -265,6 +265,12 @@ enum button_states {
 enum save_s : unsigned char {
 	Fortitude, Reflexes, Will,
 };
+enum tile_s : unsigned char {
+	ObstacleImpassableBlack, Sand, WoodGreen, WoodBrown,
+	StoneDry, Grass, WaterTurquose, Stone,
+	ObstacleImpassableGrey, WoorRed, Wall, WaterYellow,
+	WaterImpassable, RoofImpassable, WorldExit, GrassHardMove,
+};
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name,
@@ -554,6 +560,7 @@ struct setting {
 		PanelFull, PanelActions, NoPanel
 	};
 	mode_s				panel;
+	bool				show_search;
 };
 struct actor : drawable {
 	//
@@ -749,6 +756,7 @@ entrance*				find(const char* id);
 const sprite*			getareasprite();
 point					getentrance(const char* name, unsigned char* orient = 0);
 point					getfree(point position, int size);
+unsigned short			getindex(point position);
 unsigned short			getindex(point position, int size);
 const sprite*			getminimap();
 unsigned char			getorientation(point s, point d);

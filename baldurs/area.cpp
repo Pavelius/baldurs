@@ -86,6 +86,10 @@ unsigned char map::getorientation(point s, point d) {
 	return orientations_5b5[(ay + (osize / 2))*osize + ax + (osize / 2)];
 }
 
+unsigned short map::getindex(point pos) {
+	return (pos.y / 12) * 256 + pos.x / 16;
+}
+
 unsigned short map::getindex(point pos, int size) {
 	return (pos.y / 12) * 256 + pos.x / 16;
 }
@@ -119,10 +123,6 @@ static const char* gmurl(char* temp, const char* name, const char* ext = "ard") 
 		zcat(temp, ext);
 	}
 	return temp;
-}
-
-unsigned char get_map_state(int index) {
-	return statemap[index];
 }
 
 static void archive_bitmap(archive& e, unsigned char* output, int output_bpp, int scan_line, int width, int height, color* pal) {
@@ -236,10 +236,6 @@ const sprite* map::getminimap() {
 
 const sprite* map::getareasprite() {
 	return sprites;
-}
-
-void set_area_tile(int index, int tile) {
-	tilemap[index] = tile;
 }
 
 int map::gettile(short unsigned index) {

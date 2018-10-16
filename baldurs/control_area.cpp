@@ -33,7 +33,7 @@ static void choose_menu(void (creature::*proc)()) {
 	}
 }
 
-static void choose_menu(void (*proc)()) {
+static void choose_menu(void(*proc)()) {
 	if(isnext(proc))
 		adventure_step();
 	else
@@ -53,9 +53,10 @@ static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
+static void layer_search() { settings.show_search = !settings.show_search; }
 
 static void change_mode() {
-	settings.panel = (setting::mode_s)(settings.panel+1);
+	settings.panel = (setting::mode_s)(settings.panel + 1);
 	if(settings.panel > setting::NoPanel)
 		settings.panel = setting::PanelFull;
 }
@@ -70,6 +71,7 @@ static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
 static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвентаря"},
 {character_sheet, Alpha + 'C', "Листок персонажа"},
 {character_spellbook, Alpha + 'S', "Заклинания персонажа"},
+{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {adventure_step, KeyEscape, "Вернуться в режим приключений"},
@@ -151,6 +153,27 @@ static void render_tiles(rect rc, int mx, int my) {
 	}
 }
 
+static void render_search(const rect& rc, int mx, int my) {
+	auto x2 = rc.x1 + imin(mx + rc.width(), map::width * 16);
+	auto y2 = rc.y1 + imin(my + rc.height(), map::height * 12);
+	auto y1 = rc.y1 + my;
+	while(y1 < y2) {
+		int x1 = rc.x1 + mx;
+		while(x1 < x2) {
+			short px = x1 - rc.x1;
+			short py = y1 - rc.y1;
+			auto index = map::getindex({px, py});
+			if(map::isblock(index)) {
+				auto x = x1 - mx + rc.x1;
+				auto y = y1 - my + rc.y1;
+				rectf({x + 1, y + 1, x + 15, y + 11}, colors::black, 0x80);
+			}
+			x1 += 16;
+		}
+		y1 += 12;
+	}
+}
+
 static void correct_camera(const rect& rc, point& camera) {
 	camera_size.x = rc.width();
 	camera_size.y = rc.height();
@@ -201,6 +224,8 @@ drawable* draw::gamearea(rect rc, const point camera) {
 	screen.y2 = screen.y1 + rc.height();
 	// Нарисуем тайлы
 	render_tiles(rc, screen.x1, screen.y1);
+	if(settings.show_search)
+		render_search(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
 	for(auto& e : players) {
 		if(e)
@@ -328,7 +353,7 @@ static void render_panel(rect& rcs, bool show_actions = true) {
 	auto y = rcs.y2 - 60;
 	draw::image(x, y, res::GACTN, show_actions ? 0 : 1);
 	if(show_actions) {
-		auto x1 = x + 6,  y1 = y + 12;
+		auto x1 = x + 6, y1 = y + 12;
 		for(auto e : actions)
 			x1 += act(x1, y1, cmpr(choose_action, e), e, current_action);
 		for(auto e : formations)
@@ -376,7 +401,7 @@ void creature::adventure() {
 		rect rcs = {0, 0, getwidth(), getheight()};
 		cur.set(res::CURSORS);
 		create_shifer(rcs, shifter, camera);
-		if(settings.panel==setting::PanelFull)
+		if(settings.panel == setting::PanelFull)
 			render_footer(rcs);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs);
@@ -384,6 +409,16 @@ void creature::adventure() {
 		auto current = gamearea(rcs, camera);
 		if(current)
 			cur.set(res::CURSORS, current->getcursor());
+		else if(hot.mouse.in(rcs)) {
+			point mouse;
+			mouse.x = hot.mouse.x - rcs.x1 + camera.x;
+			mouse.y = hot.mouse.y - rcs.y1 + camera.y;
+			auto index = map::getindex(mouse);
+			if(map::isblock(index))
+				cur.set(res::CURSORS, 6);
+			else
+				cur.set(res::CURSORS, 4);
+		}
 		render_shifter(shifter, cur);
 		domodal();
 		translate(movement_keys);

@@ -190,8 +190,12 @@
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="tokens.cpp" />
-    <ClCompile Include="main_util.cpp" />
-    <ClCompile Include="spells_index_util.cpp" />
+    <ClCompile Include="main_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="spells_index_util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="control.cpp" />
     <ClCompile Include="win_draw.cpp" />
