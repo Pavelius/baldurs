@@ -10,6 +10,6 @@
     <font input="Arial" height="19"/>
   </library>
   <library output="...\h3">
-    <font input="Arial" height="17"/>
+    <font input="Arial" height="16"/>
   </library>
 </convert>

@@ -544,8 +544,12 @@ aref<variant> creature::select(const aref<variant>& source, const variant v1, co
 }
 
 bool creature::choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive) {
-	apply(getrace(), add_ability);
-	apply(getclass());
+	auto type = getclass();
+	auto race = getrace();
+	apply(race, add_ability);
+	apply(type);
+	apply(race, 1, interactive);
+	apply(type, 1, interactive);
 	auto feat_points = 1;
 	feat_points += race_data[race].quick_learn;
 	if(!choose_feats(title, "Выбор особенностей",

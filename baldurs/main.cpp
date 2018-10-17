@@ -83,7 +83,7 @@ static void test_character() {
 int main(int argc, char* argv[]) {
 	srand(clock());
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif
 	draw::initialize();
 	if(!draw::pallette)
