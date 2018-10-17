@@ -220,6 +220,9 @@
     <ClCompile Include="school.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="control_journal.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

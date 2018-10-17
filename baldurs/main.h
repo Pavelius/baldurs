@@ -176,7 +176,7 @@ enum tokens {
 	NONE,
 	CURSORS, CURSARW, COLGRAD, COLOR,
 	GACTN,
-	GBTNBFRM, GBTNLRG, GBTNMED, GBTNMED2, GBTNMINS, GBTNPLUS, GBTNOPT1, GBTNOPT2,
+	GBTNBFRM, GBTNJBTN, GBTNLRG, GBTNMED, GBTNMED2, GBTNMINS, GBTNPLUS, GBTNOPT1, GBTNOPT2,
 	GBTNSPB1, GBTNSPB2, GBTNSPB3,
 	GBTNPOR, GUIMAP, GUIMAPWC, GUIREC, GBTNRECB, GBTNSCRL, GBTNSTD,
 	GCOMM, GCOMMBTN,
@@ -692,6 +692,7 @@ struct creature : actor {
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
 	void				invertory();
 	void				invertory(itemdrag* pd);
+	static void			journal();
 	static void			minimap();
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }

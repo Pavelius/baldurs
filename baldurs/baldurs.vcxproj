@@ -130,6 +130,7 @@
     <ClCompile Include="bstream.cpp" />
     <ClCompile Include="control_dialog.cpp" />
     <ClCompile Include="control_help.cpp" />
+    <ClCompile Include="control_journal.cpp" />
     <ClCompile Include="control_scroll.cpp" />
     <ClCompile Include="control_setting.cpp" />
     <ClCompile Include="control_sheet.cpp" />

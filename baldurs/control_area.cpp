@@ -53,6 +53,7 @@ static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
+static void game_journal() { choose_menu(creature::journal); }
 static void layer_search() { settings.show_search = !settings.show_search; }
 
 static void change_mode() {
@@ -74,6 +75,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
+{game_journal, Alpha + 'J', "Журнал заданий"},
 {adventure_step, KeyEscape, "Вернуться в режим приключений"},
 {}};
 
@@ -372,7 +374,7 @@ static void render_footer(rect& rcs) {
 	button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);
 	button(668, 514, cmpr(character_spellbook), 0, res::GCOMMBTN, 0, 8, 9, 0, 0, 0, 0, 0);
 	button(600, 550, cmpr(game_minimap), 0, res::GCOMMBTN, 0, 14, 15, 0, 0, 0, 0, 0);
-	button(628, 553, cmpr(nothing), 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0);
+	button(628, 553, cmpr(game_journal), 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0);
 	button(670, 550, cmpr(game_option), 0, res::GCOMMBTN, 0, 10, 11, 0, 0, 0, 0, 0);
 	button(703, 495, cmpr(nothing), 0, res::GCOMMBTN, 0, 2, 3, 0, 0, 0, 0, 0);
 	button(757, 494, cmpr(nothing), 0, res::GCOMMBTN, 19, 18, 18, 0, 0, 0, 0, 0);
