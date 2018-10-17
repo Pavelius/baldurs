@@ -523,3 +523,30 @@ const item creature::getwear(slot_s id) const {
 	default: return wears[id];
 	}
 }
+
+aref<variant> creature::select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
+	auto pb = source.data;
+	auto pe = pb + source.count;
+	if(v1.type == Feat) {
+		auto character_level = getcharlevel();
+		auto base_attack = getbab();
+		for(auto e = v1; e.number <= v2.number; e.number++) {
+			if(is(e.feat))
+				continue;
+			if(!isallow(e.feat, ability, character_level, base_attack))
+				continue;
+			if(pb<pe)
+				*pb++ = e;
+		}
+	} else {
+		for(auto e = v1; e.number <= v2.number; e.number++) {
+			if(pb<pe)
+				*pb++ = e;
+		}
+	}
+	auto result = source;
+	result.count = pb - source.data;
+	if(sort_by_name)
+		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
+	return result;
+}

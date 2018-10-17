@@ -160,7 +160,7 @@ static struct name_info {
 {Human, Female, "ײופנוÿ"},
 };
 
-static aref<short unsigned> select(aref<short unsigned> result, gender_s gender, race_s race) {
+static aref<short unsigned> select_names(aref<short unsigned> result, gender_s gender, race_s race) {
 	auto pb = result.data;
 	auto pe = result.data + result.count;
 	for(unsigned short i = 0; i < sizeof(name_data) / sizeof(name_data[0]); i++) {
@@ -183,7 +183,7 @@ const char* creature::random_name(gender_s gender, race_s race) {
 		else
 			race = Elf;
 	}
-	auto result = select(source, gender, race);
+	auto result = select_names(source, gender, race);
 	return name_data[result.data[rand()%result.count]].name;
 }
 

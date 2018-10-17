@@ -243,9 +243,12 @@ static variant choose_gender(const creature& player, const char* title, const ch
 	return getresult();
 }
 
-bool creature::choose_skills(const char* title, const char* step_title, const char* minimal, char points, char points_per_skill) {
+bool creature::choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive) {
+	if(!interactive) {
+		return true;
+	}
 	struct scroll : public scrolllist {
-		variant				elements[LastSkill + 1];
+		variant*			elements;
 		const char*			minimal;
 		creature&			player;
 		char				points_per_skill, points;
@@ -270,11 +273,10 @@ bool creature::choose_skills(const char* title, const char* step_title, const ch
 			if(area(rc) == AreaHilitedPressed)
 				update_description(id);
 		}
-		scroll(creature& player, const char* minimal) : player(player), minimal(minimal) {
-			auto array = createlist(elements, FirstSkill, LastSkill);
-			maximum = array.count;
+		scroll(creature& player, const aref<variant>& elements, const char* minimal) : player(player), minimal(minimal), elements(elements.data) {
+			maximum = elements.count;
 		}
-	} table(*this, minimal);
+	} table(*this, elements, minimal);
 	char temp[32];
 	table.points = points;
 	table.points_per_skill = points_per_skill;
@@ -306,14 +308,15 @@ bool creature::choose_skills(const char* title, const char* step_title, const ch
 	return getresult() != 0;
 }
 
-bool creature::choose_feats(const char* title, const char* step_title, const unsigned* minimal, char points) {
+bool creature::choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive) {
+	if(!interactive) {
+		return true;
+	}
 	struct scroll : public scrolllist {
-		variant				elements[LastFeat + 1];
+		variant*			elements;
 		const unsigned*		minimal;
 		creature&			player;
 		char				points;
-		char				character_level;
-		char				base_attack;
 		void row(rect rc, int i) override {
 			auto id = elements[i].feat;
 			int value = player.get(id);
@@ -334,24 +337,11 @@ bool creature::choose_feats(const char* title, const char* step_title, const uns
 		bool is(feat_s id) const {
 			return (minimal[id / 32] & (1 << (id % 32))) != 0;
 		}
-		void remove_existing() {
-			auto p = elements;
-			for(auto e : elements) {
-				if(player.is(e.feat))
-					continue;
-				if(!player.isallow(e.feat, player.ability, character_level, base_attack))
-					continue;
-				*p++ = e;
-			}
-			maximum = (p - elements) - 1;
+		scroll(creature& player, const unsigned* minimal, const aref<variant>& elements) :
+			player(player), minimal(minimal), elements(elements.data) {
+			maximum = elements.count;
 		}
-		scroll(creature& player, const unsigned* minimal) : player(player), minimal(minimal) {
-			maximum = createlist(elements, FirstFeat, LastFeat).count;
-			character_level = player.getcharlevel();
-			base_attack = player.getbab();
-			remove_existing();
-		}
-	} table(*this, minimal);
+	} table(*this, minimal, elements);
 	char temp[32];
 	table.points = points;
 	while(ismodal()) {
@@ -382,13 +372,16 @@ bool creature::choose_feats(const char* title, const char* step_title, const uns
 	return getresult() != 0;
 }
 
-void creature::choose_skills(const char* title) {
+void creature::choose_skills(const char* title, const aref<variant>& elements, bool interactive) {
 	creature player = *this;
 	player.apply(player.getrace(), false);
 	player.apply(player.getclass());
-	if(!player.choose_feats(title, "Выбор особенностей", feats, 1))
+	auto result = player.select(elements, FirstFeat, LastFeat, true);
+	if(!player.choose_feats(title, "Выбор особенностей",
+		player.select(elements, FirstFeat, LastFeat, true), feats, 1, interactive))
 		return;
-	if(!player.choose_skills(title, "Выбор навыков", skills, getpoints(getclass()) * 4, 4))
+	if(!player.choose_skills(title, "Выбор навыков",
+		player.select(elements, FirstSkill, LastSkill, true), skills, getpoints(getclass()) * 4, 4, interactive))
 		return;
 	*this = player;
 }
@@ -508,7 +501,7 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 
 void creature::generate(const char* title) {
 	variant var;
-	variant result_variant[16];
+	variant elements[128];
 	while(true) {
 		auto step = getstep();
 		auto si = find(step);
@@ -531,7 +524,7 @@ void creature::generate(const char* title) {
 				choose_ability(*this, title, si->name);
 				break;
 			case Skill:
-				choose_skills(title);
+				choose_skills(title, elements, true);
 				break;
 			case Apearance:
 				choose_apearance(title, si->name);
@@ -544,7 +537,7 @@ void creature::generate(const char* title) {
 				}
 				break;
 			default:
-				var = choose(*this, title, si->name, createlist(result_variant, si->from, si->to));
+				var = choose(*this, title, si->name, select(elements, si->from, si->to, true));
 				if(var)
 					set(var);
 				break;

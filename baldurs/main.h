@@ -631,9 +631,9 @@ struct creature : actor {
 	void				apply(variant type, char level, bool interactive);
 	void				clear();
 	void				clear(variant_s value);
-	bool				choose_feats(const char* title, const char* step_title, const unsigned* minimal, char points);
-	bool				choose_skills(const char* title, const char* step_title, const char* minimal, char points, char points_per_skill);
-	void				choose_skills(const char* title);
+	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
+	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
+	void				choose_skills(const char* title, const aref<variant>& elements, bool interactive);
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
 	bool				equip(const item e);
@@ -693,6 +693,7 @@ struct creature : actor {
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	void				say(const char* format, ...) const;
+	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void				set(ability_s id, int value) { ability[id] = value; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }
