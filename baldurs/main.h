@@ -432,6 +432,7 @@ struct itemdrag {
 	item*				source;
 	item*				target;
 	item				value;
+	slot_s				target_slot;
 };
 struct spell_info {
 	struct duration_info {
@@ -672,6 +673,7 @@ struct creature : actor {
 	variant_s			getstep() const;
 	int					getquick() const { return active_weapon; }
 	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
+	const item			getwear(slot_s id) const override { return wears[id]; }
 	static void			help();
 	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
 	void				icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }

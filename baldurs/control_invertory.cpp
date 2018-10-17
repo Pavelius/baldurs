@@ -33,11 +33,16 @@ static void choose_item() {
 		return;
 	if(!di.source || !*di.source)
 		return;
+	bool need_callback = true;
 	di.value = *di.source;
 	di.source->clear();
-	if(get_drag_target(player, di) && di.target)
-		*di.target = di.value;
-	else
+	if(get_drag_target(player, di)) {
+		if(di.value.is(di.target_slot)) {
+			*di.target = di.value;
+			need_callback = false;
+		}
+	}
+	if(need_callback)
 		*di.source = di.value;
 }
 
@@ -47,15 +52,21 @@ static void choose_weapon() {
 
 void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	int m = 0;
-	rect rc = {x, y, x + 36, y + 36};
+	rect rc = {x+2, y+2, x + 34, y + 34};
 	auto ar = area(rc);
-	if(pd && (ar == AreaHilited || ar == AreaHilitedPressed))
-		pd->target = pi;
-	if(pd && pd->value.is(id)) {
+	if(pd && (ar == AreaHilited || ar == AreaHilitedPressed)) {
+		pd->target = pi; 
+		pd->target_slot = id;
+	}
+	auto hilite = pd && pd->value.is(id);
+	auto enabled = pi && isallow(*pi);
+	if(hilite)
+		hilite = id != Backpack;
+	if(hilite)
+		hilite = isallow(pd->value);
+	if(hilite) {
 		if(pd->target==pi)
 			draw::image(x, y, res::STONSLOT, 4 + m, 0);
-		else if(id == Backpack)
-			draw::image(x, y, res::STONSLOT, m, 0);
 		else
 			draw::image(x, y, res::STONSLOT, 17 + m, 0);
 	} else
@@ -75,8 +86,11 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	}
 	if(pi && *pi) {
 		auto i = pi->getportrait();
-		if(i)
+		if(i) {
+			if(!enabled)
+				rectf(rc, colors::red, 0x30);
 			draw::image(x + 1, y + 1, gres(res::ITEMS), i, 0);
+		}
 	}
 }
 
@@ -143,47 +157,4 @@ void creature::invertory(itemdrag* pd) {
 void creature::invertory() {
 	invertory(0);
 	menumodal();
-	//		int targets[128];
-	//		int hints[128];
-	//		targets[0] = 0;
-	//		hints[0] = 0;
-	//		*item_source = 0;
-	//		// Invertory slots controls
-	//		for(int i = FirstInvertory; i <= LastInvertory; i++) {
-	//			if(bsget(item::get(item_drag, Type), i)) {
-	//				zcat(targets, i);
-	//				if(i<FirstBackpack || i>LastBackpack)
-	//					zcat(hints, i);
-	//			}
-	//		}
-	//		// Players who is nearby
-	//		for(auto rec : players) {
-	//			if(!is_creature_ready(rec))
-	//				continue;
-	//			if(find_space_in_backpack(rec, item_drag))
-	//				zcat(targets, rec);
-	//		}
-	//		cursorset push(res::ITEMS, bsget(item_drag, Portrait));
-	//		drag::source = id;
-	//		drag::targets = targets;
-	//		drag::hints = hints;
-	//		id = invertory_drag(rec, ground, ch, id, items);
-	//		if(id == OK) {
-	//			int* item_target;
-	//			if(drag::target >= FirstCreature && drag::target <= LastCreature)
-	//				item_target = find_space_in_backpack(drag::target, item_drag);
-	//			else
-	//				item_target = get_creature_items(rec, drag::target);
-	//			if(item_target) {
-	//				*item_source = *item_target;
-	//				*item_target = item_drag;
-	//			}
-	//		} else
-	//			*item_source = item_drag;
-	//		drag::source = 0;
-	//		drag::target = 0;
-	//		drag::targets = 0;
-	//		drag::hints = 0;
-	//	} else if(id >= QWMarker && id <= QWMarker + 4)
-	//		bsset(rec, ActiveWeapon, id - QWMarker);
 }
