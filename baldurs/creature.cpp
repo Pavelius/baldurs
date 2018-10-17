@@ -364,6 +364,7 @@ int	creature::gethitsmax() const {
 
 int	creature::getpoints(class_s id) const {
 	auto result = class_data[id].skill_points;
+	result += race_data[race].quick_learn;
 	result += get(Intellegence);
 	if(result <= 0)
 		result = 0;
@@ -400,22 +401,6 @@ void creature::updategame() {
 		if(e)
 			e.update();
 	}
-}
-
-void creature::create(class_s type, race_s race, gender_s gender) {
-	this->gender = gender;
-	this->race = race;
-	this->classes[type] = 1;
-	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
-		ability[a] = 10;
-	apply(type);
-	apply(race, true);
-	apply(type, 1, false);
-	apply(race, 1, false);
-	update_levels();
-	portrait = random_portrait();
-	update_portrait();
-	random_name();
 }
 
 void creature::update_levels() {
@@ -549,4 +534,39 @@ aref<variant> creature::select(const aref<variant>& source, const variant v1, co
 	if(sort_by_name)
 		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
 	return result;
+}
+
+bool creature::choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive) {
+	apply(getrace(), add_ability);
+	apply(getclass());
+	auto feat_points = 1;
+	feat_points += race_data[race].quick_learn;
+	if(!choose_feats(title, "Выбор особенностей",
+		select(elements, FirstFeat, LastFeat, !interactive), feats, feat_points, interactive))
+		return false;
+	if(!choose_skills(title, "Выбор навыков",
+		select(elements, FirstSkill, LastSkill, !interactive), skills, getpoints(getclass()) * 4, 4, interactive))
+		return false;
+	return true;
+}
+
+void creature::choose_skills(const char* title, const aref<variant>& elements) {
+	creature player = *this;
+	if(!player.choose_skills(title, elements, false, true))
+		return;
+	*this = player;
+}
+
+void creature::create(class_s type, race_s race, gender_s gender) {
+	variant elements[128];
+	this->gender = gender;
+	this->race = race;
+	this->classes[type] = 1;
+	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
+		ability[a] = 10;
+	choose_skills("Случайная генерация", elements, true, false);
+	update_levels();
+	portrait = random_portrait();
+	update_portrait();
+	random_name();
 }

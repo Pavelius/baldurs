@@ -310,6 +310,20 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 
 bool creature::choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive) {
 	if(!interactive) {
+		while(points > 0) {
+			zshuffle(elements.data, elements.count);
+			auto need_exit = true;
+			for(auto v : elements) {
+				if(is(v.feat))
+					continue;
+				if(!isallow(v))
+					continue;
+				set(v.feat);
+				need_exit = false;
+				break;
+			}
+			points--;
+		}
 		return true;
 	}
 	struct scroll : public scrolllist {
@@ -370,20 +384,6 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 		}
 	}
 	return getresult() != 0;
-}
-
-void creature::choose_skills(const char* title, const aref<variant>& elements, bool interactive) {
-	creature player = *this;
-	player.apply(player.getrace(), false);
-	player.apply(player.getclass());
-	auto result = player.select(elements, FirstFeat, LastFeat, true);
-	if(!player.choose_feats(title, "Выбор особенностей",
-		player.select(elements, FirstFeat, LastFeat, true), feats, 1, interactive))
-		return;
-	if(!player.choose_skills(title, "Выбор навыков",
-		player.select(elements, FirstSkill, LastSkill, true), skills, getpoints(getclass()) * 4, 4, interactive))
-		return;
-	*this = player;
 }
 
 static void choose_ability(creature& player, const char* title, const char* step_title) {
@@ -524,7 +524,7 @@ void creature::generate(const char* title) {
 				choose_ability(*this, title, si->name);
 				break;
 			case Skill:
-				choose_skills(title, elements, true);
+				choose_skills(title, elements);
 				break;
 			case Apearance:
 				choose_apearance(title, si->name);

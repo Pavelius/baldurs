@@ -470,6 +470,7 @@ struct race_info {
 	char				abilities[6];
 	skillset			skills;
 	feat_s				feats[8];
+	char				quick_learn; // Human's ability additional skills nad feats at start of game
 	const char*			text;
 };
 struct class_info {
@@ -633,7 +634,8 @@ struct creature : actor {
 	void				clear(variant_s value);
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
-	void				choose_skills(const char* title, const aref<variant>& elements, bool interactive);
+	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
+	void				choose_skills(const char* title, const aref<variant>& elements);
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
 	bool				equip(const item e);
