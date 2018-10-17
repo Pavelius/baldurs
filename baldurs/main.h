@@ -414,6 +414,7 @@ struct item {
 	int					getframe() const;
 	magic_s				getmagic() const { return magic; }
 	int					getportrait() const { return type * 2; }
+	int					getdragportrait() const { return type * 2 + 1; }
 	item_s				gettype() const { return type; }
 	bool				is(feat_s value) const;
 	bool				is(slot_s value) const;
@@ -667,9 +668,8 @@ struct creature : actor {
 	int					getquick() const { return active_weapon; }
 	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
 	static void			help();
-	void				icon(int x, int y, slot_s id);
-	void				icon(int x, int y, const runable& cmd, slot_s id) { icon(x, y, cmd, wears + id, id); }
-	void				icon(int x, int y, const runable& cmd, item* pi, slot_s id);
+	void				icon(int x, int y, item* pi, slot_s id, const item* dragged_item = 0);
+	void				icon(int x, int y, slot_s id, const item* dragged_item = 0) { icon(x, y, wears + id, id, dragged_item); }
 	void				iconqw(int x, int y, int n);
 	bool				is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
 	static bool			is(spell_s id, class_s cls, int level);
@@ -681,6 +681,7 @@ struct creature : actor {
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
 	void				invertory();
+	void				invertory(item* drag_item);
 	static void			minimap();
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }

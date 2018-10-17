@@ -13,9 +13,49 @@ static struct scrollground : public scrolllist {
 	void row(rect rc, int n) {}
 } ground;
 
-void creature::icon(int x, int y, const runable& cmd, item* pi, slot_s id) {
+static item* get_drag_target(creature* player, item* dragged) {
+	cursorset set(res::ITEMS, dragged->getdragportrait(), true);
+	hot.pressed = false;
+	while(ismodal()) {
+		player->invertory(dragged);
+		menumodal();
+		if(hot.key == MouseLeft)
+			break;
+	}
+	return 0;
+}
+
+static void choose_item() {
+	auto drag_source = (item*)hot.param;
+	auto player = creature::getplayer();
+	if(!player)
+		return;
+	if(!drag_source)
+		return;
+	if(!(*drag_source))
+		return;
+	auto cashe_item = *drag_source; drag_source->clear();
+	auto drag_target = get_drag_target(player, &cashe_item);
+	if(drag_target)
+		*drag_target = cashe_item;
+	else
+		*drag_source = cashe_item;
+}
+
+static void choose_weapon() {
+	creature::getplayer()->setquick(hot.param);
+}
+
+void creature::icon(int x, int y, item* pi, slot_s id, const item* dragged_item) {
 	int m = (id % 4);
-	button(x, y, cmd, 0, res::STONSLOT, 31 + m, 0 + m, 0 + m, 0 + m, 0, 0, 0, true);
+	rect rc = {x, y, x + 36, y + 36};
+	if(dragged_item && dragged_item->is(id))
+		draw::image(x, y, res::STONSLOT, 4 + m, 0);
+	else
+		draw::image(x, y, res::STONSLOT, m, 0);
+	//draw::rectb(rc, colors::red);
+	if(hot.key == MouseLeft && area(rc) == AreaHilitedPressed)
+		execute(choose_item, (int)pi);
 	if(!pi || !(*pi)) {
 		if(id >= Head && id <= Legs)
 			draw::image(x + 2, y + 2, gres(res::STON), id - Head, 0, 0x80);
@@ -33,12 +73,6 @@ void creature::icon(int x, int y, const runable& cmd, item* pi, slot_s id) {
 	}
 }
 
-static void choose_item() {}
-
-static void choose_weapon() {
-	creature::getplayer()->setquick(hot.param);
-}
-
 void creature::iconqw(int x, int y, int n) {
 	auto id = (slot_s)(QuickWeapon + n * 2);
 	unsigned flags = 0;
@@ -49,22 +83,7 @@ void creature::iconqw(int x, int y, int n) {
 	icon(x + 28 + 39, y + 1, (slot_s)(id + 1));
 }
 
-void creature::icon(int x, int y, slot_s id) {
-	icon(x, y, cmpr(choose_item, id), id);
-}
-
-static void pick_item() {
-	auto pi = (item*)hot.param;
-	auto player = creature::getplayer();
-	if(!player)
-		return;
-	if(!pi)
-		return;
-	player->add(*pi);
-	pi->clear();
-}
-
-void creature::invertory() {
+void creature::invertory(item* dragged) {
 	const int d = 38;
 	char temp[260];
 	int x, y;
@@ -83,7 +102,7 @@ void creature::invertory() {
 	label(574, 270, 111, 22, "Земля");
 	memset(ground.data, 0, sizeof(ground.data));
 	for(auto i = 0; i<6; i++)
-		icon(572 + 39 * (i%2), 298 + 39*(i/2), cmpr(pick_item, (int)ground.data[i]), ground.data[i], Backpack);
+		icon(572 + 39 * (i%2), 298 + 39*(i/2), ground.data[i], Backpack);
 	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
 	label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
 	label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
@@ -105,22 +124,18 @@ void creature::invertory() {
 	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i+1)) {
 		int x1 = x + (i % 8)*d;
 		int y1 = y + (i / 8)*d;
-		icon(x1, y1, i);
+		icon(x1, y1, wears + i, Backpack, dragged);
 	}
 	//
 	pickcolors({252, 191}, {252, 231}, {507, 191}, {507, 231});
 	//
 	paperdoll(400, 195);
 	draw::image(20, 79, gres(res::PORTL), getportrait(), 0);
+}
+
+void creature::invertory() {
+	invertory(0);
 	menumodal();
-	//default:
-	//	if(id >= FirstInvertory && id <= LastInvertory) {
-	//		int* item_source = get_creature_items(rec, id);
-	//		if(!item_source)
-	//			break;
-	//		int item_drag = *item_source;
-	//		if(!item_drag)
-	//			break;
 	//		int targets[128];
 	//		int hints[128];
 	//		targets[0] = 0;

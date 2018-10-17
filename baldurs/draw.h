@@ -150,13 +150,6 @@ extern int				scroll;
 }
 namespace draw {
 typedef void(*callback_proc)();
-namespace drag {
-bool					active(int id, drag_part_s part = DragControl);
-bool					active();
-void					begin(int id, drag_part_s part = DragControl);
-extern point			mouse;
-extern int				value;
-}
 struct hotinfo {
 	unsigned			animate; // Frame tick count
 	unsigned			key; // [in] if pressed key or mouse this field has key

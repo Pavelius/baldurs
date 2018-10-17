@@ -42,11 +42,6 @@ hotinfo				draw::hot;
 static draw::surface default_surface;
 draw::surface*		draw::canvas = &default_surface;
 const bool			line_antialiasing = true;
-// Drag
-static int			drag_id;
-static drag_part_s	drag_part;
-point				draw::drag::mouse;
-int					draw::drag::value;
 // Metrics
 rect				metrics::edit = {4, 4, -4, -4};
 sprite*				metrics::font = (sprite*)loadb("data/fonts/font.pma");
@@ -861,28 +856,6 @@ draw::state::~state() {
 	draw::canvas = this->canvas;
 }
 
-void draw::drag::begin(int id, drag_part_s part) {
-	drag_id = id;
-	drag_part = part;
-	drag::mouse = hot.mouse;
-}
-
-bool draw::drag::active() {
-	return drag_id != 0;
-}
-
-bool draw::drag::active(int id, drag_part_s part) {
-	if(drag_id == id && drag_part == part) {
-		if(!hot.pressed || hot.key == KeyEscape) {
-			drag_id = 0;
-			hot.key = 0;
-			return false;
-		}
-		return true;
-	}
-	return false;
-}
-
 int draw::getbpp() {
 	return canvas ? canvas->bpp : 1;
 }
@@ -1311,8 +1284,6 @@ void draw::setclip(rect rcn) {
 }
 
 areas draw::area(rect rc) {
-	if(drag::active())
-		return AreaNormal;
 	if(!hot.mouse.in(clipping))
 		return AreaNormal;
 	if(!mouseinput)
