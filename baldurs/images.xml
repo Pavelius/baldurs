@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<convert output="d:\projects\baldurs\data\fonts">
+  <library output="...\font">
+    <font input="Arial" height="15"/>
+  </library>
+  <library output="...\h1">
+    <font input="Arial" height="22"/>
+  </library>
+  <library output="...\h2">
+    <font input="Arial" height="19"/>
+  </library>
+  <library output="...\h3">
+    <font input="Arial" height="17"/>
+  </library>
+</convert>

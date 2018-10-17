@@ -312,4 +312,9 @@
       <UniqueIdentifier>{1c5812e4-92db-47db-a49b-a3376d2e68ae}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="images.xml">
+      <Filter>Инструменты</Filter>
+    </CustomBuild>
+  </ItemGroup>
 </Project>

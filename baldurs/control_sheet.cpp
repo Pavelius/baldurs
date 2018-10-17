@@ -62,7 +62,7 @@ void creature::sheet() {
 	button(256, 307, cmpr(information), 0, res::GBTNSTD, "Информация");
 	button(256, 361, cmpr(biography), 0, res::GBTNSTD, "Биография");
 	button(256, 334, cmpr(biography), 0, res::GBTNSTD, "Экспорт");
-	button(256, 388, cmpr(biography), 0, res::GBTNSTD, "Cutomize");
+	button(256, 388, cmpr(biography), 0, res::GBTNSTD, "Персонализация");
 	button(655, 379, cmpr(levelup), Disabled, res::GBTNSTD, "Поднять уровень");
 	temp[0] = 0;
 	switch(current_step) {
