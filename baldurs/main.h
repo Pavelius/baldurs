@@ -73,12 +73,6 @@ enum feat_s : unsigned char {
 	Leadership, LightingReflexes,
 	Mobiliy, Multiattack,
 	PointBlankShoot, PowerAttack, PreciseShoot,
-	ProficiencyAxe, ProficiencyClub, ProficiencyCrossbow,
-	ProficiencyDagger, ProficiencyGreatweapon, ProficiencyHeavyCrossbow,
-	ProficiencyMace, ProficiencySimple, ProficiencySpear,
-	ProficiencyLongbow, ProficiencyLongsword,
-	ProficiencyScimitar, ProficiencyShortbow, ProficiencyShortsword,
-	ProficiencyBastardsword, ProficiencyCatana, ProficiencyWaraxe,
 	RapidShoot, RapidReload,
 	ShieldProfeciency,
 	ShortOnTheRun,
@@ -88,7 +82,14 @@ enum feat_s : unsigned char {
 	FocusAxes, FocusBows, FocusCrossbows, FocusDaggers, FocusGreatswords,
 	FocusLongswords, FocusMaces, FocusPolearm, FocusShortswords,
 	WhirlwindAttack,
-	FirstFeat = Alertness, LastFeat = WhirlwindAttack,
+	// Владение оружием
+	ProficiencyAxe, ProficiencyClub, ProficiencyCrossbow,
+	ProficiencyDagger, ProficiencyGreatweapon, ProficiencyHeavyCrossbow,
+	ProficiencyMace, ProficiencySimple, ProficiencySpear,
+	ProficiencyLongbow, ProficiencyLongsword,
+	ProficiencyScimitar, ProficiencyShortbow, ProficiencyShortsword,
+	ProficiencyBastardsword, ProficiencyCatana, ProficiencyWaraxe,
+	FirstFeat = Alertness, LastFeat = ProficiencyWaraxe,
 };
 enum race_s : unsigned char {
 	NoRace,
@@ -696,6 +697,7 @@ struct creature : actor {
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	void				say(const char* format, ...) const;
 	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
+	aref<variant>		selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void				set(ability_s id, int value) { ability[id] = value; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }

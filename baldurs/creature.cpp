@@ -261,15 +261,12 @@ void creature::add(stringbuilder& sb, variant value) const {
 void creature::add(stringbuilder& sb, const aref<variant>& elements, const char* title) const {
 	if(!elements)
 		return;
-	if(sb)
-		sb.add("\n", title);
-	sb.add("###%1", title);
+	sb.addh(title);
 	for(auto e : elements) {
-		sb.add("\n:::");
-		sb.add(getstr(e));
+		sb.addn(getstr(e));
 		switch(e.type) {
 		case Skill:
-			sb.add(" %+1i", get(e.skill));
+			sb.add(" %+1i (%2i)", get(e.skill), skills[e.skill]);
 			break;
 		case Ability:
 			sb.add(": %1i", ability[e.ability]);
@@ -279,22 +276,8 @@ void creature::add(stringbuilder& sb, const aref<variant>& elements, const char*
 }
 
 void creature::add(stringbuilder& sb, variant v1, variant v2, const char* title) const {
-	adat<variant, 128> elements;
-	for(auto e = v1; e.number <= v2.number; e.number++) {
-		switch(e.type) {
-		case Feat:
-			if(!is(e.feat))
-				continue;
-			break;
-		case Skill:
-			if(!skills[e.skill])
-				continue;
-			break;
-		}
-		elements.add(e);
-	}
-	qsort(elements.data, elements.count, sizeof(elements.data[0]), compare_variant);
-	add(sb, elements, title);
+	variant elements[128];
+	add(sb, selecth(elements, v1, v2, true), title);
 }
 
 void creature::addinfo(stringbuilder& sb) const {
@@ -509,6 +492,30 @@ const item creature::getwear(slot_s id) const {
 	}
 }
 
+aref<variant> creature::selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
+	auto pb = source.data;
+	auto pe = pb + source.count;
+	for(auto e = v1; e.number <= v2.number; e.number++) {
+		switch(e.type) {
+		case Feat:
+			if(!is(e.feat))
+				continue;
+			break;
+		case Skill:
+			if(skills[e.skill]==0 && get(e.skill)<=0)
+				continue;
+			break;
+		}
+		if(pb < pe)
+			*pb++ = e;
+	}
+	auto result = source;
+	result.count = pb - source.data;
+	if(sort_by_name)
+		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
+	return result;
+}
+
 aref<variant> creature::select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
 	auto pb = source.data;
 	auto pe = pb + source.count;
@@ -520,12 +527,12 @@ aref<variant> creature::select(const aref<variant>& source, const variant v1, co
 				continue;
 			if(!isallow(e.feat, ability, character_level, base_attack))
 				continue;
-			if(pb<pe)
+			if(pb < pe)
 				*pb++ = e;
 		}
 	} else {
 		for(auto e = v1; e.number <= v2.number; e.number++) {
-			if(pb<pe)
+			if(pb < pe)
 				*pb++ = e;
 		}
 	}

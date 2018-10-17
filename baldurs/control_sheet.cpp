@@ -11,6 +11,7 @@ static info_page_s		current_step;
 static scrolltext		textarea;
 
 static void choose_page() {
+	textarea.reset();
 	current_step = (info_page_s)hot.param;
 }
 
@@ -61,7 +62,8 @@ void creature::sheet() {
 	switch(current_step) {
 	case InfoSkills:
 		add(sb, FirstSkill, LastSkill, "Навыки");
-		add(sb, FirstFeat, LastFeat, "Особенности");
+		add(sb, FirstFeat, WhirlwindAttack, "Особенности");
+		add(sb, ProficiencyAxe, ProficiencyWaraxe, "Доступность оружия");
 		break;
 	case InfoCharacter:
 		addinfo(sb);
