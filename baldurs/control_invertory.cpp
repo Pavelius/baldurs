@@ -13,48 +13,55 @@ static struct scrollground : public scrolllist {
 	void row(rect rc, int n) {}
 } ground;
 
-static item* get_drag_target(creature* player, item* dragged) {
-	cursorset set(res::ITEMS, dragged->getdragportrait(), true);
+static bool get_drag_target(creature* player, itemdrag& di) {
+	cursorset set(res::ITEMS, di.value.getdragportrait(), true);
 	hot.pressed = false;
 	while(ismodal()) {
-		player->invertory(dragged);
-		menumodal();
+		player->invertory(&di);
+		menumodal(false);
 		if(hot.key == MouseLeft)
-			break;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
 static void choose_item() {
-	auto drag_source = (item*)hot.param;
+	itemdrag di = {0};
+	di.source = (item*)hot.param;
 	auto player = creature::getplayer();
 	if(!player)
 		return;
-	if(!drag_source)
+	if(!di.source || !*di.source)
 		return;
-	if(!(*drag_source))
-		return;
-	auto cashe_item = *drag_source; drag_source->clear();
-	auto drag_target = get_drag_target(player, &cashe_item);
-	if(drag_target)
-		*drag_target = cashe_item;
+	di.value = *di.source;
+	di.source->clear();
+	if(get_drag_target(player, di) && di.target)
+		*di.target = di.value;
 	else
-		*drag_source = cashe_item;
+		*di.source = di.value;
 }
 
 static void choose_weapon() {
 	creature::getplayer()->setquick(hot.param);
 }
 
-void creature::icon(int x, int y, item* pi, slot_s id, const item* dragged_item) {
-	int m = (id % 4);
+void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
+	int m = 0;
 	rect rc = {x, y, x + 36, y + 36};
-	if(dragged_item && dragged_item->is(id))
-		draw::image(x, y, res::STONSLOT, 4 + m, 0);
-	else
+	auto ar = area(rc);
+	if(pd && (ar == AreaHilited || ar == AreaHilitedPressed))
+		pd->target = pi;
+	if(pd && pd->value.is(id)) {
+		if(pd->target==pi)
+			draw::image(x, y, res::STONSLOT, 4 + m, 0);
+		else if(id == Backpack)
+			draw::image(x, y, res::STONSLOT, m, 0);
+		else
+			draw::image(x, y, res::STONSLOT, 17 + m, 0);
+	} else
 		draw::image(x, y, res::STONSLOT, m, 0);
 	//draw::rectb(rc, colors::red);
-	if(hot.key == MouseLeft && area(rc) == AreaHilitedPressed)
+	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
 		execute(choose_item, (int)pi);
 	if(!pi || !(*pi)) {
 		if(id >= Head && id <= Legs)
@@ -73,17 +80,17 @@ void creature::icon(int x, int y, item* pi, slot_s id, const item* dragged_item)
 	}
 }
 
-void creature::iconqw(int x, int y, int n) {
+void creature::iconqw(int x, int y, int n, itemdrag* pd) {
 	auto id = (slot_s)(QuickWeapon + n * 2);
 	unsigned flags = 0;
 	if(active_weapon == n)
 		flags |= Checked;
 	button(x, y, cmpr(choose_weapon, n), flags, res::INVBUT3, n * 3 + 2, n * 3, n * 3 + 1, n * 3, 0, 0, 0);
-	icon(x + 28, y + 1, (slot_s)(id + 0));
-	icon(x + 28 + 39, y + 1, (slot_s)(id + 1));
+	icon(x + 28, y + 1, wears + id + 0, (slot_s)(id + 0), 0);
+	icon(x + 28 + 39, y + 1, wears + id + 0, (slot_s)(id + 1), 0);
 }
 
-void creature::invertory(item* dragged) {
+void creature::invertory(itemdrag* pd) {
 	const int d = 38;
 	char temp[260];
 	int x, y;
@@ -91,18 +98,18 @@ void creature::invertory(item* dragged) {
 	draw::image(0, 0, gres(res::GUIINV), 0, 0);
 	label(22, 23, 206, 28, getname(), 2);
 	label(575, 20, 206, 22, "Îğóæèå íàãîòîâå");
-	iconqw(572, 48, 0); iconqw(679, 48, 2);
-	iconqw(572, 88, 1); iconqw(679, 88, 3);
+	iconqw(572, 48, 0, pd); iconqw(679, 48, 2, pd);
+	iconqw(572, 88, 1, pd); iconqw(679, 88, 3, pd);
 	label(574, 131, 111, 22, "Êîë÷àí");
 	for(auto i=0; i<3; i++) 
-		icon(572 + 39 * i, 159, slot_s(Quiver+i));
+		icon(572 + 39 * i, 159, wears + Quiver + i, Quiver, pd);
 	label(574, 200, 111, 22, "Íà ïîÿñå");
 	for(auto i = 0; i<3; i++)
-		icon(572 + 39 * i, 228, slot_s(QuickItem + i));
+		icon(572 + 39 * i, 228, wears + QuickItem + i, QuickItem, pd);
 	label(574, 270, 111, 22, "Çåìëÿ");
 	memset(ground.data, 0, sizeof(ground.data));
 	for(auto i = 0; i<6; i++)
-		icon(572 + 39 * (i%2), 298 + 39*(i/2), ground.data[i], Backpack);
+		icon(572 + 39 * (i%2), 298 + 39*(i/2), ground.data[i], LastBackpack, pd);
 	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
 	label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
 	label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
@@ -110,21 +117,21 @@ void creature::invertory(item* dragged) {
 	labelr(704, 141, 70, 20, sznum(temp, 100), 0, ColorDarkSilver);
 	label(341, 281, 117, 14, szprints(temp, zendof(temp), "%1i / %2i lbs", 143, 223), 0, ColorLightGold);
 	// Wears items
-	icon(255, 22, Body);
-	icon(319, 22, Rear);
-	icon(383, 22, Head);
-	icon(446, 22, Neck);
-	icon(510, 22, Gridle);
-	icon(255, 79, LeftFinger);
-	icon(510, 79, RightFinger);
-	icon(255, 136, Hands);
-	icon(510, 136, Legs);
+	icon(255, 22, Body, pd);
+	icon(319, 22, Rear, pd);
+	icon(383, 22, Head, pd);
+	icon(446, 22, Neck, pd);
+	icon(510, 22, Gridle, pd);
+	icon(255, 79, LeftFinger, pd);
+	icon(510, 79, RightFinger, pd);
+	icon(255, 136, Hands, pd);
+	icon(510, 136, Legs, pd);
 	// Invertory
 	x = 251; y = 299;
 	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i+1)) {
 		int x1 = x + (i % 8)*d;
 		int y1 = y + (i / 8)*d;
-		icon(x1, y1, wears + i, Backpack, dragged);
+		icon(x1, y1, wears + i, Backpack, pd);
 	}
 	//
 	pickcolors({252, 191}, {252, 231}, {507, 191}, {507, 231});

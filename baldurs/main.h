@@ -428,6 +428,11 @@ private:
 		unsigned char	quality : 2;
 	};
 };
+struct itemdrag {
+	item*				source;
+	item*				target;
+	item				value;
+};
 struct spell_info {
 	struct duration_info {
 		unsigned char	levels;
@@ -668,9 +673,9 @@ struct creature : actor {
 	int					getquick() const { return active_weapon; }
 	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
 	static void			help();
-	void				icon(int x, int y, item* pi, slot_s id, const item* dragged_item = 0);
-	void				icon(int x, int y, slot_s id, const item* dragged_item = 0) { icon(x, y, wears + id, id, dragged_item); }
-	void				iconqw(int x, int y, int n);
+	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
+	void				icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
+	void				iconqw(int x, int y, int n, itemdrag* pd);
 	bool				is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
 	static bool			is(spell_s id, class_s cls, int level);
 	bool				isallow(feat_s id) const;
@@ -681,7 +686,7 @@ struct creature : actor {
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
 	void				invertory();
-	void				invertory(item* drag_item);
+	void				invertory(itemdrag* pd);
 	static void			minimap();
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
@@ -774,7 +779,7 @@ bool					isnext(void(*proc)());
 int						label(int x, int y, int width, int height, const char* name, int header = 0, int color = 0, bool border = false);
 int						labell(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
 int						labelr(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
-void					menumodal();
+void					menumodal(bool use_keys = true);
 void					mslog(const char* format, ...);
 void					mslogv(const char* temp);
 void					mspaint(const rect& rc, const rect& rcs);

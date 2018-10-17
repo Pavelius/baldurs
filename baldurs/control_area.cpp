@@ -381,13 +381,14 @@ static void render_footer(rect& rcs) {
 	rcs.y2 -= 107;
 }
 
-void draw::menumodal() {
+void draw::menumodal(bool use_keys) {
 	rect rcs = {0, 0, getwidth(), getheight()};
 	render_footer(rcs);
 	render_panel(rcs, false);
 	correct_camera(rcs, camera);
 	domodal();
-	translate(menu_keys);
+	if(use_keys)
+		translate(menu_keys);
 }
 
 static void move_to_point(point pt) {
