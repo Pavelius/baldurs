@@ -673,7 +673,7 @@ struct creature : actor {
 	variant_s			getstep() const;
 	int					getquick() const { return active_weapon; }
 	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
-	const item			getwear(slot_s id) const override { return wears[id]; }
+	const item			getwear(slot_s id) const override;
 	static void			help();
 	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
 	void				icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
@@ -781,7 +781,7 @@ bool					isnext(void(*proc)());
 int						label(int x, int y, int width, int height, const char* name, int header = 0, int color = 0, bool border = false);
 int						labell(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
 int						labelr(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
-void					menumodal(bool use_keys = true);
+void					menumodal(bool use_keys = true, itemdrag* pd = 0);
 void					mslog(const char* format, ...);
 void					mslogv(const char* temp);
 void					mspaint(const rect& rc, const rect& rcs);

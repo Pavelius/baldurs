@@ -1,7 +1,6 @@
 #include "main.h"
 
 using namespace draw;
-const int QWMarker = 10;
 
 static struct scrollground : public scrolllist {
 	item* data[6] = {};
@@ -17,6 +16,8 @@ static bool get_drag_target(creature* player, itemdrag& di) {
 	cursorset set(res::ITEMS, di.value.getdragportrait(), true);
 	hot.pressed = false;
 	while(ismodal()) {
+		di.target = 0;
+		di.target_slot = Backpack;
 		player->invertory(&di);
 		menumodal(false);
 		if(hot.key == MouseLeft)
@@ -33,16 +34,17 @@ static void choose_item() {
 		return;
 	if(!di.source || !*di.source)
 		return;
-	bool need_callback = true;
 	di.value = *di.source;
 	di.source->clear();
-	if(get_drag_target(player, di)) {
-		if(di.value.is(di.target_slot)) {
-			*di.target = di.value;
-			need_callback = false;
-		}
+	auto enable = get_drag_target(player, di);
+	if(enable && di.target_slot >= Head && di.target_slot <= Legs) {
+		enable = di.value.is(di.target_slot);
+		if(enable)
+			enable = player->isallow(di.value);
 	}
-	if(need_callback)
+	if(enable)
+		*di.target = di.value;
+	else
 		*di.source = di.value;
 }
 
@@ -58,15 +60,15 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 		pd->target = pi; 
 		pd->target_slot = id;
 	}
+	auto enabled = pi && *pi && isallow(*pi);
 	auto hilite = pd && pd->value.is(id);
-	auto enabled = pi && isallow(*pi);
-	if(hilite)
-		hilite = id != Backpack;
 	if(hilite)
 		hilite = isallow(pd->value);
 	if(hilite) {
 		if(pd->target==pi)
 			draw::image(x, y, res::STONSLOT, 4 + m, 0);
+		else if(id == Backpack)
+			draw::image(x, y, res::STONSLOT, m, 0);
 		else
 			draw::image(x, y, res::STONSLOT, 17 + m, 0);
 	} else
@@ -77,31 +79,28 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	if(!pi || !(*pi)) {
 		if(id >= Head && id <= Legs)
 			draw::image(x + 2, y + 2, gres(res::STON), id - Head, 0, 0x80);
-		else if(id >= QuickWeapon && id <= LastQuickWeapon) {
-			if((id & 1) == 0)
-				draw::image(x + 2, y + 2, gres(res::STON), 17, 0);
-			else
-				draw::image(x + 2, y + 2, gres(res::STON), 13, 0);
-		}
+		else if(id == QuickWeapon)
+			draw::image(x + 2, y + 2, gres(res::STON), 17, 0);
+		else if(id == QuickOffhand)
+			draw::image(x + 2, y + 2, gres(res::STON), 13, 0);
 	}
 	if(pi && *pi) {
 		auto i = pi->getportrait();
 		if(i) {
 			if(!enabled)
-				rectf(rc, colors::red, 0x30);
+				rectf(rc, colors::red, 0x20);
 			draw::image(x + 1, y + 1, gres(res::ITEMS), i, 0);
 		}
 	}
 }
 
 void creature::iconqw(int x, int y, int n, itemdrag* pd) {
-	auto id = (slot_s)(QuickWeapon + n * 2);
 	unsigned flags = 0;
 	if(active_weapon == n)
 		flags |= Checked;
 	button(x, y, cmpr(choose_weapon, n), flags, res::INVBUT3, n * 3 + 2, n * 3, n * 3 + 1, n * 3, 0, 0, 0);
-	icon(x + 28, y + 1, wears + id + 0, (slot_s)(id + 0), 0);
-	icon(x + 28 + 39, y + 1, wears + id + 0, (slot_s)(id + 1), 0);
+	icon(x + 28, y + 1, wears + QuickWeapon + n * 2, QuickWeapon, pd);
+	icon(x + 28 + 39, y + 1, wears + QuickOffhand + n * 2, QuickOffhand, pd);
 }
 
 void creature::invertory(itemdrag* pd) {

@@ -59,7 +59,7 @@ int	creature::get(ability_s id) const {
 
 int	creature::getcharlevel() const {
 	auto result = 0;
-	for(int i=Barbarian; i<=Wizard; i++)
+	for(int i = Barbarian; i <= Wizard; i++)
 		result += classes[i];
 	return result;
 }
@@ -84,7 +84,7 @@ int	creature::getcasterlevel() const {
 
 int creature::get(save_s id) const {
 	int r, result = 0;
-	for(auto i = FirstClass; i <= LastClass; i = (class_s)(i+1)) {
+	for(auto i = FirstClass; i <= LastClass; i = (class_s)(i + 1)) {
 		if(!classes[i])
 			continue;
 		if(isgood(i, id))
@@ -483,8 +483,8 @@ int	creature::getspellslots(variant value, int spell_level) const {
 				m = e.progress.count - 1;
 			result += e.progress.data[m];
 			auto a = get(c.spell_ability) - si;
-			if(a>0)
-				result += 1 + a/4;
+			if(a > 0)
+				result += 1 + a / 4;
 		}
 		break;
 	}
@@ -513,5 +513,13 @@ void creature::add(item it) {
 			wears[e] = it;
 			break;
 		}
+	}
+}
+
+const item creature::getwear(slot_s id) const {
+	switch(id) {
+	case QuickWeapon: return wears[QuickWeapon + active_weapon * 2];
+	case QuickOffhand: return wears[QuickOffhand + active_weapon * 2];
+	default: return wears[id];
 	}
 }

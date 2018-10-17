@@ -113,7 +113,7 @@ static int act(int x, int y, const runable& cmd, formation_s id) {
 	return 41;
 }
 
-static int act(int x, int y, const runable& cmd, creature& player) {
+static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd) {
 	color s0 = colors::green;
 	unsigned flags = 0;
 	if(current_player == &player)
@@ -344,7 +344,7 @@ static unsigned getblendtextduration() {
 	return 8000;
 }
 
-static void render_panel(rect& rcs, bool show_actions = true) {
+static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0) {
 	static action_s actions[] = {ActionGuard, ActionAttack};
 	static formation_s formations[] = {FormationFollow, FormationT, FormationGather, Formation4and2, Formation3by2, FormationProtect};
 	auto x = rcs.x1;
@@ -359,7 +359,7 @@ static void render_panel(rect& rcs, bool show_actions = true) {
 	}
 	auto x1 = 506, y1 = y + 4;
 	for(auto& e : players)
-		x1 += act(x1, y1, cmpr(choose_player, (int)&e), e);
+		x1 += act(x1, y1, cmpr(choose_player, (int)&e), e, pd);
 	rcs.y2 = y;
 }
 
@@ -381,7 +381,7 @@ static void render_footer(rect& rcs) {
 	rcs.y2 -= 107;
 }
 
-void draw::menumodal(bool use_keys) {
+void draw::menumodal(bool use_keys, itemdrag* pd) {
 	rect rcs = {0, 0, getwidth(), getheight()};
 	render_footer(rcs);
 	render_panel(rcs, false);
