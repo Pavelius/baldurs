@@ -6,7 +6,7 @@ scrolltext::scrolltext() : origin(0), maximum(0), increment(16), bar(res::GBTNSC
 cache_text(0), cache_height(0), cache_origin(-1), scroll_frame(4) {}
 
 void scrolltext::reset() {
-	cache_origin = 0;
+	cache_origin = -1;
 }
 
 static int* scroll_value;

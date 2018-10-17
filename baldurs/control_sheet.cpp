@@ -31,10 +31,16 @@ static void biography() {}
 static void levelup() {}
 
 void creature::sheet() {
+	static const creature* cashe_player;
 	char temp[8192];
 	variant elements[128];
 	stringcreator sc;
 	stringbuilder sb(sc, temp);
+	// Чтобы корректно отображался текст, кэшируем когда меняется игрок
+	if(cashe_player != this) {
+		cashe_player = this;
+		textarea.reset();
+	}
 	background(res::GUIREC);
 	draw::image(20, 79, gres(res::PORTL), getportrait(), 0);
 	label(22, 23, 206, 28, getname(), 2);
