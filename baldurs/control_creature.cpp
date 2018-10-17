@@ -245,6 +245,20 @@ static variant choose_gender(const creature& player, const char* title, const ch
 
 bool creature::choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive) {
 	if(!interactive) {
+		zshuffle(elements.data, elements.count);
+		for(auto v : elements) {
+			if(!isclass(v.skill))
+				continue;
+			auto value = points_per_skill - skills[v.skill];
+			if(value <= 0)
+				continue;
+			if(value > points)
+				value = points;
+			points -= value;
+			skills[v.skill] += value;
+			if(points<=0)
+				break;
+		}
 		return true;
 	}
 	struct scroll : public scrolllist {
@@ -309,20 +323,18 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 }
 
 bool creature::choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive) {
+	if(!points)
+		return true;
 	if(!interactive) {
-		while(points > 0) {
-			zshuffle(elements.data, elements.count);
-			auto need_exit = true;
-			for(auto v : elements) {
-				if(is(v.feat))
-					continue;
-				if(!isallow(v))
-					continue;
-				set(v.feat);
-				need_exit = false;
+		zshuffle(elements.data, elements.count);
+		for(auto v : elements) {
+			//if(is(v.feat))
+			//	continue;
+			if(!isallow(v))
+				continue;
+			set(v.feat);
+			if(--points <= 0)
 				break;
-			}
-			points--;
 		}
 		return true;
 	}
