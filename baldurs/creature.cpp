@@ -362,9 +362,18 @@ static void moveto_command() {
 	auto pe = map::find(moveto_entrace);
 	if(pe)
 		creature::setcamera(pe->position);
-	players[0].setposition(pe->position);
-	players[0].actor::set(AnimateStandRelax);
-	draw::mslog("Область [%1]", moveto_area);
+	if(!settings.formation)
+		settings.formation = Formation3by2;
+	auto index = 0;
+	auto start = actor::getbackward(pe->position, 5, pe->orientation);
+	auto formation = settings.formation;
+	for(auto& e : players) {
+		if(!e)
+			continue;
+		e.setposition(actor::getposition(start, pe->position, formation, index++));
+		e.actor::set(AnimateStand);
+	}
+	//draw::mslog("Область [%1]", moveto_area);
 	creature::adventure();
 }
 
@@ -587,9 +596,8 @@ void creature::create(class_s type, race_s race, gender_s gender) {
 void creature::moveto(aref<creature> players, point destination, formation_s formation) {
 	if(!players)
 		return;
-	//auto start = players[0].getposition();
-	//auto index = 0;
-	//for(auto& e : players)
-	//	e.move(getposition(start, destination, formation, index++));
-	players[0].move(destination);
+	auto start = players[0].getposition();
+	auto index = 0;
+	for(auto& e : players)
+		e.move(getposition(start, destination, formation, index++));
 }

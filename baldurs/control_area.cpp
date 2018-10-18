@@ -6,7 +6,6 @@ typedef adat<drawable*, 256>	drawablet;
 static point					camera;
 static point					camera_size;
 static action_s					current_action = ActionGuard;
-static formation_s				current_formation = FormationFollow;
 static creature*				current_player;
 static void						(creature::*creature_proc)();
 const int						camera_step = 16;
@@ -42,7 +41,7 @@ static void choose_menu(void(*proc)()) {
 
 static void nothing() {}
 static void choose_action() { current_action = (action_s)hot.param; }
-static void choose_formation() { current_formation = (formation_s)hot.param; }
+static void choose_formation() { settings.formation = (formation_s)hot.param; }
 static void choose_player() { current_player = (creature*)hot.param; }
 static void move_left() { camera.x -= camera_step; }
 static void move_right() { camera.x += camera_step; }
@@ -104,7 +103,7 @@ static int act(int x, int y, const runable& cmd, action_s id, action_s id_select
 
 static int act(int x, int y, const runable& cmd, formation_s id) {
 	unsigned flags = 0;
-	if(id == current_formation)
+	if(id == settings.formation)
 		flags |= Checked;
 	auto i = id * 4;
 	button_states state;
@@ -361,7 +360,7 @@ static unsigned getblendtextduration() {
 
 static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0) {
 	static action_s actions[] = {ActionGuard, ActionAttack};
-	static formation_s formations[] = {FormationFollow, FormationT, FormationGather, Formation4and2, Formation3by2, FormationProtect};
+	static formation_s formations[] = {Formation3by2, FormationT, FormationGather, Formation4and2, FormationProtect};
 	auto x = rcs.x1;
 	auto y = rcs.y2 - 60;
 	draw::image(x, y, res::GACTN, show_actions ? 0 : 1);
@@ -407,7 +406,7 @@ void draw::menumodal(bool use_keys, itemdrag* pd) {
 }
 
 static void move_to_point(point pt) {
-	creature::moveto(players, pt, current_formation);
+	creature::moveto(players, pt, settings.formation);
 }
 
 void creature::adventure() {

@@ -19,7 +19,7 @@ static point formations[10][20] = {{{0, 0}, {0, 36}, {0, 72}, {0, 108}, {0, 144}
 const char orient_dx[16] = {0, -4, -7, -9, -10, -9, -7, -4, 0, 4, 7, 9, 10, 9, 7, 4};
 const char orient_dy[16] = {10, 9, 7, 4, 0, -4, -7, -9, -10, -9, -7, -4, 0, 4, 7, 9};
 
-point actor::getposition(point src, point dst, int formation, int pos) {
+point actor::getposition(point src, point dst, formation_s formation, int pos) {
 	if(formation >= sizeof(formations) / sizeof(formations[0]))
 		return src;
 	pos = imin(pos, (int)(sizeof(formations[0]) / sizeof(formations[0][0])));
@@ -389,8 +389,12 @@ void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gende
 	painting_equipment(x, y, offhand, ws, frame, flags, pallette);
 }
 
-point actor::getposition(point start, int step, int orientation) {
+point actor::getforward(point start, int step, int orientation) {
 	return{(short)(start.x + orient_dx[orientation] * step), (short)(start.y + orient_dy[orientation] * step)};
+}
+
+point actor::getbackward(point start, int step, int orientation) {
+	return{(short)(start.x - orient_dx[orientation] * step), (short)(start.y - orient_dy[orientation] * step)};
 }
 
 void actor::render_marker(const rect& rc, int ox, int oy) const {

@@ -159,7 +159,8 @@ enum action_s : unsigned char {
 	ActionGuard, ActionTurnUndead, ActionCast, ActionAttack, ActionUseItem, ActionPerform, ActionStop,
 };
 enum formation_s : unsigned char {
-	FormationFollow, FormationT, FormationGather, Formation4and2, Formation3by2, FormationProtect,
+	NoFormation,
+	FormationT, FormationGather, Formation4and2, Formation3by2, FormationProtect,
 };
 enum color_indexes {
 	ColorRedTintedBlack, ColorDarkBronze, ColorDarkGold, ColorLightGold, ColorAuburn,
@@ -549,6 +550,7 @@ struct setting {
 	enum mode_s : unsigned char {
 		PanelFull, PanelActions, NoPanel
 	};
+	formation_s			formation;
 	mode_s				panel;
 	bool				show_search;
 	bool				show_path;
@@ -561,6 +563,7 @@ struct actor : drawable {
 	void				clearcolors();
 	static res::tokens	getanimation(item_s type);
 	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
+	static point		getbackward(point start, int step, int orientation);
 	static point		getcamera();
 	static point		getcamerasize();
 	int					getcicle() const;
@@ -568,14 +571,14 @@ struct actor : drawable {
 	virtual class_s		getclass() const { return Fighter; }
 	int					getflags() const;
 	unsigned			getfps() const override { return 12; }
+	static point		getforward(point start, int step, int orientation);
 	int					getframe() const { return frame; }
 	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
 	virtual const char* getname() const { return ""; }
 	virtual int			getportrait() const { return 0; }
 	point				getposition() const override;
-	static point		getposition(point start, point dst, int formation, int pos);
-	static point		getposition(point start, int step, int orientation);
+	static point		getposition(point start, point dst, formation_s formation, int pos);
 	virtual race_s		getrace() const { return Human; }
 	rect				getrect() const override;
 	virtual int			getsize() const { return 1; }
