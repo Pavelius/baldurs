@@ -50,6 +50,8 @@ static struct scrollspell : scrolllist {
 		auto oy = offset[n - origin];
 		draw::image(rc.x1 + 2, rc.y1 + oy, gres(res::SPELLS), id, 0);
 		label(rc.x1 + 38, rc.y1 + oy - 4, rc.width() - 46, rc.height() - 2, getstr(data[n]), 0);
+		if(area(rc) == AreaHilitedPressed && hot.key == MouseRight)
+			draw::execute(info_power, id);
 		if(free > 0) {
 			if(area(rc) == AreaHilitedPressed && hot.key == MouseLeft)
 				draw::execute(add_power, id);
