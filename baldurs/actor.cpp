@@ -207,10 +207,9 @@ void actor::update_action() {
 	}
 	frame++;
 	duration += (1000 / getfps());
-	int s = getsize();
+	auto s = getsize();
 	if(action == AnimateMove) {
 		point newpos = position;
-		int s = getsize();
 		range += getspeed();
 		while(true) {
 			if(!path) {
@@ -224,7 +223,7 @@ void actor::update_action() {
 			int dx = newpos.x - start.x;
 			int dy = newpos.y - start.y;
 			if(m == 0 || range > m) {
-				set(newpos);
+				setposition(newpos);
 				start = position;
 				range -= m;
 				path = map::remove(path);
@@ -238,7 +237,7 @@ void actor::update_action() {
 			set(Stunned, xrand(2, 5));
 			return;
 		}
-		set(newpos);
+		setposition(newpos);
 		return;
 	}
 	int cicle_index = getcicle();
@@ -301,7 +300,7 @@ void actor::move(point destination) {
 	}
 }
 
-void actor::set(point newpos) {
+void actor::setposition(point newpos) {
 	int s = getsize();
 	if(position)
 		map::set(map::getindex(position, s), false, s);
@@ -315,6 +314,8 @@ void actor::update() {
 		return; // Still image
 	if(duration > draw::getframe())
 		return; // Time not come yet
+	if(!sprites[0])
+		update_animation();
 	update_action();
 	update_animation();
 }

@@ -194,9 +194,9 @@ static void correct_camera(const rect& rc, point& camera) {
 }
 
 static void add(const rect& srceen, drawablet& source, drawable& e) {
-	if(!e.getrect().intersect(srceen))
-		return;
 	if(!e.isvisible())
+		return;
+	if(!e.getrect().intersect(srceen))
 		return;
 	source.add(&e);
 }
@@ -242,6 +242,8 @@ static drawable* render_area(rect rc, const point origin, const point hotspot) {
 	for(auto& e : container_data)
 		add(screen, drawables, e);
 	for(auto& e : creature_data)
+		add(screen, drawables, e);
+	for(auto& e : players)
 		add(screen, drawables, e);
 	for(auto& e : animation_data)
 		add(screen, drawables, e);

@@ -566,7 +566,7 @@ struct actor : drawable {
 	int					getciclecount(int cicle) const;
 	virtual class_s		getclass() const { return Fighter; }
 	int					getflags() const;
-	unsigned			getfps() const override { return 12; }
+	unsigned			getfps() const override { return 10; }
 	int					getframe() const { return frame; }
 	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
@@ -584,7 +584,7 @@ struct actor : drawable {
 	bool				hittest(point pt) const override;
 	bool				isblock(point value) const;
 	virtual bool		isstunned() const { return false; }
-	bool				isvisible() const { return true; }
+	bool				isvisible() const { return position.x!=0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
 	void				move(point destination);
 	void				painting(point screen) const override;
@@ -598,9 +598,9 @@ struct actor : drawable {
 	void				say(const char* format, ...) const;
 	void				set(animation_s value);
 	virtual void		set(gender_s value) {}
-	void				set(point value);
 	void				set(state_s value, unsigned rounds) {}
 	static void			setcamera(point camera);
+	void				setposition(point newpos);
 	void				update() override;
 	void				update_action();
 	void				update_animation();

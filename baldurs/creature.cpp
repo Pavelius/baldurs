@@ -362,6 +362,8 @@ static void moveto_command() {
 	auto pe = map::find(moveto_entrace);
 	if(pe)
 		creature::setcamera(pe->position);
+	players[0].setposition(pe->position);
+	players[0].actor::set(AnimateStandRelax);
 	draw::mslog("Область [%1]", moveto_area);
 	creature::adventure();
 }

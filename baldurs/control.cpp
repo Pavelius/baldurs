@@ -244,6 +244,10 @@ void draw::buttonok() {
 static void update_timestamp() {
 	auto previous = timestamp;
 	timestamp = clock();
+	for(auto& e : players)
+		e.update();
+	for(auto& e : creature_data)
+		e.update();
 }
 
 static void before_render() {
