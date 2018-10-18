@@ -19,7 +19,7 @@ struct stringbuilder {
 	void				addh(const char* format, ...);
 	void				addv(const char* format, const char* format_param);
 	void				addn(const char* format, ...);
-	void				clear() { result[0] = 0; }
+	void				clear() { result[0] = 0; p = result; }
 private:
 	stringcreator&		driver;
 	char				*p, *result;

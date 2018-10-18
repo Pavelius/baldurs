@@ -4,6 +4,7 @@ enum generation_event_s {
 	NoGenerationEvent,
 	PreviousPortrait, NextPortrait,
 	Plus, Minus,
+	CreateNew,
 };
 
 using namespace draw;
@@ -69,11 +70,11 @@ static aref<variant> createlist(aref<variant> result, variant v1, variant v2) {
 	return result;
 }
 
-static void command_buttons() {
+static void command_buttons(bool can_start = false) {
 	button(35, 550, cmpr(biography), Disabled, res::GBTNSTD, "Биография");
 	button(204, 550, cmpr(import_character), Disabled, res::GBTNSTD, "Импортировать");
 	button(342, 550, cmpr(buttoncancel), 0, res::GBTNSTD, "Назад", KeyEscape);
-	button(647, 550, cmpr(buttoncancel), Disabled, res::GBTNSTD, "Начать заново");
+	button(647, 550, cmpr(buttonparam, CreateNew), can_start ? 0 : Disabled, res::GBTNSTD, "Начать заново");
 }
 
 static variant choose(const creature& player, const char* title, const char* step_title, aref<variant> elements) {
@@ -256,7 +257,7 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 				value = points;
 			points -= value;
 			skills[v.skill] += value;
-			if(points<=0)
+			if(points <= 0)
 				break;
 		}
 		return true;
@@ -476,7 +477,7 @@ static const char* choose_name(const char* title) {
 		screen.restore();
 		image(262, 171, gres(res::GUICNAME), 0, 0);
 		button(280, 256, cmpr(buttoncancel), 0, res::GBTNSTD, "Назад", KeyEscape);
-		label(283, 194, 233, 20, "NORMAL");
+		label(283, 194, 233, 20, "Введите имя");
 		field({286, 229, 506, 249}, temp, sizeof(temp));
 		button(402, 256, cmpr(buttonok), temp[0] ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		domodal();
@@ -501,10 +502,20 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 			button(274, 113 + 35 * nid, cmpr(buttonok), flags, res::GBTNLRG, getstr(e.step), Alpha + '1' + nid);
 			nid++;
 		}
-		command_buttons();
+		command_buttons(current != Gender);
 		button(478, 550, cmpr(next), Disabled, res::GBTNSTD, "Закончить", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
+		switch(hot.key) {
+		case CreateNew:
+			if(dlgask("Вы действительно хотите начать заново создавать этого персонажа?")) {
+				player.clear();
+				sb.clear();
+				player.getdescription(sb);
+				return steps[0].step;
+			}
+			break;
+		}
 	}
 	if(!getresult())
 		return NoVariant;

@@ -22,6 +22,7 @@ getstr_enum(variant);
 template<> const char* getstr<variant>(variant id) {
 	switch(id.type) {
 	case Alignment: return getstr(id.alignment);
+	case Ability: return getstr(id.ability);
 	case Class: return getstr(id.clas);
 	case Gender: return getstr(id.gender);
 	case Race: return getstr(id.race);

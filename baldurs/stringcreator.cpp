@@ -164,7 +164,7 @@ void stringbuilder::addn(const char* format, ...) {
 
 void stringbuilder::addh(const char* format, ...) {
 	if(p != result)
-		p = driver.printv(p, result_maximum, "\n", 0);
+		p = driver.printv(p, result_maximum, "\n\n", 0);
 	p = driver.printv(p, result_maximum, "**[", 0);
 	p = driver.printv(p, result_maximum, format, xva_start(format));
 	p = driver.printv(p, result_maximum, "]**", 0);

@@ -74,9 +74,9 @@ static void test_character() {
 	player.set(Intellegence, 10);
 	player.set(Wisdow, 16);
 	player.set(Charisma, 12);
-	player.set(Endurance);
-	player.set(Diplomacy, 4);
-	player.set(KnowledgeHistory, 4);
+	//player.set(Endurance);
+	//player.set(Diplomacy, 4);
+	//player.set(KnowledgeHistory, 4);
 	player.generate("Генерация персонажа");
 }
 
@@ -88,6 +88,7 @@ int main(int argc, char* argv[]) {
 	draw::initialize();
 	if(!draw::pallette)
 		return -1;
+	test_character();
 	next_proc = start_scene;
 	while(next_proc)
 		next_proc();

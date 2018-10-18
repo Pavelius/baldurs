@@ -275,9 +275,9 @@ void creature::add(stringbuilder& sb, const aref<variant>& elements, const char*
 	}
 }
 
-void creature::add(stringbuilder& sb, variant v1, variant v2, const char* title) const {
+void creature::add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name) const {
 	variant elements[128];
-	add(sb, selecth(elements, v1, v2, true), title);
+	add(sb, selecth(elements, v1, v2, sort_by_name), title);
 }
 
 void creature::addinfo(stringbuilder& sb) const {
@@ -288,21 +288,16 @@ void creature::addinfo(stringbuilder& sb) const {
 	}
 	sb.addn("");
 	sb.addn("Любимый класс: Любой");
-	sb.addn("");
 	sb.addh("Опыт");
 	sb.addn("Текущий: %1i", experience);
 	sb.addn("Следующий уровень: %1i", 2000);
-	sb.addn("");
 	sb.addh("Раса");
 	sb.addn(getstr(race));
-	sb.addn("");
 	sb.addh("Мировозрение");
 	sb.addn(getstr(alignment));
-	sb.addn("");
 	sb.addh("Спас-броски");
 	for(auto e = Fortitude; e <= Will; e = (save_s)(e + 1))
 		sb.addn("%1: %+2i", getstr(e), get(e));
-	sb.addn("");
 	sb.addh("Способности атрибутов");
 	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
 }
@@ -312,6 +307,10 @@ void creature::getdescription(stringbuilder& sb) const {
 	add(sb, race);
 	add(sb, getclass());
 	add(sb, alignment);
+	add(sb, Strenght, Charisma, "Атрибуты", false);
+	add(sb, FirstSkill, LastSkill, "Навыки");
+	add(sb, FirstFeat, WhirlwindAttack, "Особенности");
+	add(sb, ProficiencyAxe, ProficiencyWaraxe, "Доступность оружия");
 }
 
 int	creature::getskillpoints() const {
@@ -506,6 +505,13 @@ const item creature::getwear(slot_s id) const {
 aref<variant> creature::selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
 	auto pb = source.data;
 	auto pe = pb + source.count;
+	auto result = source; result.count = 0;
+	switch(v1.type) {
+	case Skill:
+		if(!getskillpoints())
+			return result;
+		break;
+	}
 	for(auto e = v1; e.number <= v2.number; e.number++) {
 		switch(e.type) {
 		case Feat:
@@ -516,11 +522,14 @@ aref<variant> creature::selecth(const aref<variant>& source, const variant v1, c
 			if(skills[e.skill]==0 && get(e.skill)<=0)
 				continue;
 			break;
+		case Ability:
+			if(ability[e.ability] == 0)
+				continue;
+			break;
 		}
 		if(pb < pe)
 			*pb++ = e;
 	}
-	auto result = source;
 	result.count = pb - source.data;
 	if(sort_by_name)
 		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);

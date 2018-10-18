@@ -627,7 +627,7 @@ struct creature : actor {
 	void operator delete (void* data);
 	void				add(item e);
 	void				add(stringbuilder& sb, variant v1) const;
-	void				add(stringbuilder& sb, variant v1, variant v2, const char* title) const;
+	void				add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
 	void				add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
 	void				addinfo(stringbuilder& sb) const;
 	static void			adventure();
