@@ -551,6 +551,7 @@ struct setting {
 	};
 	mode_s				panel;
 	bool				show_search;
+	bool				show_path;
 };
 struct actor : drawable {
 	//
@@ -577,7 +578,7 @@ struct actor : drawable {
 	static point		getposition(point start, int step, int orientation);
 	virtual race_s		getrace() const { return Human; }
 	rect				getrect() const override;
-	virtual int			getsize() const { return 2; }
+	virtual int			getsize() const { return 1; }
 	virtual int			getspeed() const { return 10; }
 	const sprite*		getsprite(int& wi) const { return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi)); }
 	static const sprite* getsprite(res::tokens id, int wi);
@@ -595,6 +596,7 @@ struct actor : drawable {
 	static void			pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
 	short unsigned		random_portrait() const;
 	static short unsigned random_portrait(gender_s gender, race_s race, class_s type);
+	void				render_path(const rect& rc, int mx, int my) const;
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
 	void				set(animation_s value);

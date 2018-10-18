@@ -1,8 +1,7 @@
 #include "main.h"
 
 enum map_states {
-	StateBlocked = 0x80,
-	StateExplored = 0x40
+	StateExplored = 0x80
 };
 
 static unsigned char	max_height;
@@ -126,15 +125,6 @@ unsigned char map::getstate(short unsigned index) {
 	return statemap[index];
 }
 
-short unsigned map::getcost(unsigned short index) {
-	if(index == 0xFFFF)
-		return 4;
-	switch(getstate(index) & 0x0F) {
-	case 1: return 2;
-	default: return 3;
-	}
-}
-
 static const char* gmurl(char* temp, const char* name, const char* ext = "ard") {
 	zcpy(temp, "data/area/");
 	zcat(temp, name);
@@ -236,19 +226,16 @@ bool map::isblock(short unsigned index) {
 	//13 - Roof - impassable (pink)
 	//14 - Worldmap exit (светло-синий)
 	//15 - Grass (белый)
-	unsigned char a = statemap[index];
-	if(a&StateBlocked)
-		return true;
-	a = a & 0xF;
+	unsigned char a = statemap[index] & 0x0F;
 	return a == 0 || a == 8 || a == 10 || a == 12 || a == 13;
 }
 
-void map::set(short unsigned index, bool isblock) {
-	if(isblock)
-		statemap[index] |= StateBlocked;
-	else
-		statemap[index] &= ~StateBlocked;
-}
+//void map::set(short unsigned index, bool isblock) {
+//	if(isblock)
+//		statemap[index] |= StateBlocked;
+//	else
+//		statemap[index] &= ~StateBlocked;
+//}
 
 const sprite* map::getminimap() {
 	return sprites_minimap;

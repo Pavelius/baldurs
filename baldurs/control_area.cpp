@@ -55,6 +55,7 @@ static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
 static void layer_search() { settings.show_search = !settings.show_search; }
+static void layer_path() { settings.show_path = !settings.show_path; }
 
 static void change_mode() {
 	settings.panel = (setting::mode_s)(settings.panel + 1);
@@ -73,6 +74,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {character_sheet, Alpha + 'C', "Листок персонажа"},
 {character_spellbook, Alpha + 'S', "Заклинания персонажа"},
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
+{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {game_journal, Alpha + 'J', "Журнал заданий"},
@@ -176,28 +178,6 @@ static void render_search(const rect& rc, int mx, int my) {
 	}
 }
 
-static void render_path(const rect& rc, int mx, int my) {
-	//point p1;
-	//for(auto p = subjects; *p; p++) {
-	//	int rec = *p;
-	//	if(rec >= FirstCreature && rec <= LastCreature) {
-	//		creature& e = objects[rec - FirstCreature];
-	//		if(e.action == AnimateMove) {
-	//			int s = e.getsize();
-	//			p1.x = e.pos.x - mx + rc.x1;
-	//			p1.y = e.pos.y - my + rc.y1;
-	//			for(auto p = e.path; p; p = p->next) {
-	//				point p2 = get_world_pos(p->index, s);
-	//				p2.x = p2.x - mx + rc.x1;
-	//				p2.y = p2.y - my + rc.y1;
-	//				draw::line(p1, p2, colors::yellow);
-	//				p1 = p2;
-	//			}
-	//		}
-	//	}
-	//}
-}
-
 static void correct_camera(const rect& rc, point& camera) {
 	camera_size.x = rc.width();
 	camera_size.y = rc.height();
@@ -250,10 +230,15 @@ static drawable* render_area(rect rc, const point origin, const point hotspot) {
 	screen.y2 = screen.y1 + rc.height();
 	// Нарисуем тайлы
 	render_tiles(rc, screen.x1, screen.y1);
+	if(settings.show_search)
+		render_search(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
 	for(auto& e : players) {
-		if(e)
+		if(e) {
 			e.render_marker(rc, screen.x1, screen.y1);
+			if(settings.show_path)
+				e.render_path(rc, screen.x1, screen.y1);
+		}
 	}
 	// Получим объекты
 	drawablet drawables;
@@ -306,7 +291,11 @@ static drawable* render_area(rect rc, const point origin, const point hotspot) {
 	char temp[1024]; temp[0] = 0;
 	stringcreator sc;
 	stringbuilder sb(sc, temp);
-	sb.add("Mouse (%3i, %4i), Map (%1i, %2i), ", hotspot.x, hotspot.y, hot.mouse.x, hot.mouse.y);
+	auto map_index = map::getindex(hotspot);
+	sb.add("Mouse (%3i, %4i), Map (%1i, %2i), Search (%5i, %6i), index=%7i, ",
+		hotspot.x, hotspot.y,
+		hot.mouse.x, hot.mouse.y,
+		map::getx(map_index), map::gety(map_index), map_index);
 	sb.add("Drawables=%1i", drawables.count);
 	if(result) {
 		if(region_data.indexof(static_cast<region*>(result)) != -1) {
@@ -439,15 +428,12 @@ void creature::adventure() {
 		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
 		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
 		auto current = render_area(rcs, origin, hotspot);
-		if(settings.show_search)
-			render_search(rcs, camera.x - rcs.width() / 2, camera.y - rcs.height() / 2);
 		if(current) {
 			if(container_data.consist(current))
 				cur.set(res::CURSORS, 2, true);
 			else
 				cur.set(res::CURSORS, current->getcursor());
-		}
-		else if(hot.mouse.in(rcs)) {
+		} else if(hot.mouse.in(rcs)) {
 			auto index = map::getindex(hotspot);
 			if(map::isblock(index))
 				cur.set(res::CURSORS, 6);

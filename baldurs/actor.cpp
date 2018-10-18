@@ -180,10 +180,7 @@ bool actor::isblock(point value) const {
 		return true;
 	int s = getsize();
 	int i = map::getindex(value, s);
-	map::set(i, false, s);
-	bool r = map::isblock(map::getindex(value, s), s);
-	map::set(i, true, s);
-	return r;
+	return map::isblock(map::getindex(value, s), s);
 }
 
 int actor::getciclecount(int cicle) const {
@@ -201,13 +198,11 @@ void actor::move(point destination) {
 	dest = destination;
 	auto s = getsize();
 	auto i = map::getindex(position, s);
-	map::set(i, false, s);
 	auto start = map::getindex(position, s);
 	auto goal = map::getindex(destination, s);
-	map::createwave(start, s);
-	if(map::route(start, goal))
-		path = map::createpath(start, s);
-	map::set(i, true, s);
+	map::blockimpassable(Blocked - 1);
+	map::createwave(goal, s);
+	path = map::route(start, map::stepto);
 	if(path) {
 		set(AnimateMove);
 		this->start = position;
@@ -217,12 +212,7 @@ void actor::move(point destination) {
 }
 
 void actor::setposition(point newpos) {
-	int s = getsize();
-	if(position)
-		map::set(map::getindex(position, s), false, s);
 	position = newpos;
-	if(position)
-		map::set(map::getindex(position, s), true, s);
 }
 
 void actor::update() {
@@ -299,8 +289,6 @@ void actor::update() {
 			break;
 		case AnimateGetHitAndDrop:
 			set(AnimateAgony);
-			if(position)
-				map::set(map::getindex(position, getsize()), false, getsize());
 			break;
 		case AnimateAgony:
 			if(d100() < 25) {
@@ -418,6 +406,22 @@ void actor::render_marker(const rect& rc, int ox, int oy) const {
 			rect rce = {x - w, y - h, x + w, y + h};
 			if(rc.intersect(rce))
 				draw::ellipse(rce, colors::yellow);
+		}
+	}
+}
+
+void actor::render_path(const rect& rc, int mx, int my) const {
+	if(action == AnimateMove) {
+		point p1;
+		auto s = getsize();
+		p1.x = position.x - mx + rc.x1;
+		p1.y = position.y - my + rc.y1;
+		for(auto p = path; p; p = p->next) {
+			point p2 = map::getposition(p->index, s);
+			p2.x = p2.x - mx + rc.x1;
+			p2.y = p2.y - my + rc.y1;
+			draw::line(p1, p2, colors::yellow);
+			p1 = p2;
 		}
 	}
 }

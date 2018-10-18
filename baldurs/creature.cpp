@@ -587,8 +587,9 @@ void creature::create(class_s type, race_s race, gender_s gender) {
 void creature::moveto(aref<creature> players, point destination, formation_s formation) {
 	if(!players)
 		return;
-	auto start = players[0].getposition();
-	auto index = 0;
-	for(auto& e : players)
-		e.move(getposition(start, destination, formation, index++));
+	//auto start = players[0].getposition();
+	//auto index = 0;
+	//for(auto& e : players)
+	//	e.move(getposition(start, destination, formation, index++));
+	players[0].move(destination);
 }
