@@ -74,9 +74,10 @@ static void test_character() {
 	player.set(Intellegence, 10);
 	player.set(Wisdow, 16);
 	player.set(Charisma, 12);
-	//player.set(Endurance);
-	//player.set(Diplomacy, 4);
-	//player.set(KnowledgeHistory, 4);
+	player.set(Endurance);
+	player.set(Diplomacy, 4);
+	player.set(KnowledgeHistory, 4);
+	player.update_portrait();
 	player.generate("Генерация персонажа");
 }
 
