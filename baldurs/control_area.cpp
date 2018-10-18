@@ -176,6 +176,28 @@ static void render_search(const rect& rc, int mx, int my) {
 	}
 }
 
+static void render_path(const rect& rc, int mx, int my) {
+	//point p1;
+	//for(auto p = subjects; *p; p++) {
+	//	int rec = *p;
+	//	if(rec >= FirstCreature && rec <= LastCreature) {
+	//		creature& e = objects[rec - FirstCreature];
+	//		if(e.action == AnimateMove) {
+	//			int s = e.getsize();
+	//			p1.x = e.pos.x - mx + rc.x1;
+	//			p1.y = e.pos.y - my + rc.y1;
+	//			for(auto p = e.path; p; p = p->next) {
+	//				point p2 = get_world_pos(p->index, s);
+	//				p2.x = p2.x - mx + rc.x1;
+	//				p2.y = p2.y - my + rc.y1;
+	//				draw::line(p1, p2, colors::yellow);
+	//				p1 = p2;
+	//			}
+	//		}
+	//	}
+	//}
+}
+
 static void correct_camera(const rect& rc, point& camera) {
 	camera_size.x = rc.width();
 	camera_size.y = rc.height();
@@ -396,6 +418,7 @@ void draw::menumodal(bool use_keys, itemdrag* pd) {
 }
 
 static void move_to_point(point pt) {
+	creature::moveto(players, pt, current_formation);
 }
 
 void creature::adventure() {
@@ -454,7 +477,6 @@ void creature::adventure() {
 					}
 				} else if(container_data.consist(current)) {
 					auto p = static_cast<container*>(current);
-
 				} else if(door_data.consist(current)) {
 					auto p = static_cast<door*>(current);
 					if(!hot.pressed)

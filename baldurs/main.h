@@ -566,7 +566,7 @@ struct actor : drawable {
 	int					getciclecount(int cicle) const;
 	virtual class_s		getclass() const { return Fighter; }
 	int					getflags() const;
-	unsigned			getfps() const override { return 10; }
+	unsigned			getfps() const override { return 12; }
 	int					getframe() const { return frame; }
 	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
@@ -579,6 +579,7 @@ struct actor : drawable {
 	rect				getrect() const override;
 	virtual int			getsize() const { return 2; }
 	virtual int			getspeed() const { return 10; }
+	const sprite*		getsprite(int& wi) const { return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi)); }
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	bool				hittest(point pt) const override;
@@ -602,8 +603,6 @@ struct actor : drawable {
 	static void			setcamera(point camera);
 	void				setposition(point newpos);
 	void				update() override;
-	void				update_action();
-	void				update_animation();
 	void				update_portrait();
 private:
 	animation_s			action;
@@ -612,7 +611,6 @@ private:
 	unsigned short		frame;
 	unsigned			duration; // This time stamp indicator when change frame
 	int					range;
-	const sprite*		sprites[4];
 	map::node*			path;
 	coloration			colors;
 	//
@@ -694,6 +692,7 @@ struct creature : actor {
 	void				invertory(itemdrag* pd);
 	static void			journal();
 	static void			minimap();
+	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	void				say(const char* format, ...) const;

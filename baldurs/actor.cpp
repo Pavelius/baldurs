@@ -170,7 +170,7 @@ void actor::set(animation_s id) {
 		return;
 	action = id;
 	frame = 0;
-	duration = draw::getframe(getfps());
+	duration = draw::getframe();
 	if(id == AnimateStand)
 		clearpath();
 }
@@ -187,18 +187,53 @@ bool actor::isblock(point value) const {
 }
 
 int actor::getciclecount(int cicle) const {
-	return sprites[0]->getcicle(cicle)->count;
+	int wi;
+	auto s = getsprite(wi);
+	if(!s)
+		return 0;
+	return s->getcicle(cicle)->count;
 }
 
-void actor::update_action() {
-	// If stunned
+void actor::move(point destination) {
+	clearpath();
+	if(destination && distance(position, destination) <= 10)
+		return;
+	dest = destination;
+	auto s = getsize();
+	auto i = map::getindex(position, s);
+	map::set(i, false, s);
+	auto start = map::getindex(position, s);
+	auto goal = map::getindex(destination, s);
+	map::createwave(start, s);
+	if(map::route(start, goal))
+		path = map::createpath(start, s);
+	map::set(i, true, s);
+	if(path) {
+		set(AnimateMove);
+		this->start = position;
+		range = 0;
+		//msdbg("Used path nodes %1i", map::getcount());
+	}
+}
+
+void actor::setposition(point newpos) {
+	int s = getsize();
+	if(position)
+		map::set(map::getindex(position, s), false, s);
+	position = newpos;
+	if(position)
+		map::set(map::getindex(position, s), true, s);
+}
+
+void actor::update() {
+	if(duration > draw::getframe())
+		return; // Еще не пришло время
 	if(isstunned()) {
 		if(action != AnimateCombatStanceTwoHanded) {
 			set(AnimateCombatStanceTwoHanded);
 			return;
 		}
 	}
-	// If killed
 	if(gethits() <= 0) {
 		if(action != AnimateGetHitAndDrop && action != AnimateAgony) {
 			set(AnimateGetHitAndDrop);
@@ -206,7 +241,7 @@ void actor::update_action() {
 		}
 	}
 	frame++;
-	duration += (1000 / getfps());
+	duration += 1000 / getfps();
 	auto s = getsize();
 	if(action == AnimateMove) {
 		point newpos = position;
@@ -240,8 +275,7 @@ void actor::update_action() {
 		setposition(newpos);
 		return;
 	}
-	int cicle_index = getcicle();
-	int cicle_count = getciclecount(cicle_index);
+	int cicle_count = getciclecount(getcicle());
 	if(!cicle_count)
 		return;
 	int cicle_frame = frame % cicle_count;
@@ -278,58 +312,8 @@ void actor::update_action() {
 	}
 }
 
-void actor::move(point destination) {
-	clearpath();
-	if(destination && distance(position, destination) <= 10)
-		return;
-	dest = destination;
-	auto s = getsize();
-	auto i = map::getindex(position, s);
-	map::set(i, false, s);
-	auto start = map::getindex(position, s);
-	auto goal = map::getindex(destination, s);
-	map::createwave(start, s);
-	if(map::route(start, goal))
-		path = map::createpath(start, s);
-	map::set(i, true, s);
-	if(path) {
-		set(AnimateMove);
-		this->start = position;
-		range = 0;
-		//msdbg("Used path nodes %1i", map::getcount());
-	}
-}
-
-void actor::setposition(point newpos) {
-	int s = getsize();
-	if(position)
-		map::set(map::getindex(position, s), false, s);
-	position = newpos;
-	if(position)
-		map::set(map::getindex(position, s), true, s);
-}
-
-void actor::update() {
-	if(!duration)
-		return; // Still image
-	if(duration > draw::getframe())
-		return; // Time not come yet
-	if(!sprites[0])
-		update_animation();
-	update_action();
-	update_animation();
-}
-
 rect actor::getrect() const {
 	return {position.x - 64, position.y - 128, position.x + 64, position.y + 64};
-}
-
-void actor::update_animation() {
-	int wi;
-	sprites[0] = gres(getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi));
-	sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
-	sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
-	sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
 }
 
 void actor::update_portrait() {
@@ -345,8 +329,6 @@ bool actor::hittest(point pt) const {
 }
 
 void actor::painting(point screen) const {
-	if(!sprites[0])
-		return;
 	color pallette[256];
 	int x = position.x - screen.x;
 	int y = position.y - screen.y;
@@ -359,7 +341,12 @@ void actor::painting(point screen) const {
 		e.g = (e.g * shadow.g) >> 8;
 		e.b = (e.b * shadow.b) >> 8;
 	}
-	//paint_circle(x, y);
+	paint_circle(x, y);
+	const sprite* sprites[4]; int wi;
+	sprites[0] = getsprite(wi);
+	sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
+	sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
+	sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
 	for(auto p : sprites) {
 		if(!p)
 			continue;
@@ -434,37 +421,3 @@ void actor::render_marker(const rect& rc, int ox, int oy) const {
 		}
 	}
 }
-
-//void move_to(int* players, point pt, int formation) {
-//	if(!players[0])
-//		return;
-//	point src = objects[players[0] - FirstCreature].pos;
-//	for(int i = 0; players[i]; i++) {
-//		int rec = players[i];
-//		creature& e = objects[rec - FirstCreature];
-//		point p1 = get_formation_point(src, pt, formation, i);
-//		move_to(rec, p1);
-//	}
-//}
-
-//void draw_move_path(rect rc, int mx, int my) {
-//	point p1;
-//	for(auto p = subjects; *p; p++) {
-//		int rec = *p;
-//		if(rec >= FirstCreature && rec <= LastCreature) {
-//			creature& e = objects[rec - FirstCreature];
-//			if(e.action == AnimateMove) {
-//				int s = e.getsize();
-//				p1.x = e.pos.x - mx + rc.x1;
-//				p1.y = e.pos.y - my + rc.y1;
-//				for(auto p = e.path; p; p = p->next) {
-//					point p2 = get_world_pos(p->index, s);
-//					p2.x = p2.x - mx + rc.x1;
-//					p2.y = p2.y - my + rc.y1;
-//					draw::line(p1, p2, colors::yellow);
-//					p1 = p2;
-//				}
-//			}
-//		}
-//	}
-//}
