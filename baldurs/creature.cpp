@@ -111,16 +111,6 @@ int	creature::getmaxcarry() const {
 	return maptbl(carrying_capacity, value)[2];
 }
 
-//void creature::set(coloration& e) const {
-//	e.skin = colors.skin;
-//	e.hair = colors.hair;
-//	e.minor = colors.minor;
-//	e.major = colors.major;
-//	e.armor = 28;
-//	e.metal = 30;
-//	e.leather = 23;
-//}
-
 int creature::getbab() const {
 	return classes[Barbarian] + classes[Fighter] + classes[Paladin] + classes[Ranger]
 		+ ((classes[Bard] + classes[Cleric] + classes[Druid] + classes[Monk] + classes[Rogue]) * 3) / 4
@@ -266,12 +256,8 @@ void creature::add(stringbuilder& sb, const aref<variant>& elements, const char*
 	for(auto e : elements) {
 		sb.addn(getstr(e));
 		switch(e.type) {
-		case Skill:
-			sb.add(" %+1i (%2i)", get(e.skill), skills[e.skill]);
-			break;
-		case Ability:
-			sb.add(": %1i", ability[e.ability]);
-			break;
+		case Skill: sb.add(" %+1i (%2i)", get(e.skill), skills[e.skill]); break;
+		case Ability: sb.add(": %1i", ability[e.ability]); break;
 		}
 	}
 }
@@ -370,7 +356,7 @@ static void moveto_command() {
 	for(auto& e : players) {
 		if(!e)
 			continue;
-		e.setposition(actor::getposition(start, pe->position, formation, index++));
+		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
 		e.actor::set(AnimateStand);
 	}
 	//draw::mslog("Область [%1]", moveto_area);
@@ -520,7 +506,7 @@ aref<variant> creature::selecth(const aref<variant>& source, const variant v1, c
 				continue;
 			break;
 		case Skill:
-			if(skills[e.skill]==0 && get(e.skill)<=0)
+			if(!skills[e.skill])
 				continue;
 			break;
 		case Ability:
@@ -589,13 +575,25 @@ void creature::choose_skills(const char* title, const aref<variant>& elements) {
 	*this = player;
 }
 
+static int compare_rolls(const void* p1, const void* p2) {
+	return *((char*)p2) - *((char*)p1);
+}
+
+static int roll_4d6() {
+	char temp[4];
+	for(auto& e : temp)
+		e = 1 + rand() % 6;
+	qsort(temp, sizeof(temp) / sizeof(temp[0]), sizeof(temp[0]), compare_rolls);
+	return temp[0] + temp[1] + temp[2];
+}
+
 void creature::create(class_s type, race_s race, gender_s gender) {
 	variant elements[128];
 	this->gender = gender;
 	this->race = race;
 	this->classes[type] = 1;
 	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
-		ability[a] = 10;
+		ability[a] = roll_4d6();
 	choose_skills("Случайная генерация", elements, true, false);
 	update_levels();
 	portrait = random_portrait();
