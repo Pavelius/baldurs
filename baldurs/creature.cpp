@@ -218,6 +218,7 @@ variant_s creature::getstep() const {
 }
 
 void creature::clear() {
+	actor::clear();
 	clear(Race);
 	clear(Gender);
 	clear(Class);
@@ -652,11 +653,4 @@ int creature::getpartymaxdistance(point position) {
 			result = ds;
 	}
 	return result;
-}
-
-void creature::finishing(animation_s action) {
-	switch(action) {
-	case AnimateMove:
-		break;
-	}
 }

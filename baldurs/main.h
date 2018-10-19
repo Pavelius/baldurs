@@ -556,12 +556,11 @@ struct setting {
 	bool				show_path;
 };
 struct actor : drawable {
-	//
 	void				act(int player, const char* format, ...);
 	void				choose_apearance(const char* title, const char* step_title);
+	void				clear();
 	void				clearpath();
 	void				clearcolors();
-	virtual void		finishing(animation_s action) {}
 	static res::tokens	getanimation(item_s type);
 	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
 	static point		getbackward(point start, int step, int orientation);
@@ -588,6 +587,8 @@ struct actor : drawable {
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	bool				hittest(point pt) const override;
+	void				interact(drawable* object);
+	virtual void		interacting(drawable* object) {}
 	virtual bool		isblock(point value) const { return false; }
 	virtual bool		isselected() const { return false; }
 	virtual bool		isstunned() const { return false; }
@@ -621,6 +622,7 @@ private:
 	int					range;
 	map::node*			path;
 	coloration			colors;
+	drawable*			action_object;
 };
 struct creature : actor {
 	explicit operator bool() const { return ability[0] != 0; }
@@ -644,7 +646,6 @@ struct creature : actor {
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
 	bool				equip(const item e);
-	void				finishing(animation_s action) override;
 	void				generate(const char* title);
 	int					get(ability_s id) const;
 	int					get(save_s id) const;

@@ -230,8 +230,12 @@ void actor::update() {
 		range += getspeed();
 		while(true) {
 			if(!path) {
-				finishing(AnimateMove);
 				set(AnimateStand);
+				if(action_object) {
+					auto pa = action_object;
+					action_object = 0;
+					interacting(pa);
+				}
 				return;
 			}
 			newpos = map::getposition(path->index, s);
@@ -419,4 +423,22 @@ void actor::render_path(const rect& rc, int mx, int my) const {
 			p1 = p2;
 		}
 	}
+}
+
+void actor::interact(drawable* object) {
+	if(!object)
+		return;
+}
+
+void actor::clear() {
+	memset(&colors, 0, sizeof(colors));
+	action_object = 0;
+	position.clear();
+	dest.clear();
+	start.clear();
+	frame = 0;
+	orientation = 0;
+	duration = 0;
+	path = 0;
+	range = 0;
 }
