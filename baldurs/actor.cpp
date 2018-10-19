@@ -230,6 +230,7 @@ void actor::update() {
 		range += getspeed();
 		while(true) {
 			if(!path) {
+				finishing(AnimateMove);
 				set(AnimateStand);
 				return;
 			}

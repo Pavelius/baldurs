@@ -104,7 +104,7 @@ enum alignment_s : unsigned char {
 	NoAlignment,
 	LawfulGood, NeutralGood, ChaoticGood, LawfulNeutral, TrueNeutral, ChaoticNeutral, LawfulEvil, NeutralEvil, ChaoticEvil,
 };
-enum god_s : unsigned char {
+enum diety_s : unsigned char {
 	NoGod,
 	GodBane, GodChauntea, GodIllmater, GodGruumsh, GodHelm,
 	GodKelemvor, GodKossuth, GodLathander, GodLolth, GodMask,
@@ -561,6 +561,7 @@ struct actor : drawable {
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clearpath();
 	void				clearcolors();
+	virtual void		finishing(animation_s action) {}
 	static res::tokens	getanimation(item_s type);
 	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
 	static point		getbackward(point start, int step, int orientation);
@@ -643,6 +644,7 @@ struct creature : actor {
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
 	bool				equip(const item e);
+	void				finishing(animation_s action) override;
 	void				generate(const char* title);
 	int					get(ability_s id) const;
 	int					get(save_s id) const;
@@ -663,7 +665,7 @@ struct creature : actor {
 	void				getdescription(stringbuilder& sb) const;
 	int					getfeats() const;
 	gender_s			getgender() const override { return gender; }
-	god_s				getgod() const { return god; }
+	diety_s				getdiety() const { return diety; }
 	int					gethits() const override { return hits; }
 	int					gethitsmax() const;
 	int					getlevel() const;
@@ -735,7 +737,7 @@ private:
 	gender_s			gender;
 	race_s				race;
 	alignment_s			alignment;
-	god_s				god;
+	diety_s				diety;
 	const char*			name;
 	unsigned char		ability[Charisma + 1];
 	char				classes[LastClass + 1];

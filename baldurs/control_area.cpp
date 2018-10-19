@@ -405,7 +405,7 @@ void draw::menumodal(bool use_keys, itemdrag* pd) {
 		translate(menu_keys);
 }
 
-static void move_to_point(point pt) {
+static void party_move_to(point pt) {
 	creature::moveto(players, pt, settings.formation);
 }
 
@@ -437,7 +437,7 @@ void creature::adventure() {
 			if(map::isblock(index))
 				cur.set(res::CURSORS, 6);
 			else {
-				proc_point = move_to_point;
+				proc_point = party_move_to;
 				cur.set(res::CURSORS, 4);
 			}
 		}
@@ -456,8 +456,13 @@ void creature::adventure() {
 							textblend(p->launch, p->name, getblendtextduration());
 						break;
 					case RegionTravel:
-						if(!hot.pressed)
-							moveto(p->move_to_area, p->move_to_entrance);
+						if(!hot.pressed) {
+							auto destination = p->getposition();
+							if(getpartymaxdistance(destination)<250)
+								moveto(p->move_to_area, p->move_to_entrance);
+							else
+								party_move_to(destination);
+						}
 						break;
 					}
 				} else if(container_data.consist(current)) {

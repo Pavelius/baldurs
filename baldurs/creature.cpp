@@ -653,3 +653,10 @@ int creature::getpartymaxdistance(point position) {
 	}
 	return result;
 }
+
+void creature::finishing(animation_s action) {
+	switch(action) {
+	case AnimateMove:
+		break;
+	}
+}
