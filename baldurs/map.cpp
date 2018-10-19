@@ -40,9 +40,9 @@ int map::getnodecount() {
 	return result;
 }
 
-//unsigned short map::getcost(unsigned short index) {
-//	return path_cost[index];
-//}
+unsigned short map::getcost(unsigned short index) {
+	return path_cost[index];
+}
 
 void map::setcost(short unsigned index, short unsigned value) {
 	path_cost[index] = value;
@@ -111,7 +111,7 @@ short unsigned map::to(short unsigned index, move_directions d) {
 			return Blocked;
 		if((index >> 8) >= height - 1)
 			return Blocked;
-		return index + 1;
+		return index + 256 + 1;
 	case Down:
 		if((index >> 8) >= height - 1)
 			return Blocked;

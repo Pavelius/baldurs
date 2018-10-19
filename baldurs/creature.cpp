@@ -608,5 +608,48 @@ void creature::moveto(aref<creature> players, point destination, formation_s for
 	auto start = players[0].getposition();
 	auto index = 0;
 	for(auto& e : players)
-		e.move(getposition(start, destination, formation, index++));
+		e.move(map::getfree(getposition(start, destination, formation, index++), e.getsize()));
+}
+
+creature* creature::getcreature(point position) {
+	return getcreature(map::getindex(position));
+}
+
+creature* creature::getcreature(short unsigned index) {
+	for(auto& e : players) {
+		if(!e)
+			continue;
+		auto i = map::getindex(e.getposition(), e.getsize());
+		if(index == i)
+			return &e;
+	}
+	for(auto& e : creature_data) {
+		if(!e)
+			continue;
+		auto i = map::getindex(e.getposition(), e.getsize());
+		if(index == i)
+			return &e;
+	}
+	return 0;
+}
+
+bool creature::isblock(point value) const {
+	if(!value)
+		return true;
+	int s = getsize();
+	int i = map::getindex(value, s);
+	return getcreature(i) != 0;
+}
+
+int creature::getpartymaxdistance(point position) {
+	auto result = 0;
+	for(auto& e : players) {
+		if(!e)
+			continue;
+		auto pt = e.getposition();
+		auto ds = distance(pt, position);
+		if(ds > result)
+			result = ds;
+	}
+	return result;
 }

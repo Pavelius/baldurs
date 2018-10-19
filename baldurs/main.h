@@ -587,7 +587,7 @@ struct actor : drawable {
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	bool				hittest(point pt) const override;
-	bool				isblock(point value) const;
+	virtual bool		isblock(point value) const { return false; }
 	virtual bool		isstunned() const { return false; }
 	bool				isvisible() const { return position.x!=0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
@@ -658,6 +658,8 @@ struct creature : actor {
 	int					getcharlevel() const;
 	class_s				getclass() const override;
 	int					getcost(skill_s id) const { return isclass(id) ? 1 : 2; }
+	static creature*	getcreature(point position);
+	static creature*	getcreature(short unsigned index);
 	void				getdescription(stringbuilder& sb) const;
 	int					getfeats() const;
 	gender_s			getgender() const override { return gender; }
@@ -668,6 +670,7 @@ struct creature : actor {
 	const char*			getname() const override { return name; }
 	int					getmaxcarry() const;
 	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
+	static int			getpartymaxdistance(point position);
 	int					getpoints(class_s id) const;
 	int					getportrait() const override { return portrait; }
 	int					getprepared(variant type) const;
@@ -690,6 +693,7 @@ struct creature : actor {
 	static bool			isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack);
 	bool				isallow(const item& it) const;
 	bool				isallow(variant id) const;
+	bool				isblock(point value) const override;
 	bool				isclass(skill_s id) const;
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }

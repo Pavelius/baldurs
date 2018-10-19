@@ -149,6 +149,7 @@
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="crt_parse.cpp" />
     <ClCompile Include="dice.cpp" />
+    <ClCompile Include="diety.cpp" />
     <ClCompile Include="door.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="draw_text.cpp" />
@@ -188,7 +189,6 @@
     <ClCompile Include="stringcreator.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
-    <ClCompile Include="tokens.cpp" />
     <ClCompile Include="main_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>

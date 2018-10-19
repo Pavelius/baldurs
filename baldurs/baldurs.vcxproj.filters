@@ -94,9 +94,6 @@
     <ClCompile Include="actor.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
-    <ClCompile Include="tokens.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
@@ -222,6 +219,9 @@
     </ClCompile>
     <ClCompile Include="control_journal.cpp">
       <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="diety.cpp">
+      <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

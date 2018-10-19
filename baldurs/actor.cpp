@@ -175,14 +175,6 @@ void actor::set(animation_s id) {
 		clearpath();
 }
 
-bool actor::isblock(point value) const {
-	if(!value)
-		return true;
-	int s = getsize();
-	int i = map::getindex(value, s);
-	return map::isblock(map::getindex(value, s), s);
-}
-
 int actor::getciclecount(int cicle) const {
 	int wi;
 	auto s = getsprite(wi);
