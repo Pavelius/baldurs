@@ -531,6 +531,8 @@ void creature::generate(const char* title) {
 		auto e1 = choose_step(*this, title, "Главное меню", step);
 		if(e1 == step) {
 			switch(e1) {
+			case NoVariant:
+				return;
 			case Gender:
 				var = choose_gender(*this, title, "Выбор пола");
 				if(var) {
