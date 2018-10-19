@@ -589,9 +589,11 @@ struct actor : drawable {
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	bool				hittest(point pt) const override;
 	virtual bool		isblock(point value) const { return false; }
+	virtual bool		isselected() const { return false; }
 	virtual bool		isstunned() const { return false; }
 	bool				isvisible() const { return position.x!=0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
+	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
 	void				move(point destination);
 	void				painting(point screen) const override;
 	void				paperdoll(int x, int y, animation_s animation = AnimateStand, int orientation = 2) const;
@@ -619,8 +621,6 @@ private:
 	int					range;
 	map::node*			path;
 	coloration			colors;
-	//
-	void				paint_circle(int x, int y) const;
 };
 struct creature : actor {
 	explicit operator bool() const { return ability[0] != 0; }
@@ -662,6 +662,7 @@ struct creature : actor {
 	int					getcost(skill_s id) const { return isclass(id) ? 1 : 2; }
 	static creature*	getcreature(point position);
 	static creature*	getcreature(short unsigned index);
+	static creature*	getcreature(aref<creature> source, short unsigned index);
 	void				getdescription(stringbuilder& sb) const;
 	int					getfeats() const;
 	gender_s			getgender() const override { return gender; }
@@ -697,6 +698,7 @@ struct creature : actor {
 	bool				isallow(variant id) const;
 	bool				isblock(point value) const override;
 	bool				isclass(skill_s id) const;
+	bool				isselected() const override;
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
 	void				invertory();
@@ -787,7 +789,6 @@ int						button(int x, int y, const runable& cmd, unsigned flags, res::tokens r,
 bool					dlgask(const char* text);
 int						dlgcho(const char* text, const char* a1, const char* a2);
 void					dlgmsg(const char* text);
-void					ellipse(const rect& rc, color c);
 int						field(rect rc, char* result, unsigned maximum);
 unsigned				getframe();
 unsigned				getframe(int fps);

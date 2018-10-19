@@ -616,14 +616,14 @@ creature* creature::getcreature(point position) {
 }
 
 creature* creature::getcreature(short unsigned index) {
-	for(auto& e : players) {
-		if(!e)
-			continue;
-		auto i = map::getindex(e.getposition(), e.getsize());
-		if(index == i)
-			return &e;
-	}
-	for(auto& e : creature_data) {
+	auto result = getcreature(players, index);
+	if(!result)
+		result = getcreature(creature_data, index);
+	return result;
+}
+
+creature* creature::getcreature(aref<creature> collection, short unsigned index) {
+	for(auto& e : collection) {
 		if(!e)
 			continue;
 		auto i = map::getindex(e.getposition(), e.getsize());

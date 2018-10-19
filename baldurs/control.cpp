@@ -135,12 +135,6 @@ unsigned draw::getframe(int fps) {
 	return timestamp / (1000 / fps);
 }
 
-void draw::ellipse(const rect& rc, color c) {
-	int w = rc.width();
-	int h = rc.height();
-	circle(rc.x1 + h/2, rc.y1 + w/2, imin(w, h)/2, c);
-}
-
 static void apply_header(int header, int col) {
 	switch(header) {
 	case 1: draw::font = metrics::h1; break;

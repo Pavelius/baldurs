@@ -6,14 +6,17 @@ typedef adat<drawable*, 256>	drawablet;
 static point					camera;
 static point					camera_size;
 static action_s					current_action = ActionGuard;
-static creature*				current_player;
+static adat<creature*, 8>		current_selected;
 static void						(creature::*creature_proc)();
 const int						camera_step = 16;
 
 static void character_submenu() {
 	cursorset cur;
 	while(ismodal()) {
-		(current_player->*creature_proc)();
+		auto player = creature::getplayer();
+		if(!player)
+			break;
+		(player->*creature_proc)();
 		menumodal();
 	}
 }
@@ -39,10 +42,15 @@ static void choose_menu(void(*proc)()) {
 		setnext(proc);
 }
 
+static void setplayer(creature* player) {
+	current_selected.clear();
+	current_selected.add(player);
+}
+
 static void nothing() {}
 static void choose_action() { current_action = (action_s)hot.param; }
 static void choose_formation() { settings.formation = (formation_s)hot.param; }
-static void choose_player() { current_player = (creature*)hot.param; }
+static void choose_player() { setplayer((creature*)hot.param); }
 static void move_left() { camera.x -= camera_step; }
 static void move_right() { camera.x += camera_step; }
 static void move_up() { camera.y -= camera_step; }
@@ -62,6 +70,13 @@ static void change_mode() {
 		settings.panel = setting::PanelFull;
 }
 
+static void select_all() {
+	for(auto& e : players) {
+		if(!current_selected.is(&e))
+			current_selected.add(&e);
+	}
+}
+
 static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
 {move_right, KeyRight, "Двигать вправо"},
 {move_up, KeyUp, "Двигать вверх"},
@@ -74,6 +89,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {character_spellbook, Alpha + 'S', "Заклинания персонажа"},
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
+{select_all, Alpha + '=', "Выбрать всех"},
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {game_journal, Alpha + 'J', "Журнал заданий"},
@@ -119,7 +135,7 @@ static int act(int x, int y, const runable& cmd, formation_s id) {
 static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd) {
 	color s0 = colors::green;
 	unsigned flags = 0;
-	if(current_player == &player)
+	if(current_selected.is(&player))
 		flags |= Checked;
 	int hp = player.gethits();
 	int mhp = player.gethitsmax();
@@ -215,7 +231,13 @@ static int compare_zorder(const void* p1, const void* p2) {
 }
 
 creature* creature::getplayer() {
-	return current_player;
+	if(!current_selected)
+		return 0;
+	return current_selected[0];
+}
+
+bool creature::isselected() const {
+	return current_selected.is((creature* const)this);
 }
 
 static drawable* render_area(rect rc, const point origin, const point hotspot) {
@@ -380,7 +402,7 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0) 
 static void render_footer(rect& rcs) {
 	auto i = draw::getframe(12) % 32;
 	draw::image(0, 493, res::GCOMM, 0);
-	button(576, 496, cmpr(nothing), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
+	button(576, 496, cmpr(select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
 	button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0);
 	button(600, 515, cmpr(character_sheet), 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0);
 	button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);
@@ -405,15 +427,20 @@ void draw::menumodal(bool use_keys, itemdrag* pd) {
 		translate(menu_keys);
 }
 
-static void party_move_to(point pt) {
-	creature::moveto(players, pt, settings.formation);
+static void party_move_to(point destination) {
+	if(!current_selected)
+		return;
+	auto start = current_selected[0]->getposition();
+	auto index = 0;
+	for(auto p : current_selected)
+		p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
 }
 
 void creature::adventure() {
 	cursorset cur;
 	animation shifter;
-	if(!current_player)
-		current_player = players;
+	if(!getplayer())
+		setplayer(players);
 	while(ismodal()) {
 		rect rcs = {0, 0, getwidth(), getheight()};
 		cur.set(res::CURSORS);
@@ -458,7 +485,7 @@ void creature::adventure() {
 					case RegionTravel:
 						if(!hot.pressed) {
 							auto destination = p->getposition();
-							if(getpartymaxdistance(destination)<250)
+							if(getpartymaxdistance(destination) < 250)
 								moveto(p->move_to_area, p->move_to_entrance);
 							else
 								party_move_to(destination);

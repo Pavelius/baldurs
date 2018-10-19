@@ -322,7 +322,8 @@ void actor::painting(point screen) const {
 		e.g = (e.g * shadow.g) >> 8;
 		e.b = (e.b * shadow.b) >> 8;
 	}
-	paint_circle(x, y);
+	if(isselected())
+		marker(x, y, getsize(), colors::green, false, true);
 	const sprite* sprites[4]; int wi;
 	sprites[0] = getsprite(wi);
 	sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
@@ -334,18 +335,6 @@ void actor::painting(point screen) const {
 		auto cicle_frame = p->getanim(cicle_index, getframe());
 		image(x, y, p, cicle_frame, cicle_flags, 0xFF, pallette);
 	}
-}
-
-void actor::paint_circle(int x, int y) const {
-	color c;
-	auto s = getsize() + 1;
-	if(false) {
-		unsigned char n = 155 + iabs((int)((draw::getframe(100) % 200) - 100));
-		c = colors::green.mix(colors::black, n);
-	} else
-		c = colors::green.mix(colors::black, 208);
-	//if(zchr(subjects, rec))
-	//	ellipse({x - 8 * s, y - 6 * s, x + 8 * s, y + 6 * s}, c);
 }
 
 static void painting_equipment(int x, int y, item equipment, int ws, int frame, unsigned flags, color* pallette) {
@@ -390,6 +379,15 @@ point actor::getbackward(point start, int step, int orientation) {
 	return{(short)(start.x - orient_dx[orientation] * step), (short)(start.y - orient_dy[orientation] * step)};
 }
 
+void actor::marker(int x, int y, int size, color c, bool flicking, bool double_border) {
+	auto r = (size + 1) * 6;
+	if(flicking)
+		r += iabs(int(draw::getframe(16) % 6) - 3) - 1;
+	circle(x, y, r, c);
+	if(double_border)
+		circle(x, y, r + 1, c);
+}
+
 void actor::render_marker(const rect& rc, int ox, int oy) const {
 	if(action == AnimateMove) {
 		if(dest) {
@@ -402,7 +400,7 @@ void actor::render_marker(const rect& rc, int ox, int oy) const {
 			int h = r * 6 * p / 100;
 			rect rce = {x - w, y - h, x + w, y + h};
 			if(rc.intersect(rce))
-				draw::ellipse(rce, colors::yellow);
+				marker(x, y, getsize(), colors::yellow, true, false);
 		}
 	}
 }
