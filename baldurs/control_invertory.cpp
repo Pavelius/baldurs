@@ -155,5 +155,4 @@ void creature::invertory(itemdrag* pd) {
 
 void creature::invertory() {
 	invertory(0);
-	menumodal();
 }

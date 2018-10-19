@@ -59,32 +59,14 @@ static int tokey(int vk) {
 static int handle(MSG& msg) {
 	switch(msg.message) {
 	case WM_MOUSEMOVE:
-		if(msg.hwnd != hwnd)
-			break;
 		hot.mouse.x = LOWORD(msg.lParam);
 		hot.mouse.y = HIWORD(msg.lParam);
 		return MouseMove;
-	case WM_LBUTTONDOWN:
-		if(msg.hwnd != hwnd)
-			break;
-		hot.pressed = true;
-		return MouseLeft;
-	case WM_LBUTTONUP:
-		if(msg.hwnd != hwnd)
-			break;
-		hot.pressed = false;
-		return MouseLeft;
-	case WM_LBUTTONDBLCLK:
-		if(msg.hwnd != hwnd)
-			break;
-		hot.pressed = true;
-		return MouseLeftDBL;
-	case WM_RBUTTONDOWN:
-		hot.pressed = true;
-		return MouseRight;
-	case WM_RBUTTONUP:
-		hot.pressed = false;
-		return MouseRight;
+	case WM_LBUTTONDOWN: hot.pressed = true; return MouseLeft;
+	case WM_LBUTTONUP: hot.pressed = false; return MouseLeft;
+	case WM_LBUTTONDBLCLK: hot.pressed = true; return MouseLeftDBL;
+	case WM_RBUTTONDOWN: hot.pressed = true; return MouseRight;
+	case WM_RBUTTONUP: hot.pressed = false; return MouseRight;
 	case WM_MOUSEWHEEL:
 		if(msg.wParam & 0x80000000)
 			return MouseWheelDown;
@@ -97,17 +79,11 @@ static int handle(MSG& msg) {
 		if(msg.wParam == InputTimer)
 			return InputTimer;
 		break;
-	case WM_KEYDOWN:
-		return tokey(msg.wParam);
-	case WM_CHAR:
-		hot.param = msg.wParam;
-		return InputSymbol;
+	case WM_KEYDOWN: return tokey(msg.wParam);
+	case WM_CHAR: hot.param = msg.wParam; return InputSymbol;
 	case WM_MY_SIZE:
-	case WM_SIZE:
-		return InputUpdate;
-	case WM_QUIT:
-		exit(0);
-		break;
+	case WM_SIZE: return InputUpdate;
+	case WM_QUIT: exit(0); break;
 	}
 	return 0;
 }
