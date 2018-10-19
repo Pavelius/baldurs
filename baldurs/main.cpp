@@ -33,10 +33,8 @@ static void exit_game() {}
 static void start_scene() {
 	auto fid = rand() % 2;
 	while(ismodal()) {
-		background(res::START, fid);
-		//rectf({10, 10, 110, 500}, colors::black);
-		//blit(*draw::canvas, 10, 10, pallette.width*4, pallette.height, 0, pallette, 0, 0, pallette.width, pallette.height/4);
 		int x = 170, y = 92;
+		background(res::START, fid);
 		button(x + 396, y + 68, cmpr(single_player), 0, res::GBTNMED2, "Один игрок");
 		//
 		button(x + 396, y + 156 + 0 * 32, cmpr(new_game), 0, res::GBTNMED2, "Новая игра");
@@ -89,7 +87,7 @@ int main(int argc, char* argv[]) {
 	draw::initialize();
 	if(!draw::pallette)
 		return -1;
-	test_character();
+	//test_character();
 	next_proc = start_scene;
 	while(next_proc)
 		next_proc();

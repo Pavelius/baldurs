@@ -15,8 +15,9 @@ static struct variant_info {
 {"Skills", "Навыки"},
 {"Spells", "Заклинания"},
 {"Name", "Имя"},
+{"Finish", "Закончить"},
 };
-assert_enum(variant, Name);
+assert_enum(variant, Finish);
 getstr_enum(variant);
 
 template<> const char* getstr<variant>(variant id) {

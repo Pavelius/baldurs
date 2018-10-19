@@ -244,7 +244,7 @@ enum tile_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name,
+	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name, Finish,
 };
 typedef aset<char, LastSkill + 1, skill_s> skillset;
 struct variant {
@@ -779,7 +779,7 @@ inline void				background(res::tokens token, int id = 0) { image(0, 0, gres(toke
 int						button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
 int						button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
 bool					dlgask(const char* text);
-int						dlgcho(const char* text, const char* a1, unsigned f1, const char* a2, unsigned f2);
+int						dlgcho(const char* text, const char* a1, const char* a2);
 void					dlgmsg(const char* text);
 void					ellipse(const rect& rc, color c);
 int						field(rect rc, char* result, unsigned maximum);

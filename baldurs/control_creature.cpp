@@ -70,11 +70,11 @@ static aref<variant> createlist(aref<variant> result, variant v1, variant v2) {
 	return result;
 }
 
-static void command_buttons(bool stepchoose = false, variant_s step = NoVariant) {
-	button(35, 550, cmpr(biography), Disabled, res::GBTNSTD, "Биография");
-	button(204, 550, cmpr(import_character), Disabled, res::GBTNSTD, "Импортировать");
+static void command_buttons(variant_s step = NoVariant) {
+	button(35, 550, cmpr(biography), (step==Finish) ? 0 : Disabled, res::GBTNSTD, "Биография");
+	button(204, 550, cmpr(import_character), 0, res::GBTNSTD, "Импортировать");
 	button(342, 550, cmpr(buttoncancel), 0, res::GBTNSTD, "Назад", KeyEscape);
-	button(647, 550, cmpr(buttonparam, CreateNew), stepchoose && step != Gender ? 0 : Disabled, res::GBTNSTD, "Начать заново");
+	button(647, 550, cmpr(buttonparam, CreateNew), (step == NoVariant || step != Gender) ? 0 : Disabled, res::GBTNSTD, "Начать заново");
 }
 
 static variant choose(const creature& player, const char* title, const char* step_title, aref<variant> elements) {
@@ -502,8 +502,8 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 			button(274, 113 + 35 * nid, cmpr(buttonok), flags, res::GBTNLRG, getstr(e.step), Alpha + '1' + nid);
 			nid++;
 		}
-		command_buttons(current != Gender);
-		button(478, 550, cmpr(next), (current ==NoVariant) ? 0 : Disabled, res::GBTNSTD, "Закончить", KeyEnter);
+		command_buttons(current);
+		button(478, 550, cmpr(next), (current == Finish) ? 0 : Disabled, res::GBTNSTD, "Закончить", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 		switch(hot.key) {
@@ -531,7 +531,7 @@ void creature::generate(const char* title) {
 		auto e1 = choose_step(*this, title, "Главное меню", step);
 		if(e1 == step) {
 			switch(e1) {
-			case NoVariant:
+			case Finish:
 				return;
 			case Gender:
 				var = choose_gender(*this, title, "Выбор пола");

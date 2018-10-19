@@ -214,7 +214,7 @@ variant_s creature::getstep() const {
 		return Apearance;
 	else if(!name)
 		return Name;
-	return NoVariant;
+	return Finish;
 }
 
 void creature::clear() {

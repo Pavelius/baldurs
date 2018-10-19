@@ -31,15 +31,15 @@ bool draw::dlgask(const char* text) {
 
 static void choose_answer() { breakmodal(hot.param); }
 
-int draw::dlgcho(const char* text, const char* a1, unsigned f1, const char* a2, unsigned f2) {
+int draw::dlgcho(const char* text, const char* a1, const char* a2) {
 	screenshoot e(true);
 	while(ismodal()) {
 		e.restore();
 		draw::image(262, 144, res::GMPMCHRB, 0);
 		label(285, 168, 232, 20, text);
-		button(285, 196, cmpr(choose_answer, 1), f1, res::GBTNLRG2, a1, Alpha + '1');
-		button(285, 228, cmpr(choose_answer, 2), f2, res::GBTNLRG2, a2, Alpha + '2');
-		button(344, 260, cmpr(buttoncancel), 0, res::GBTNSTD, "Отмена", KeyEscape); //344, 260, 461, 285
+		button(285, 196, cmpr(choose_answer, 1), 0, res::GBTNLRG2, a1, Alpha + '1');
+		button(285, 228, cmpr(choose_answer, 2), 0, res::GBTNLRG2, a2, Alpha + '2');
+		button(344, 260, cmpr(buttoncancel), 0, res::GBTNSTD, "Отмена", KeyEscape);
 		domodal();
 	}
 	return getresult();
