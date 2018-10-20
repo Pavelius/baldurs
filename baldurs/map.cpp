@@ -174,7 +174,21 @@ node* map::removeall(node* p) {
 node* map::remove(node* p) {
 	auto p1 = p->next;
 	p->index = 0;
+	p->next = 0;
 	return p1;
+}
+
+node* map::removeback(node* p) {
+	auto start = p;
+	node* result = 0;
+	while(p->next) {
+		result = p;
+		p = p->next;
+	}
+	result->next = 0;
+	p->index = 0;
+	p->next = 0;
+	return start;
 }
 
 int map::getrange(unsigned short i0, unsigned short i1) {

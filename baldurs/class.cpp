@@ -19,6 +19,7 @@ ProficiencyMace, ProficiencySimple, ProficiencyShortsword};
 static feat_s wizard_weapons[] = {ProficiencyClub, ProficiencyDagger, ProficiencyCrossbow, ProficiencyHeavyCrossbow, ProficiencySimple};
 static feat_s all_armor[] = {ArmorProfeciencyLight, ArmorProfeciencyMedium, ArmorProfeciencyHeavy, ShieldProfeciency};
 static feat_s medium_armor_and_shield[] = {ArmorProfeciencyLight, ArmorProfeciencyMedium, ShieldProfeciency};
+static feat_s rogue_weapons[] = {ProficiencyCrossbow, ProficiencySimple, ProficiencyDagger, ProficiencyClub, ProficiencyShortbow, ProficiencyShortsword, ProficiencyMace, ProficiencyHeavyCrossbow};
 
 static char p1[] = {1, 2, 2, 3, 3, 3, 4};
 static char p2[] = {1, 2, 2, 2, 3, 3, 4};
@@ -50,7 +51,7 @@ class_info class_data[] = {{"Commoner", "Крестьянин", 4, 2, 0, Strenght},
 {"Monk", "Монах", 6, 4, 0, Strenght},
 {"Paladin", "Паладин", 10, 2, 0, Wisdow},
 {"Ranger", "Следопыт", 10, 4, 0, Wisdow},
-{"Rogue", "Плут", 6, 8, 0, Strenght},
+{"Rogue", "Плут", 6, 8, 0, Strenght, {}, rogue_weapons},
 {"Sorcerer", "Колдун", 4, 2, 0, Charisma},
 {"Wizard", "Волшебник", 4, 2, wizard_spells, Intellegence, {}, wizard_weapons},
 };

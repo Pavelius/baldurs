@@ -140,7 +140,7 @@ res::tokens actor::getanimation(race_s race, gender_s gender, class_s type, int 
 			ws = 1; // верно для людей
 			icn = res::CHFB1;
 		} else {
-			ws = 3; // верно для людей
+			ws = 3; // верно для людей, но не для оружия
 			icn = res::CHMB1;
 		}
 		break;
@@ -548,6 +548,8 @@ void actor::testaction() {
 	move({460, 970}, true);
 	set(AnimateCombatStanceTwoHanded); animate();
 	set(getattackanimate(0)); animate();
+	set(getattackanimate(1)); animate();
+	set(getattackanimate(2)); animate();
 	//set(AnimateCastThird); animate();
 	//set(AnimateCastFour); animate();
 	//set(AnimateCastFourRelease); animate();

@@ -26,6 +26,7 @@ extern bool				isblock(unsigned short index);
 extern bool				isblock(unsigned short index, int size);
 bool					ispassable(unsigned short i0, unsigned short i1, int size);
 node*					removeall(node* p);
+node*					removeback(node* p);
 node*					remove(node* p);
 node*					route(short unsigned start, short unsigned(*proc)(short unsigned index));
 extern void				set(short unsigned index, bool isblock);
