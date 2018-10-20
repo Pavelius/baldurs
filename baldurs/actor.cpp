@@ -91,7 +91,7 @@ point actor::getposition(point src, point dst, formation_s formation, int pos) {
 res::tokens actor::getanimation(item_s type) {
 	switch(type) {
 	case BattleAxe: return res::WQSAX;
-	case Club: return res::WQSMC;
+	case Mace: case Club: return res::WQSMC;
 	case Dagger: return res::WQSDD;
 	case Hammer: return res::WQSWH;
 	case Halberd: return res::WQSHB;

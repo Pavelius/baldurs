@@ -52,8 +52,10 @@ static void equipment(creature& player, feature_info& f, bool interactive) {
 	}
 }
 
-static variant fighter_equipment[] = {Longsword, LeatherArmor};
+static variant cleric_equipment[] = {Mace};
+static variant fighter_equipment[] = {Longsword, LeatherArmor, Helm};
 static variant wizard_equipment[] = {Staff};
+static variant rogue_equipment[] = {Shortsword};
 
 feature_info feature_data[] = {{Cleric, 1, 0, known_all_spells},
 {Cleric, 3, 0, known_all_spells},
@@ -67,6 +69,9 @@ feature_info feature_data[] = {{Cleric, 1, 0, known_all_spells},
 {Wizard, 1, 0, known_some_spells},
 {Wizard, 1, 0, equipment, wizard_equipment},
 {Fighter, 1, 0, equipment, fighter_equipment},
+{Cleric, 1, 0, equipment, cleric_equipment},
+{Paladin, 1, 0, equipment, fighter_equipment},
+{Rogue, 1, 0, equipment, rogue_equipment},
 };
 
 void creature::apply(variant type, char level, bool interactive) {
