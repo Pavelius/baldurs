@@ -153,8 +153,21 @@ point actor::getposition() const {
 	return position;
 }
 
+const sprite* actor::getsprite(int& wi) const {
+	auto kind = getkind();
+	switch(monster_data[kind].sptype) {
+	case CID1:
+		return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi));
+	case MID1:
+		return draw::gres(monster_data[kind].sprites[0]);
+	default:
+		return 0;
+	}
+}
+
 int actor::getflags() const {
-	switch(getsptype()) {
+	auto kind = getkind();
+	switch(monster_data[kind].sptype) {
 	case CID1:
 		if(orientation >= 9)
 			return ImageMirrorH;
@@ -164,22 +177,19 @@ int actor::getflags() const {
 	}
 }
 
-const sprite* actor::getsprite(int& wi) const {
-	switch(getsptype()) {
-	case CID1:
-		return draw::gres(
-			getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi));
-	default:
-		return 0;
-	}
-}
-
 int actor::getcicle() const {
-	switch(getsptype()) {
+	static short unsigned actions_mid1[AnimateCastFourRelease+1] = {9, 0, 0, 0, 1, 1, 2, 3, 4, 5,
+		10, 11, 11, 10, 11, 11, 10, 11, 11, 10, 11, 11,
+		7, 8, 7, 8, 7, 8, 7, 8,
+	};
+	auto kind = getkind();
+	switch(monster_data[kind].sptype) {
 	case CID1:
 		if(orientation >= 9)
 			return action * 9 + ((9 - 1) * 2 - orientation);
 		return action * 9 + orientation;
+	case MID1:
+		return actions_mid1[action] * 8 + orientation / 2;
 	default:
 		return 0;
 	}
@@ -339,26 +349,27 @@ void actor::painting(point screen) const {
 	int y = position.y - screen.y;
 	int cicle_index = getcicle();
 	int cicle_flags = getflags();
-	auto shadow = map::getshadow(position);
 	colors.upload(pallette);
-	for(auto& e : pallette) {
-		e.r = (e.r * shadow.r) >> 8;
-		e.g = (e.g * shadow.g) >> 8;
-		e.b = (e.b * shadow.b) >> 8;
-	}
 	if(isselected())
 		marker(x, y, getsize(), colors::green, false, true);
-	const sprite* sprites[4]; int wi;
-	switch(getsptype()) {
+	int wi;
+	const sprite* sprites[4] = {getsprite(wi)};
+	auto kind = getkind();
+	switch(monster_data[kind].sptype) {
 	case CID1:
-		sprites[0] = getsprite(wi);
 		sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
 		sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
 		sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
 		break;
-	default:
-		memset(sprites, 0, sizeof(sprites));
+	case MID1:
+		memcpy(pallette, sprites[0]->offs(sprites[0]->get(0).pallette), sizeof(pallette));
 		break;
+	}
+	auto shadow = map::getshadow(position);
+	for(auto& e : pallette) {
+		e.r = (e.r * shadow.r) >> 8;
+		e.g = (e.g * shadow.g) >> 8;
+		e.b = (e.b * shadow.b) >> 8;
 	}
 	for(auto p : sprites) {
 		if(!p)

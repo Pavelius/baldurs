@@ -587,6 +587,7 @@ struct actor : drawable {
 	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
 	virtual const char* getname() const { return ""; }
+	virtual monster_s	getkind() const { return Character; }
 	virtual int			getportrait() const { return 0; }
 	point				getposition() const override;
 	static point		getposition(point start, point dst, formation_s formation, int pos);
@@ -595,7 +596,6 @@ struct actor : drawable {
 	virtual int			getsize() const { return 1; }
 	virtual int			getspeed() const { return 10; }
 	const sprite*		getsprite(int& wi) const;
-	virtual sprite_type_s getsptype() const { return CID1; }
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	bool				hittest(point pt) const override;
@@ -637,8 +637,15 @@ private:
 	drawable*			action_object;
 };
 struct monster_info {
+	struct class_info {
+		class_s			type;
+		unsigned char	level;
+	};
 	const char*			name;
+	sprite_type_s		sptype;
 	res::tokens			sprites[4];
+	alignment_s			alignment;
+	class_info			classes[3];
 	char				ability[Charisma+1];
 	item_s				equipment[8];
 	skillset			skills;
@@ -663,6 +670,7 @@ struct creature : actor {
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
 	void				choose_skills(const char* title, const aref<variant>& elements);
+	void				create(monster_s type);
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
 	bool				equip(const item e);
@@ -690,6 +698,7 @@ struct creature : actor {
 	diety_s				getdiety() const { return diety; }
 	int					gethits() const override { return hits; }
 	int					gethitsmax() const;
+	monster_s			getkind() const override { return kind; }
 	int					getlevel() const;
 	const char*			getname() const override { return name; }
 	int					getmaxcarry() const;
@@ -703,6 +712,7 @@ struct creature : actor {
 	race_s				getrace() const override { return race; }
 	int					getskillpoints() const;
 	int					getspellslots(variant type, int spell_level) const;
+	const sprite*		getsprite(int& wi) const;
 	variant_s			getstep() const;
 	int					getquick() const { return active_weapon; }
 	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
@@ -757,6 +767,7 @@ private:
 		unsigned char	count_maximum;
 		explicit operator bool() const { return count_maximum != 0; }
 	};
+	monster_s			kind;
 	gender_s			gender;
 	race_s				race;
 	alignment_s			alignment;

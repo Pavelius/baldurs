@@ -224,7 +224,11 @@ void creature::clear(variant_s value) {
 	case Ability: memset(ability, 0, sizeof(ability)); break;
 	case Alignment: alignment = NoAlignment; break;
 	case Class: memset(classes, 0, sizeof(classes)); break;
-	case Gender: gender = NoGender; portrait = 0; break;
+	case Gender:
+		kind = Character;
+		gender = NoGender;
+		portrait = 0;
+		break;
 	case Race: race = NoRace; break;
 	case Skill:
 		memset(skills, 0, sizeof(skills));
@@ -345,6 +349,12 @@ static char moveto_entrace[32];
 
 static void moveto_command() {
 	map::load(moveto_area);
+	//
+	auto p = creature_data.add();
+	p->create(Goblin);
+	p->setposition(map::getfree({527, 891}, 1));
+	p->actor::set(AnimateStand);
+	//
 	auto pe = map::find(moveto_entrace);
 	if(pe)
 		creature::setcamera(pe->position);
@@ -589,6 +599,8 @@ static int roll_4d6() {
 
 void creature::create(class_s type, race_s race, gender_s gender) {
 	variant elements[128];
+	clear();
+	this->kind = Character;
 	this->gender = gender;
 	this->race = race;
 	this->classes[type] = 1;
@@ -599,6 +611,22 @@ void creature::create(class_s type, race_s race, gender_s gender) {
 	portrait = random_portrait();
 	update_portrait();
 	random_name();
+}
+
+void creature::create(monster_s type) {
+	clear();
+	kind = type;
+	gender = Male;
+	race = Human;
+	for(const auto& e : monster_data[type].classes) {
+		if(!e.type)
+			continue;
+		apply(e.type);
+		apply(e.type, e.level, false);
+	}
+	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
+		ability[a] = monster_data[type].ability[a];
+	update_levels();
 }
 
 void creature::moveto(aref<creature> players, point destination, formation_s formation) {
