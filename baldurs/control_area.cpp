@@ -498,6 +498,14 @@ void creature::adventure() {
 					auto p = static_cast<door*>(current);
 					if(!hot.pressed)
 						p->toggle();
+				} else if(creature_data.consist(current)) {
+					auto p = static_cast<creature*>(current);
+					if(!hot.pressed)
+						setplayer(p);
+				} else if(current >= players && current < players + sizeof(players) / sizeof(players[0])) {
+					auto p = static_cast<creature*>(current);
+					if(!hot.pressed)
+						setplayer(p);
 				}
 			} else if(proc_point)
 				proc_point(hotspot);

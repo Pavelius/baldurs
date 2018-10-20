@@ -246,8 +246,8 @@ short unsigned map::stepfrom(short unsigned index) {
 map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigned index)) {
 	node* result = 0;
 	node* p = 0;
-	auto count = 0;
-	for(auto n = proc(start); n != Blocked && path_cost[n] > 1; n = proc(n)) {
+	auto n = proc(start);
+	for(; n != Blocked && path_cost[n] > 1; n = proc(n)) {
 		if(!p) {
 			result = addnode();
 			p = result;
@@ -256,7 +256,16 @@ map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigne
 			p = p->next;
 		}
 		p->index = n;
-		count++;
+	}
+	if(n != Blocked && path_cost[n] == 1) {
+		if(!p) {
+			result = addnode();
+			p = result;
+		} else {
+			p->next = addnode();
+			p = p->next;
+		}
+		p->index = n;
 	}
 	return result;
 }

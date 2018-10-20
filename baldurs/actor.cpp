@@ -215,7 +215,9 @@ int actor::getciclecount(int cicle) const {
 
 void actor::move(point destination) {
 	clearpath();
-	if(destination && distance(position, destination) <= 10)
+	if(!destination)// && distance(position, destination) <= 10)
+		return;
+	if(map::getindex(position) == map::getindex(destination))
 		return;
 	dest = destination;
 	auto s = getsize();

@@ -227,6 +227,7 @@ void creature::clear(variant_s value) {
 	case Gender:
 		kind = Character;
 		gender = NoGender;
+		reaction = Undifferent;
 		portrait = 0;
 		break;
 	case Race: race = NoRace; break;
@@ -349,11 +350,6 @@ static char moveto_entrace[32];
 
 static void moveto_command() {
 	map::load(moveto_area);
-	//
-	auto p = creature_data.add();
-	p->create(Goblin);
-	p->setposition(map::getfree({527, 891}, 1));
-	p->actor::set(AnimateStand);
 	//
 	auto pe = map::find(moveto_entrace);
 	if(pe)
@@ -613,11 +609,12 @@ void creature::create(class_s type, race_s race, gender_s gender) {
 	random_name();
 }
 
-void creature::create(monster_s type) {
+void creature::create(monster_s type, reaction_s reaction) {
 	clear();
-	kind = type;
-	gender = Male;
-	race = Human;
+	this->kind = type;
+	this->gender = Male;
+	this->race = Human;
+	this->reaction = reaction;
 	for(const auto& e : monster_data[type].classes) {
 		if(!e.type)
 			continue;
@@ -627,6 +624,14 @@ void creature::create(monster_s type) {
 	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
 		ability[a] = monster_data[type].ability[a];
 	update_levels();
+}
+
+creature* creature::create(monster_s type, reaction_s reaction, point postition) {
+	auto p = creature_data.add();
+	p->create(type, reaction);
+	p->setposition(map::getfree(postition, p->getsize()));
+	p->actor::set(AnimateStand);
+	return p;
 }
 
 void creature::moveto(aref<creature> players, point destination, formation_s formation) {

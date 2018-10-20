@@ -247,6 +247,9 @@ enum button_states {
 enum save_s : unsigned char {
 	Fortitude, Reflexes, Will,
 };
+enum reaction_s : unsigned char {
+	Undifferent, Friendly, Helpful, Unfriendly, Hostile,
+};
 enum tile_s : unsigned char {
 	ObstacleImpassableBlack, Sand, WoodGreen, WoodBrown,
 	StoneDry, Grass, WaterTurquose, Stone,
@@ -594,7 +597,7 @@ struct actor : drawable {
 	virtual race_s		getrace() const { return Human; }
 	rect				getrect() const override;
 	virtual int			getsize() const { return 1; }
-	virtual int			getspeed() const { return 10; }
+	virtual int			getspeed() const { return 9; }
 	const sprite*		getsprite(int& wi) const;
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
@@ -670,7 +673,8 @@ struct creature : actor {
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
 	void				choose_skills(const char* title, const aref<variant>& elements);
-	void				create(monster_s type);
+	void				create(monster_s type, reaction_s reaction);
+	static creature*	create(monster_s type, reaction_s reaction, point postition);
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
 	bool				equip(const item e);
@@ -772,6 +776,7 @@ private:
 	race_s				race;
 	alignment_s			alignment;
 	diety_s				diety;
+	reaction_s			reaction;
 	const char*			name;
 	unsigned char		ability[Charisma + 1];
 	char				classes[LastClass + 1];
