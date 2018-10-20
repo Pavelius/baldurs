@@ -345,13 +345,13 @@ int	creature::getpoints(class_s id) const {
 	return result;
 }
 
-static char moveto_area[8];
-static char moveto_entrace[32];
-
-static void moveto_command() {
-	map::load(moveto_area);
-	//
-	auto pe = map::find(moveto_entrace);
+void creature::moveto(const char* location, const char* entrance) {
+	char move_to_location[32]; zcpy(move_to_location, location, 8);
+	char move_to_entrance[32]; move_to_entrance[0] = 0;
+	if(entrance)
+		zcpy(move_to_entrance, entrance);
+	map::load(move_to_location);
+	auto pe = map::find(move_to_entrance);
 	if(pe)
 		creature::setcamera(pe->position);
 	if(!settings.formation)
@@ -362,20 +362,10 @@ static void moveto_command() {
 	for(auto& e : players) {
 		if(!e)
 			continue;
+		e.stop();
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
-		e.actor::set(AnimateStand);
 	}
-	//draw::mslog("Область [%1]", moveto_area);
-	creature::adventure();
-}
-
-void creature::moveto(const char* location, const char* entrance) {
-	zcpy(moveto_area, location);
-	if(entrance)
-		zcpy(moveto_entrace, entrance);
-	else
-		moveto_entrace[0] = 0;
-	draw::setnext(moveto_command);
+	draw::setnext(adventure);
 }
 
 void creature::updategame() {
@@ -629,8 +619,8 @@ void creature::create(monster_s type, reaction_s reaction) {
 creature* creature::create(monster_s type, reaction_s reaction, point postition) {
 	auto p = creature_data.add();
 	p->create(type, reaction);
+	p->stop();
 	p->setposition(map::getfree(postition, p->getsize()));
-	p->actor::set(AnimateStand);
 	return p;
 }
 

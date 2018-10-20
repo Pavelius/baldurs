@@ -125,19 +125,7 @@ enum item_s : unsigned char {
 	Helm,
 	LastItem = Helm,
 };
-enum animation_s : unsigned char {
-	AnimateMove,
-	AnimateStand, AnimateStandRelax, AnimateStandLook,
-	AnimateCombatStance, AnimateCombatStanceTwoHanded,
-	AnimateGetHit, AnimateGetHitAndDrop,
-	AnimateAgony,
-	AnimateGetUp,
-	AnimateMeleeOneHanded, AnimateMeleeOneHandedSwing, AnimateMeleeOneHandedThrust,
-	AnimateMeleeTwoHanded, AnimateMeleeTwoHandedSwing, AnimateMeleeTwoHandedThrust,
-	AnimateMeleeTwoWeapon, AnimateMeleeTwoWeaponSwing, AnimateMeleeTwoWeaponThrust,
-	AnimateShootBow, AnimateShootSling, AnimateShootXBow,
-	AnimateCastBig, AnimateCastBigRelease, AnimateCast, AnimateCastRelease, AnimateCastThird, AnimateCastThirdRelease, AnimateCastFour, AnimateCastFourRelease
-};
+enum animate_s : unsigned char;
 enum slot_s : unsigned char {
 	Backpack, LastBackpack = Backpack + 23,
 	Head, Neck, Body, Rear, LeftFinger, RightFinger, Hands, Gridle, Legs,
@@ -434,6 +422,10 @@ struct item {
 	item_s				gettype() const { return type; }
 	bool				is(feat_s value) const;
 	bool				is(slot_s value) const;
+	bool				isbow() const;
+	bool				isthown() const;
+	bool				istwohand() const;
+	bool				isxbow() const;
 private:
 	item_s				type;
 	unsigned char		effect;
@@ -571,6 +563,7 @@ struct setting {
 };
 struct actor : drawable {
 	void				act(int player, const char* format, ...);
+	void				animate();
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
 	void				clearpath();
@@ -612,24 +605,27 @@ struct actor : drawable {
 	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
 	void				move(point destination);
 	void				painting(point screen) const override;
-	void				paperdoll(int x, int y, animation_s animation = AnimateStand, int orientation = 2) const;
-	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animation_s animation = AnimateStand, int orientation = 2, item armor = NoItem, item weapon = NoItem, item offhand = NoItem, item helm = NoItem);
+	void				paperdoll(int x, int y) const;
+	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type);
+	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animate_s animation, int orientation, item armor = NoItem, item weapon = NoItem, item offhand = NoItem, item helm = NoItem);
 	void				pickcolors(const point skin, const point hair, const point major, const point minor);
 	static void			pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
 	short unsigned		random_portrait() const;
 	static short unsigned random_portrait(gender_s gender, race_s race, class_s type);
+	void				render_attack(int number);
 	void				render_path(const rect& rc, int mx, int my) const;
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
-	void				set(animation_s value);
 	virtual void		set(gender_s value) {}
 	void				set(state_s value, unsigned rounds) {}
 	static void			setcamera(point camera);
 	void				setposition(point newpos);
+	void				stop();
+	void				testaction();
 	void				update() override;
 	void				update_portrait();
 private:
-	animation_s			action;
+	animate_s			action;
 	point				position, start, dest;
 	unsigned char		orientation; // What sight direction object have.
 	unsigned short		frame;
@@ -638,6 +634,9 @@ private:
 	map::node*			path;
 	coloration			colors;
 	drawable*			action_object;
+	//
+	animate_s			getattackanimate(int number) const;
+	void				set(animate_s value);
 };
 struct monster_info {
 	struct class_info {

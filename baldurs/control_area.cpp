@@ -58,6 +58,7 @@ static void move_down() { camera.y += camera_step; }
 static void character_invertory() { choose_menu(&creature::invertory); }
 static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
+static void character_test() { current_selected[0]->testaction(); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
@@ -90,6 +91,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
 {select_all, Alpha + '=', "Выбрать всех"},
+{character_test, Alpha + 'T', "Тестирование анимации"},
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {game_journal, Alpha + 'J', "Журнал заданий"},
@@ -434,6 +436,25 @@ static void party_move_to(point destination) {
 	auto index = 0;
 	for(auto p : current_selected)
 		p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
+}
+
+void actor::animate() {
+	cursorset cur(res::CURSORS, 10, true);
+	auto current_action = action;
+	while(ismodal()) {
+		if(current_action != action)
+			break;
+		rect rcs = {0, 0, getwidth(), getheight()};
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs);
+		correct_camera(rcs, camera);
+		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
+		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
+		auto current = render_area(rcs, origin, hotspot);
+		domodal();
+	}
 }
 
 void creature::adventure() {

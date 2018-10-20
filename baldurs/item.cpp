@@ -81,6 +81,14 @@ bool item::is(slot_s value) const {
 	return false;
 }
 
+bool item::istwohand() const {
+	switch(item_data[type].feat[0]) {
+	case ProficiencyGreatweapon: return true;
+	case ProficiencySpear: return true;
+	default: return false;
+	}
+}
+
 bool item::is(feat_s value) const {
 	return item_data[type].feat[0] == value
 		|| item_data[type].feat[1] == value;
@@ -125,4 +133,16 @@ bool creature::isallow(const item& it) const {
 			return true;
 	}
 	return false;
+}
+
+bool item::isbow() const {
+	return type == Longbow || type == Shortbow;
+}
+
+bool item::isxbow() const {
+	return type == CrossbowLight || type == CrossbowLight;
+}
+
+bool item::isthown() const {
+	return type == Sling;
 }

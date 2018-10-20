@@ -1,5 +1,48 @@
 #include "main.h"
 
+enum animate_s : unsigned char {
+	AnimateMove,
+	AnimateStand, AnimateStandRelax, AnimateStandLook,
+	AnimateCombatStance, AnimateCombatStanceTwoHanded,
+	AnimateGetHit, AnimateGetHitAndDrop,
+	AnimateAgony,
+	AnimateGetUp,
+	AnimateMeleeOneHanded, AnimateMeleeOneHandedSwing, AnimateMeleeOneHandedThrust,
+	AnimateMeleeTwoHanded, AnimateMeleeTwoHandedSwing, AnimateMeleeTwoHandedThrust,
+	AnimateMeleeTwoWeapon, AnimateMeleeTwoWeaponSwing, AnimateMeleeTwoWeaponThrust,
+	AnimateShootBow, AnimateShootSling, AnimateShootXBow,
+	AnimateCastBig, AnimateCastBigRelease, AnimateCast, AnimateCastRelease, AnimateCastThird, AnimateCastThirdRelease, AnimateCastFour, AnimateCastFourRelease
+};
+static struct animate_info {
+	const char*		name;
+	bool			disable_overlay;
+} animate_data[] = {{"AnimateMove"},
+{"AnimateStand"}, {"AnimateStandRelax"}, {"AnimateStandLook"},
+{"AnimateCombatStance"}, {"AnimateCombatStanceTwoHanded"},
+{"AnimateGetHit"}, {"AnimateGetHitAndDrop"},
+{"AnimateAgony"},
+{"AnimateGetUp"},
+{"AnimateMeleeOneHanded"}, {"AnimateMeleeOneHandedSwing"}, {"AnimateMeleeOneHandedThrust"},
+{"AnimateMeleeTwoHanded"}, {"AnimateMeleeTwoHandedSwing"}, {"AnimateMeleeTwoHandedThrust"},
+{"AnimateMeleeTwoWeapon"}, {"AnimateMeleeTwoWeaponSwing"}, {"AnimateMeleeTwoWeaponThrust"},
+{"AnimateShootBow"}, {"AnimateShootSling"}, {"AnimateShootXBow"},
+{"AnimateCastBig", true},
+{"AnimateCastBigRelease", true},
+{"AnimateCast", true},
+{"AnimateCastRelease", true},
+{"AnimateCastThird", true},
+{"AnimateCastThirdRelease", true},
+{"AnimateCastFour", true},
+{"AnimateCastFourRelease", true},
+};
+assert_enum(animate, AnimateCastFourRelease);
+getstr_enum(animate)
+
+static short unsigned actions_mid1[AnimateCastFourRelease + 1] = {9, 1, 0, 0, 1, 1, 2, 3, 4, 5,
+10, 11, 11, 10, 11, 11, 10, 11, 11, 10, 11, 11,
+7, 8, 7, 8, 7, 8, 7, 8,
+};
+
 using namespace draw;
 
 #define M_PI_2	1.57079632679489661923   // pi/2
@@ -178,10 +221,6 @@ int actor::getflags() const {
 }
 
 int actor::getcicle() const {
-	static short unsigned actions_mid1[AnimateCastFourRelease+1] = {9, 0, 0, 0, 1, 1, 2, 3, 4, 5,
-		10, 11, 11, 10, 11, 11, 10, 11, 11, 10, 11, 11,
-		7, 8, 7, 8, 7, 8, 7, 8,
-	};
 	auto kind = getkind();
 	switch(monster_data[kind].sptype) {
 	case CID1:
@@ -195,7 +234,14 @@ int actor::getcicle() const {
 	}
 }
 
-void actor::set(animation_s id) {
+void actor::stop() {
+	action = AnimateStand;
+	frame = 0;
+	duration = draw::getframe();
+	clearpath();
+}
+
+void actor::set(animate_s id) {
 	if(action == id)
 		return;
 	action = id;
@@ -215,7 +261,7 @@ int actor::getciclecount(int cicle) const {
 
 void actor::move(point destination) {
 	clearpath();
-	if(!destination)// && distance(position, destination) <= 10)
+	if(!destination)
 		return;
 	if(map::getindex(position) == map::getindex(destination))
 		return;
@@ -245,12 +291,6 @@ void actor::update() {
 	if(isstunned()) {
 		if(action != AnimateCombatStanceTwoHanded) {
 			set(AnimateCombatStanceTwoHanded);
-			return;
-		}
-	}
-	if(gethits() <= 0) {
-		if(action != AnimateGetHitAndDrop && action != AnimateAgony) {
-			set(AnimateGetHitAndDrop);
 			return;
 		}
 	}
@@ -310,12 +350,6 @@ void actor::update() {
 		case AnimateStandRelax:
 			set(AnimateStand);
 			break;
-		case AnimateCombatStanceTwoHanded:
-			if(path)
-				move(dest);
-			else
-				set(AnimateStand);
-			break;
 		case AnimateGetHitAndDrop:
 			set(AnimateAgony);
 			break;
@@ -324,6 +358,9 @@ void actor::update() {
 				frame = cicle_count - 1;
 				duration += xrand(10, 20) * 1000;
 			}
+			break;
+		default:
+			stop();
 			break;
 		}
 	}
@@ -359,9 +396,11 @@ void actor::painting(point screen) const {
 	auto kind = getkind();
 	switch(monster_data[kind].sptype) {
 	case CID1:
-		sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
-		sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
-		sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
+		if(!animate_data[action].disable_overlay) {
+			sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
+			sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
+			sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
+		}
 		break;
 	case MID1:
 		memcpy(pallette, sprites[0]->offs(sprites[0]->get(0).pallette), sizeof(pallette));
@@ -388,12 +427,16 @@ static void painting_equipment(int x, int y, item equipment, int ws, int frame, 
 	image(x, y, gres(t1), frame, flags, 255, pallette);
 }
 
-void actor::paperdoll(int x, int y, animation_s animation, int orientation) const {
-	paperdoll(x, y, colors, getrace(), getgender(), getclass(), animation, orientation,
+void actor::paperdoll(int x, int y) const {
+	paperdoll(x, y, colors, getrace(), getgender(), getclass(), AnimateStand, 2,
 		getwear(Body), getwear(QuickWeapon), getwear(QuickOffhand), getwear(Head));
 }
 
-void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animation_s animation, int orientation, item armor, item weapon, item offhand, item helm) {
+void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type) {
+	paperdoll(x, y, colors, race, gender, type, AnimateStand, 2);
+}
+
+void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animate_s animation, int orientation, item armor, item weapon, item offhand, item helm) {
 	sprite* source;
 	unsigned flags;
 	int ws;
@@ -481,4 +524,31 @@ void actor::clear() {
 	duration = 0;
 	path = 0;
 	range = 0;
+}
+
+animate_s actor::getattackanimate(int number) const {
+	auto w1 = getwear(QuickWeapon);
+	auto w2 = getwear(QuickOffhand);
+	if(w2.is(QuickOffhand) && w2.is(QuickWeapon))
+		return animate_s(AnimateMeleeTwoWeapon + number);
+	else if(w1.isbow())
+		return animate_s(AnimateShootBow + number);
+	else if(w1.isxbow())
+		return animate_s(AnimateShootXBow + number);
+	else if(w1.isthown())
+		return animate_s(AnimateShootSling + number);
+	else if(w1.istwohand())
+		return animate_s(AnimateMeleeTwoHanded + number);
+	return animate_s(AnimateMeleeOneHanded + number);
+}
+
+void actor::testaction() {
+	//set(AnimateCastRelease); animate();
+	set(getattackanimate(0)); animate();
+	set(getattackanimate(1)); animate();
+	set(getattackanimate(2)); animate();
+	set(getattackanimate(0)); animate();
+	//set(AnimateCastThird); animate();
+	//set(AnimateCastFour); animate();
+	//set(AnimateCastFourRelease); animate();
 }
