@@ -53,6 +53,7 @@ static void equipment(creature& player, feature_info& f, bool interactive) {
 }
 
 static variant fighter_equipment[] = {Longsword, LeatherArmor};
+static variant wizard_equipment[] = {Staff};
 
 feature_info feature_data[] = {{Cleric, 1, 0, known_all_spells},
 {Cleric, 3, 0, known_all_spells},
@@ -64,6 +65,7 @@ feature_info feature_data[] = {{Cleric, 1, 0, known_all_spells},
 {Cleric, 15, 0, known_all_spells},
 {Cleric, 17, 0, known_all_spells},
 {Wizard, 1, 0, known_some_spells},
+{Wizard, 1, 0, equipment, wizard_equipment},
 {Fighter, 1, 0, equipment, fighter_equipment},
 };
 

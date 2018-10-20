@@ -145,7 +145,7 @@ static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd)
 		flags |= Disabled;
 	button(x, y, cmd, flags, res::GUIRSPOR, 1, 0, 1, 0, 0, 0, 0, true);
 	draw::image(x + 2, y + 2, res::PORTS, player.getportrait());
-	if(flags&Disabled)
+	if(player && (flags&Disabled))
 		draw::rectf({x + 2, y + 2, x + 44, y + 44}, colors::red, 128);
 	hitpoints(x, y + 48, 49 - 3, 4, hp, mhp);
 	return 49;
@@ -401,20 +401,23 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0) 
 	rcs.y2 = y;
 }
 
-static void render_footer(rect& rcs) {
+static void render_footer(rect& rcs, bool show_buttons = true) {
 	auto i = draw::getframe(12) % 32;
 	draw::image(0, 493, res::GCOMM, 0);
-	button(576, 496, cmpr(select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
-	button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0);
-	button(600, 515, cmpr(character_sheet), 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0);
-	button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);
-	button(668, 514, cmpr(character_spellbook), 0, res::GCOMMBTN, 0, 8, 9, 0, 0, 0, 0, 0);
-	button(600, 550, cmpr(game_minimap), 0, res::GCOMMBTN, 0, 14, 15, 0, 0, 0, 0, 0);
-	button(628, 553, cmpr(game_journal), 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0);
-	button(670, 550, cmpr(game_option), 0, res::GCOMMBTN, 0, 10, 11, 0, 0, 0, 0, 0);
-	button(703, 495, cmpr(nothing), 0, res::GCOMMBTN, 0, 2, 3, 0, 0, 0, 0, 0);
-	button(757, 494, cmpr(nothing), 0, res::GCOMMBTN, 19, 18, 18, 0, 0, 0, 0, 0);
-	button(736, 536, cmpr(nothing), 0, res::CGEAR, i, i, i, i, 0, 0, 0, true);
+	if(show_buttons) {
+		button(576, 496, cmpr(select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
+		button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0);
+		button(600, 515, cmpr(character_sheet), 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0);
+		button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);
+		button(668, 514, cmpr(character_spellbook), 0, res::GCOMMBTN, 0, 8, 9, 0, 0, 0, 0, 0);
+		button(600, 550, cmpr(game_minimap), 0, res::GCOMMBTN, 0, 14, 15, 0, 0, 0, 0, 0);
+		button(628, 553, cmpr(game_journal), 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0);
+		button(670, 550, cmpr(game_option), 0, res::GCOMMBTN, 0, 10, 11, 0, 0, 0, 0, 0);
+		button(703, 495, cmpr(nothing), 0, res::GCOMMBTN, 0, 2, 3, 0, 0, 0, 0, 0);
+		button(757, 494, cmpr(nothing), 0, res::GCOMMBTN, 19, 18, 18, 0, 0, 0, 0, 0);
+		button(736, 536, cmpr(nothing), 0, res::CGEAR, i, i, i, i, 0, 0, 0, true);
+	} else
+		image(736, 536, gres(res::CGEAR), i, 0);
 	mspaint({12, 500, 542, 592}, {554, 497, 566, 592});
 	rcs.y2 -= 107;
 }
@@ -439,16 +442,17 @@ static void party_move_to(point destination) {
 }
 
 void actor::animate() {
-	cursorset cur(res::CURSORS, 10, true);
+	cursorset cur(res::NONE);
 	auto current_action = action;
 	while(ismodal()) {
+		setcamera(position);
 		if(current_action != action)
 			break;
 		rect rcs = {0, 0, getwidth(), getheight()};
 		if(settings.panel == setting::PanelFull)
-			render_footer(rcs);
+			render_footer(rcs, false);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs);
+			render_panel(rcs, false);
 		correct_camera(rcs, camera);
 		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
 		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;

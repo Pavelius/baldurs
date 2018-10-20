@@ -4,8 +4,8 @@ enum animate_s : unsigned char {
 	AnimateMove,
 	AnimateStand, AnimateStandRelax, AnimateStandLook,
 	AnimateCombatStance, AnimateCombatStanceTwoHanded,
-	AnimateGetHit, AnimateGetHitAndDrop,
-	AnimateAgony,
+	AnimateGetHit,
+	AnimateGetHitAndDrop, AnimateAgony,
 	AnimateGetUp,
 	AnimateMeleeOneHanded, AnimateMeleeOneHandedSwing, AnimateMeleeOneHandedThrust,
 	AnimateMeleeTwoHanded, AnimateMeleeTwoHandedSwing, AnimateMeleeTwoHandedThrust,
@@ -21,7 +21,7 @@ static struct animate_info {
 {"AnimateCombatStance"}, {"AnimateCombatStanceTwoHanded"},
 {"AnimateGetHit"}, {"AnimateGetHitAndDrop"},
 {"AnimateAgony"},
-{"AnimateGetUp"},
+{"AnimateGetUp", true},
 {"AnimateMeleeOneHanded"}, {"AnimateMeleeOneHandedSwing"}, {"AnimateMeleeOneHandedThrust"},
 {"AnimateMeleeTwoHanded"}, {"AnimateMeleeTwoHandedSwing"}, {"AnimateMeleeTwoHandedThrust"},
 {"AnimateMeleeTwoWeapon"}, {"AnimateMeleeTwoWeaponSwing"}, {"AnimateMeleeTwoWeaponThrust"},
@@ -259,7 +259,7 @@ int actor::getciclecount(int cicle) const {
 	return s->getcicle(cicle)->count;
 }
 
-void actor::move(point destination) {
+void actor::move(point destination, bool use_focus) {
 	clearpath();
 	if(!destination)
 		return;
@@ -278,6 +278,8 @@ void actor::move(point destination) {
 		this->start = position;
 		range = 0;
 		//msdbg("Used path nodes %1i", map::getcount());
+		if(use_focus)
+			animate();
 	}
 }
 
@@ -543,10 +545,8 @@ animate_s actor::getattackanimate(int number) const {
 }
 
 void actor::testaction() {
-	//set(AnimateCastRelease); animate();
-	set(getattackanimate(0)); animate();
-	set(getattackanimate(1)); animate();
-	set(getattackanimate(2)); animate();
+	move({460, 970}, true);
+	set(AnimateCombatStanceTwoHanded); animate();
 	set(getattackanimate(0)); animate();
 	//set(AnimateCastThird); animate();
 	//set(AnimateCastFour); animate();

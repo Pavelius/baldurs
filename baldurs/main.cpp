@@ -15,12 +15,12 @@ static void new_game() {
 static void load_game() {}
 
 static void quick_load() {
-	players[0].create(Fighter, Human, Male);
-	players[1].create(Cleric, Dwarf, Male);
-	players[2].create(Paladin, Human, Male);
-	players[3].create(Ranger, HalfElf, Female);
-	players[4].create(Rogue, Elf, Female);
-	players[5].create(Wizard, Human, Male);
+	//players[0].create(Fighter, Human, Male);
+	//players[1].create(Cleric, Dwarf, Male);
+	//players[2].create(Paladin, Human, Male);
+	//players[3].create(Ranger, HalfElf, Female);
+	//players[4].create(Rogue, Elf, Female);
+	players[0].create(Wizard, Human, Male);
 	creature::moveto("AR1000");
 }
 

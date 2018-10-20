@@ -82,10 +82,12 @@ bool item::is(slot_s value) const {
 }
 
 bool item::istwohand() const {
-	switch(item_data[type].feat[0]) {
-	case ProficiencyGreatweapon: return true;
-	case ProficiencySpear: return true;
-	default: return false;
+	switch(type) {
+	case Staff:
+	case Greataxe:
+		return true;
+	default:
+		return false;
 	}
 }
 
