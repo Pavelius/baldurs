@@ -162,6 +162,14 @@ enum formation_s : unsigned char {
 	NoFormation,
 	FormationT, FormationGather, Formation4and2, Formation3by2, FormationProtect,
 };
+enum monster_s : unsigned char {
+	Character,
+	Goblin, LargeSkeleton,
+	FirstMonster = Goblin, LastMonster = LargeSkeleton,
+};
+enum sprite_type_s : unsigned char {
+	CID1, MID1,
+};
 enum color_indexes {
 	ColorRedTintedBlack, ColorDarkBronze, ColorDarkGold, ColorLightGold, ColorAuburn,
 	ColorLightSilver, ColorDarkSilver, ColorLightMetallicGreen, ColorDarkMuddishBrown, ColorLightMuddishBrown,
@@ -198,6 +206,7 @@ enum tokens {
 	LOAD, LOCATER,
 	PORTL, PORTS,
 	SPELLS, SPLBUT, START, STON, STONSLOT, WMAP,
+	// Оружие персонажей
 	WQSAX, WQNAX, WQMAX, WQLAX,
 	WQSBW, WQNBW, WQMBW, WQLBW,
 	WQSCB, WQNCB, WQMCB, WQLCB,
@@ -224,6 +233,8 @@ enum tokens {
 	WQSSP, WQNSP, WQMSP, WQLSP,
 	WQSSS, WQNSS, WQMSS, WQLSS,
 	WQSWH, WQNWH, WQMWH, WQLWH,
+	// Монстры
+	MGO1, MSKA, MSKAA,
 	Count
 };
 }
@@ -583,7 +594,8 @@ struct actor : drawable {
 	rect				getrect() const override;
 	virtual int			getsize() const { return 1; }
 	virtual int			getspeed() const { return 10; }
-	const sprite*		getsprite(int& wi) const { return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi)); }
+	const sprite*		getsprite(int& wi) const;
+	virtual sprite_type_s getsptype() const { return CID1; }
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	bool				hittest(point pt) const override;
@@ -623,6 +635,14 @@ private:
 	map::node*			path;
 	coloration			colors;
 	drawable*			action_object;
+};
+struct monster_info {
+	const char*			name;
+	res::tokens			sprites[4];
+	char				ability[Charisma+1];
+	item_s				equipment[8];
+	skillset			skills;
+	cflags<feat_s>		feats;
 };
 struct creature : actor {
 	explicit operator bool() const { return ability[0] != 0; }
@@ -823,6 +843,7 @@ extern adat<door, 256>			door_data;
 extern adat<door_tile, 1024>	door_tiles_data;
 extern adat<entrance, 128>		entrance_data;
 extern adat<floattext, 32>		floattext_data;
+extern monster_info				monster_data[];
 extern creature					players[6];
 extern portrait_info			portrait_data[];
 extern race_info				race_data[];

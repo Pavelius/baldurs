@@ -167,6 +167,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="control_minimap.cpp" />
+    <ClCompile Include="monster.cpp" />
     <ClCompile Include="mslog.cpp" />
     <ClCompile Include="names.cpp" />
     <ClCompile Include="map.cpp" />
@@ -189,9 +190,7 @@
     <ClCompile Include="stringcreator.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
-    <ClCompile Include="main_util.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="main_util.cpp" />
     <ClCompile Include="spells_index_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>

@@ -4,6 +4,7 @@ using namespace draw;
 
 const char* root = "data/pma";
 const char* chra = "data/characters";
+const char* mons = "data/monsters";
 
 res::element res::elements[] = {{"NONE"}, {"CURSORS", root}, {"CURSARW", root}, {"COLGRAD", root}, {"COLOR", root},
 {"GACTN", root},
@@ -54,6 +55,8 @@ res::element res::elements[] = {{"NONE"}, {"CURSORS", root}, {"CURSARW", root}, 
 {"WQSSP", chra}, {"WQNSP", chra}, {"WQMSP", chra}, {"WQLSP", chra},
 {"WQSSS", chra}, {"WQNSS", chra}, {"WQMSS", chra}, {"WQLSS", chra},
 {"WQSWH", chra}, {"WQNWH", chra}, {"WQMWH", chra}, {"WQLWH", chra},
+//
+{"MGO1", mons}, {"MSKA", mons}, {"MSKAA", mons},
 {0}
 };
 static_assert((sizeof(res::elements) / sizeof(res::elements[0])) == (res::Count + 1), "Need resource update");

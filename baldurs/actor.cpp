@@ -154,15 +154,35 @@ point actor::getposition() const {
 }
 
 int actor::getflags() const {
-	if(orientation >= 9)
-		return ImageMirrorH;
-	return 0;
+	switch(getsptype()) {
+	case CID1:
+		if(orientation >= 9)
+			return ImageMirrorH;
+		return 0;
+	default:
+		return 0;
+	}
+}
+
+const sprite* actor::getsprite(int& wi) const {
+	switch(getsptype()) {
+	case CID1:
+		return draw::gres(
+			getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi));
+	default:
+		return 0;
+	}
 }
 
 int actor::getcicle() const {
-	if(orientation >= 9)
-		return action * 9 + ((9 - 1) * 2 - orientation);
-	return action * 9 + orientation;
+	switch(getsptype()) {
+	case CID1:
+		if(orientation >= 9)
+			return action * 9 + ((9 - 1) * 2 - orientation);
+		return action * 9 + orientation;
+	default:
+		return 0;
+	}
 }
 
 void actor::set(animation_s id) {
@@ -329,10 +349,17 @@ void actor::painting(point screen) const {
 	if(isselected())
 		marker(x, y, getsize(), colors::green, false, true);
 	const sprite* sprites[4]; int wi;
-	sprites[0] = getsprite(wi);
-	sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
-	sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
-	sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
+	switch(getsptype()) {
+	case CID1:
+		sprites[0] = getsprite(wi);
+		sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
+		sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
+		sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
+		break;
+	default:
+		memset(sprites, 0, sizeof(sprites));
+		break;
+	}
 	for(auto p : sprites) {
 		if(!p)
 			continue;
