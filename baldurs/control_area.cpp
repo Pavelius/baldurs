@@ -382,12 +382,13 @@ static unsigned getblendtextduration() {
 	return 8000;
 }
 
-static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0) {
+static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, bool show_players = true, bool show_background = true) {
 	static action_s actions[] = {ActionGuard, ActionAttack};
 	static formation_s formations[] = {Formation3by2, FormationT, FormationGather, Formation4and2, FormationProtect};
 	auto x = rcs.x1;
 	auto y = rcs.y2 - 60;
-	draw::image(x, y, res::GACTN, show_actions ? 0 : 1);
+	if(show_background)
+		draw::image(x, y, res::GACTN, show_actions ? 0 : 1);
 	if(show_actions) {
 		auto x1 = x + 6, y1 = y + 12;
 		for(auto e : actions)
@@ -396,8 +397,10 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0) 
 			x1 += act(x1, y1, cmpr(choose_formation, e), e);
 	}
 	auto x1 = 506, y1 = y + 4;
-	for(auto& e : players)
-		x1 += act(x1, y1, cmpr(choose_player, (int)&e), e, pd);
+	if(show_players) {
+		for(auto& e : players)
+			x1 += act(x1, y1, cmpr(choose_player, (int)&e), e, pd);
+	}
 	rcs.y2 = y;
 }
 
@@ -452,7 +455,30 @@ void actor::animate() {
 		if(settings.panel == setting::PanelFull)
 			render_footer(rcs, false);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs, false);
+			render_panel(rcs, false, 0, false, false);
+		correct_camera(rcs, camera);
+		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
+		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
+		auto current = render_area(rcs, origin, hotspot);
+		domodal();
+	}
+}
+
+void actor::animate(actor& opponent, animate_s id) {
+	cursorset cur(res::NONE);
+	auto current_action = action;
+	auto maximum_frame = getciclecount(getcicle());
+	while(ismodal()) {
+		if(frame >= maximum_frame / 2)
+			opponent.set(id);
+		setcamera(position);
+		if(current_action != action)
+			break;
+		rect rcs = {0, 0, getwidth(), getheight()};
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs, false);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs, false, 0, false, false);
 		correct_camera(rcs, camera);
 		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
 		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;

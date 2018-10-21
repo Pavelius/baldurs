@@ -259,7 +259,7 @@ int actor::getciclecount(int cicle) const {
 	return s->getcicle(cicle)->count;
 }
 
-void actor::move(point destination, short unsigned maximum_range, bool use_animate) {
+void actor::move(point destination, short unsigned maximum_range, short unsigned minimum_reach, bool use_animate) {
 	clearpath();
 	if(!destination)
 		return;
@@ -272,7 +272,7 @@ void actor::move(point destination, short unsigned maximum_range, bool use_anima
 	auto goal = map::getindex(destination, s);
 	map::blockimpassable(Blocked - 1);
 	map::createwave(goal, s);
-	path = map::route(start, map::stepto, maximum_range);
+	path = map::route(start, map::stepto, maximum_range, minimum_reach);
 	if(path) {
 		set(AnimateMove);
 		this->start = position;
@@ -406,6 +406,8 @@ void actor::painting(point screen) const {
 		break;
 	case MID1:
 		memcpy(pallette, sprites[0]->offs(sprites[0]->get(0).pallette), sizeof(pallette));
+		for(auto i = 1; i < sizeof(monster_data[kind].sprites) / sizeof(monster_data[kind].sprites[0]); i++)
+			sprites[i] = draw::gres(monster_data[kind].sprites[i]);
 		break;
 	}
 	auto shadow = map::getshadow(position);
@@ -544,12 +546,21 @@ animate_s actor::getattackanimate(int number) const {
 	return animate_s(AnimateMeleeOneHanded + number);
 }
 
+void actor::render_attack(int number) {
+	set(getattackanimate(number));
+	animate();
+}
+
+void actor::render_attack(int number, actor& opponent, bool fatal) {
+	set(getattackanimate(number));
+	animate(opponent, fatal ? AnimateGetHitAndDrop : AnimateGetHit);
+}
+
 void actor::testaction() {
-	move({460, 970}, 6*2, true);
-	set(AnimateCombatStanceTwoHanded); animate();
-	set(getattackanimate(0)); animate();
-	set(getattackanimate(1)); animate();
-	set(getattackanimate(2)); animate();
+	//move({460, 970}, 6*2, 2, true);
+	render_attack(0, players[0], false);
+	render_attack(1, players[0], false);
+	render_attack(2, players[0], true);
 	//set(AnimateCastThird); animate();
 	//set(AnimateCastFour); animate();
 	//set(AnimateCastFourRelease); animate();

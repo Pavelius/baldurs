@@ -144,7 +144,7 @@ int creature::get(skill_s id) const {
 	return r;
 }
 
-int creature::getac(bool flatfooted) {
+int creature::getac(bool flatfooted) const {
 	int r = 10;
 	if(!flatfooted) {
 		r += get(Dexterity);
@@ -674,4 +674,79 @@ int creature::getpartymaxdistance(point position) {
 			result = ds;
 	}
 	return result;
+}
+
+aref<creature*> creature::select(const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum, short unsigned range_position) {
+	auto pb = source.data;
+	auto pe = source.data + source.count;
+	if(pb < pe) {
+		aref<creature> sources[] = {creature_data, players};
+		for(auto& col : sources) {
+			for(auto& e : col) {
+				if(!e)
+					continue;
+				if(player && !(player->*proc)(e))
+					continue;
+				if(range_maximum && map::getrange(map::getindex(e.getposition()), range_position) > range_maximum)
+					continue;
+				*pb++ = &e;
+				if(pb >= pe)
+					break;
+			}
+		}
+	}
+	auto result = source;
+	result.count = pb - result.data;
+	return result;
+}
+
+short unsigned creature::getindex() const {
+	return map::getindex(getposition(), getsize());
+}
+
+void creature::attack(creature& enemy) {
+	auto player_index = getindex();
+	auto enemy_index = enemy.getindex();
+	auto reach = map::getrange(getreach());
+	auto movement = map::getrange(getmovement());
+	if(reach < map::getrange(player_index, enemy_index)) {
+		auto destination = map::getposition(enemy_index, getsize());
+		move(destination, movement, reach, true);
+	}
+	player_index = getindex();
+	if(reach < map::getrange(player_index, enemy_index))
+		return;
+	attack_info ai; get(ai, QuickWeapon);
+	render_attack(rand() % 3);
+}
+
+void creature::get(attack_info& result, slot_s slot) const {
+	memset(&result, 0, sizeof(result));
+	auto& weapon = wears[slot];
+	if(weapon) {
+		static_cast<dice&>(result) = weapon.getattack();
+		result.weapon = (item*)&weapon;
+		if(weapon.isranged()) {
+			result.bonus += get(Dexterity);
+		} else {
+			result.b += get(Strenght);
+			result.bonus += get(Strenght);
+		}
+	} else {
+		result.c = 0;
+		result.d = imax(1, 1 + get(Strenght));
+	}
+	if(is(ImprovedCritical))
+		result.critical++;
+}
+
+bool creature::roll(roll_info& e) const {
+	e.rolled = rand() % 20 + 1;
+	e.result = e.rolled + e.bonus;
+	return e.result >= e.dc;
+}
+
+void creature::get(attack_info& result, slot_s slot, const creature& enemy) const {
+	get(result, slot);
+	result.dc = enemy.getac(false);
 }

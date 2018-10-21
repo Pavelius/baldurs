@@ -427,6 +427,7 @@ struct item {
 	void				clear();
 	int					getac() const;
 	int					getarmorindex() const;
+	const dice&			getattack() const;
 	int					getbonus() const;
 	int					getcount() const { return count; }
 	feat_s				getfeat() const;
@@ -439,6 +440,7 @@ struct item {
 	bool				is(feat_s value) const;
 	bool				is(slot_s value) const;
 	bool				isbow() const;
+	bool				isranged() const { return isbow() || isxbow() || isthown(); }
 	bool				isthown() const;
 	bool				istwohand() const;
 	bool				isxbow() const;
@@ -518,6 +520,21 @@ struct skill_info {
 	ability_s			ability;
 	skill_s				synergy[3];
 };
+struct roll_info {
+	char				bonus, rolled, result, dc;
+	constexpr roll_info() : bonus(0), rolled(0), result(0), dc(0) {}
+	explicit operator bool() const;
+	bool				iscritical(int modifier) const { return rolled >= (20 - modifier); }
+};
+struct attack_info : dice, roll_info {
+	attack_info() = default;
+	constexpr attack_info(const dice& d, char c = 0, char m = 0) : dice(d), critical(c), multiplier(m), ac(0), weapon(0) {};
+	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), weapon(0) {};
+	char				critical;
+	char				multiplier;
+	char				ac;
+	item*				weapon;
+};
 struct entrance {
 	char				name[32];
 	unsigned char		orientation;
@@ -580,6 +597,7 @@ struct setting {
 struct actor : drawable {
 	void				act(int player, const char* format, ...);
 	void				animate();
+	void				animate(actor& opponent, animate_s id);
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
 	void				clearpath();
@@ -619,7 +637,7 @@ struct actor : drawable {
 	bool				isvisible() const { return position.x!=0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
 	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
-	void				move(point destination, short unsigned maximum_range = 0, bool use_animate = false);
+	void				move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0, bool use_animate = false);
 	void				painting(point screen) const override;
 	void				paperdoll(int x, int y) const;
 	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type);
@@ -629,6 +647,7 @@ struct actor : drawable {
 	short unsigned		random_portrait() const;
 	static short unsigned random_portrait(gender_s gender, race_s race, class_s type);
 	void				render_attack(int number);
+	void				render_attack(int number, actor& opponent, bool fatal);
 	void				render_path(const rect& rc, int mx, int my) const;
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
@@ -673,6 +692,7 @@ struct creature : actor {
 	explicit operator bool() const { return ability[0] != 0; }
 	void* operator new(unsigned size);
 	void operator delete (void* data);
+	void				attack(creature& enemy);
 	void				add(item e);
 	void				add(stringbuilder& sb, variant v1) const;
 	void				add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
@@ -700,8 +720,10 @@ struct creature : actor {
 	int					get(class_s id) const { return classes[id]; }
 	int					get(feat_s id) const { return is(id) ? 1 : 0; }
 	int					get(spell_s id) const;
+	void				get(attack_info& result, slot_s slot) const;
+	void				get(attack_info& result, slot_s slot, const creature& enemy) const;
 	static ability_s	getability(save_s id);
-	int					getac(bool flatfooted);
+	int					getac(bool flatfooted) const;
 	static creature*	getplayer();
 	int					getbab() const;
 	int					getcasterlevel() const;
@@ -719,8 +741,10 @@ struct creature : actor {
 	int					gethitsmax() const;
 	monster_s			getkind() const override { return kind; }
 	int					getlevel() const;
+	short unsigned		getindex() const;
 	const char*			getname() const override { return name; }
 	int					getmaxcarry() const;
+	int					getmovement() const { return 30; }
 	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
 	static int			getpartymaxdistance(point position);
 	int					getpoints(class_s id) const;
@@ -729,6 +753,7 @@ struct creature : actor {
 	int					getprepared(spell_s id, variant type) const;
 	int					getr(ability_s id) const { return ability[id]; }
 	race_s				getrace() const override { return race; }
+	short unsigned		getreach() const { return 5; }
 	int					getskillpoints() const;
 	int					getspellslots(variant type, int spell_level) const;
 	const sprite*		getsprite(int& wi) const;
@@ -748,6 +773,7 @@ struct creature : actor {
 	bool				isallow(variant id) const;
 	bool				isblock(point value) const override;
 	bool				isclass(skill_s id) const;
+	bool				isranged() const { return wears[active_weapon].isranged(); }
 	bool				isselected() const override;
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
@@ -758,8 +784,10 @@ struct creature : actor {
 	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
+	bool				roll(roll_info& e) const;
 	void				say(const char* format, ...) const;
 	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
+	static aref<creature*> select(const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
 	aref<variant>		selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void				set(ability_s id, int value) { ability[id] = value; }
 	void				set(alignment_s value) { alignment = value; }
@@ -826,6 +854,7 @@ unsigned char			getorientation(point s, point d);
 color*					getpallette();
 const char*				getpassedtime(char* result, const char* result_maximum, unsigned value);
 point					getposition(short unsigned index, int size);
+inline int				getrange(int feets) { return (feets / 5) * 2; }
 color					getshadow(point position);
 unsigned char			getstate(short unsigned index);
 int						gettile(short unsigned index);

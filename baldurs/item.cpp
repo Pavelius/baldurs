@@ -2,12 +2,6 @@
 
 static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
 struct item_info {
-	struct attack_info {
-		dice		damage;
-		char		critical;
-		char		multiplier;
-		char		ac;
-	};
 	const char*		name;
 	const char*		image_file;
 	slot_s			slots[2];
@@ -41,19 +35,19 @@ static item_info item_data[] = {{"No item", "IHANDGF"},
 {"Bastard sword", "ISWDBB1", {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
 {"Katana", "ISWDBB1", {QuickWeapon}, {ProficiencyCatana, FocusGreatswords}, {{1, 10}}}, // TODO: найти лучше вариант
 //
-{"Leather armor", "IARMLB1", {Body}, {ArmorProfeciencyLight}, {{}, 0, 0, 2}},
-{"Studded leather armor", "IARMSB1", {Body}, {ArmorProfeciencyLight}, {{}, 0, 0, 3}},
-{"Chain shirt", "IARMCM1", {Body}, {ArmorProfeciencyMedium}, {{}, 0, 0, 4}},
-{"Scale mail", "IARMSM1", {Body}, {ArmorProfeciencyMedium}, {{}, 0, 0, 4}},
-{"Chainmail", "IARMCB1", {Body}, {ArmorProfeciencyMedium}, {{}, 0, 0, 5}},
-{"Breastplate", "IARMHM3", {Body}, {ArmorProfeciencyMedium}, {{}, 0, 0, 5}},
-{"Splint mail", "IARMPB1", {Body}, {ArmorProfeciencyHeavy}, {{}, 0, 0, 6}},
-{"Banded mail", "IARMPM1", {Body}, {ArmorProfeciencyHeavy}, {{}, 0, 0, 7}},
-{"Plate mail", "IARMFM1", {Body}, {ArmorProfeciencyHeavy}, {{}, 0, 0, 8}},
+{"Leather armor", "IARMLB1", {Body}, {ArmorProfeciencyLight}, {2}},
+{"Studded leather armor", "IARMSB1", {Body}, {ArmorProfeciencyLight}, {3}},
+{"Chain shirt", "IARMCM1", {Body}, {ArmorProfeciencyMedium}, {4}},
+{"Scale mail", "IARMSM1", {Body}, {ArmorProfeciencyMedium}, {4}},
+{"Chainmail", "IARMCB1", {Body}, {ArmorProfeciencyMedium}, {5}},
+{"Breastplate", "IARMHM3", {Body}, {ArmorProfeciencyMedium}, {5}},
+{"Splint mail", "IARMPB1", {Body}, {ArmorProfeciencyHeavy}, {6}},
+{"Banded mail", "IARMPM1", {Body}, {ArmorProfeciencyHeavy}, {7}},
+{"Plate mail", "IARMFM1", {Body}, {ArmorProfeciencyHeavy}, {8}},
 //
-{"Shiled small", "ISHDSB1", {QuickOffhand}, {ShieldProfeciency}, {{}, 0, 0, 2}},
-{"Large shield", "ISHDLB1", {QuickOffhand}, {ShieldProfeciency}, {{}, 0, 0, 2}},
-{"Tower shield", "ISHDTB1", {QuickOffhand}, {ShieldProfeciency}, {{}, 0, 0, 2}},
+{"Shiled small", "ISHDSB1", {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Large shield", "ISHDLB1", {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Tower shield", "ISHDTB1", {QuickOffhand}, {ShieldProfeciency}, {2}},
 //
 {"Helm", "IHELMB1", {Head}, {ArmorProfeciencyMedium}},
 };
@@ -147,4 +141,8 @@ bool item::isxbow() const {
 
 bool item::isthown() const {
 	return type == Sling;
+}
+
+const dice& item::getattack() const {
+	return item_data[type].ai;
 }
