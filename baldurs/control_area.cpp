@@ -487,6 +487,10 @@ void actor::animate(actor& opponent, animate_s id) {
 	}
 }
 
+void creature::makemove() {
+
+}
+
 void creature::adventure() {
 	cursorset cur;
 	animation shifter;

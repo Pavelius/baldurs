@@ -784,6 +784,7 @@ struct creature : actor {
 	void				invertory(itemdrag* pd);
 	static void			journal();
 	static void			makecombat();
+	void				makemove();
 	static void			minimap();
 	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
