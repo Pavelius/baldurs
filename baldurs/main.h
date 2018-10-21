@@ -344,6 +344,7 @@ struct cursorset {
 	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
 	~cursorset();
 	static void			set(res::tokens rid = res::CURSORS, int frame = 267, bool single = false);
+	static res::tokens	getres();
 private:
 	res::tokens			rid;
 	int					frame;

@@ -7,6 +7,7 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *_util.cpp
 *_spells_index.cpp
+*prite_store.cpp
 origin/
 data/
 *.userprefs

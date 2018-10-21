@@ -131,6 +131,7 @@
     <ClCompile Include="control_dialog.cpp" />
     <ClCompile Include="control_help.cpp" />
     <ClCompile Include="control_journal.cpp" />
+    <ClCompile Include="control_label.cpp" />
     <ClCompile Include="control_scroll.cpp" />
     <ClCompile Include="control_setting.cpp" />
     <ClCompile Include="control_sheet.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="diety.cpp" />
     <ClCompile Include="door.cpp" />
     <ClCompile Include="draw.cpp" />
+    <ClCompile Include="draw_input.cpp" />
     <ClCompile Include="draw_text.cpp" />
     <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="entrance.cpp" />
@@ -195,7 +197,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="variant.cpp" />
-    <ClCompile Include="control.cpp" />
+    <ClCompile Include="resource_static.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
     <ClCompile Include="zip.cpp" />

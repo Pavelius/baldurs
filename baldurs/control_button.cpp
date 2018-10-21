@@ -16,6 +16,8 @@ int draw::button(int x, int y, const runable& cmd, unsigned flags, res::tokens r
 	const sprite::frame& f = e->get(s);
 	rect rc = {x, y, x + f.sx, y + f.sy};
 	auto a = area(rc);
+	if(cursorset::getres() == res::NONE)
+		a = AreaNormal;
 	if(flags&Disabled) {
 		is_disabled = true;
 		s = disabled;
@@ -53,21 +55,6 @@ int draw::button(int x, int y, const runable& cmd, unsigned flags, res::tokens r
 			fore = fore.mix(colors::black, 8);
 		draw::text({x + tx, y + ty, x + f.sx, y + f.sy}, name, AlignCenterCenter);
 		fore = old_fore;
-	}
-	if(!is_disabled) {
-		//if(drag::hints && zchr(drag::hints, id)) {
-		//	if(r == res::STONSLOT)
-		//		draw::image(x, y, gres(res::STONSLOT), 17, 0);
-		//	else
-		//		draw::rectb(rc, colors::black.mix(colors::red, 160));
-		//}
-		//if(drag::targets && hot.mouse.in(rc) && zchr(drag::targets, id)) {
-		//	drag::target = id;
-		//	if(r == res::STONSLOT)
-		//		draw::image(x, y, gres(res::STONSLOT), 26, 0);
-		//	else
-		//		draw::rectb(rc, colors::red);
-		//}
 	}
 	if(need_execute)
 		cmd.execute();

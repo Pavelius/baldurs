@@ -157,9 +157,6 @@
     <ClCompile Include="control_edit.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
-    <ClCompile Include="control.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="control_area.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
@@ -225,6 +222,15 @@
     </ClCompile>
     <ClCompile Include="monster.cpp">
       <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_label.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_input.cpp">
+      <Filter>Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="resource_static.cpp">
+      <Filter>Графика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,11 @@
 #include "main.h"
 
+void draw::set(color * dest, unsigned char index, int start, int count) {
+	color* source = (color*)draw::pallette.ptr(0, index);
+	if(source)
+		memcpy(dest + start, source, count * sizeof(color));
+}
+
 void coloration::upload(color* col) const {
 	draw::set(col, metal, 0x04);//metal
 	draw::set(col, minor, 0x10);//minor
