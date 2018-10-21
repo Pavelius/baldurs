@@ -746,3 +746,47 @@ void creature::damage(int count) {
 		// TODO: Должны выпасть предметы и начислиться опыт. Труп не убирать.
 	}
 }
+
+creature* creature::getbest(bool (creature::*proc)(const creature& opponent) const) const {
+	creature* source[1];
+	auto result = select(source, this, proc);
+	if(result)
+		return result[0];
+	return 0;
+}
+
+void creature::makecombat() {
+	adat<creature*,264> elements;
+	for(auto& e : players) {
+		if(!e)
+			continue;
+		elements.add(&e);
+	}
+	for(auto& e : creature_data) {
+		if(!e)
+			continue;
+		elements.add(&e);
+	}
+	for(auto p : elements) {
+		if(!(*p))
+			continue;
+		if(p->isplayer()) {
+
+		} else {
+			auto enemy = p->getbest(&creature::isenemy);
+			if(enemy)
+				return;
+			p->attack(*enemy);
+		}
+	}
+}
+
+bool creature::isplayer() const {
+	return this >= players
+		&& this <= players + sizeof(players) / sizeof(players[0]);
+}
+
+bool creature::isenemy(const creature& opponent) const {
+	return (reaction == Hostile && opponent.reaction == Helpful)
+		|| (reaction == Helpful && opponent.reaction == Hostile);
+}

@@ -726,6 +726,7 @@ struct creature : actor {
 	int					getac(bool flatfooted) const;
 	static creature*	getplayer();
 	int					getbab() const;
+	creature*			getbest(bool (creature::*proc)(const creature& opponent) const) const;
 	int					getcasterlevel() const;
 	int					getcharlevel() const;
 	class_s				getclass() const override;
@@ -773,13 +774,16 @@ struct creature : actor {
 	bool				isallow(variant id) const;
 	bool				isblock(point value) const override;
 	bool				isclass(skill_s id) const;
+	bool				isenemy(const creature& opponent) const;
 	bool				isranged() const { return wears[active_weapon].isranged(); }
 	bool				isselected() const override;
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
+	bool				isplayer() const;
 	void				invertory();
 	void				invertory(itemdrag* pd);
 	static void			journal();
+	static void			makecombat();
 	static void			minimap();
 	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
