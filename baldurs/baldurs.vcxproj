@@ -188,7 +188,7 @@
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="control_spellbook.cpp" />
     <ClCompile Include="spells.cpp" />
-    <ClCompile Include="sprite_store.cpp" />
+    <ClCompile Include="sprite_util.cpp" />
     <ClCompile Include="stringcreator.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
@@ -200,7 +200,7 @@
     <ClCompile Include="resource_static.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
-    <ClCompile Include="zip.cpp" />
+    <ClCompile Include="zip_util.cpp" />
     <ClCompile Include="race.cpp" />
   </ItemGroup>
   <ItemGroup>

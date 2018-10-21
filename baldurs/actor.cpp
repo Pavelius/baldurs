@@ -259,7 +259,7 @@ int actor::getciclecount(int cicle) const {
 	return s->getcicle(cicle)->count;
 }
 
-void actor::move(point destination, bool use_focus) {
+void actor::move(point destination, short unsigned maximum_range, bool use_animate) {
 	clearpath();
 	if(!destination)
 		return;
@@ -272,13 +272,13 @@ void actor::move(point destination, bool use_focus) {
 	auto goal = map::getindex(destination, s);
 	map::blockimpassable(Blocked - 1);
 	map::createwave(goal, s);
-	path = map::route(start, map::stepto);
+	path = map::route(start, map::stepto, maximum_range);
 	if(path) {
 		set(AnimateMove);
 		this->start = position;
 		range = 0;
 		//msdbg("Used path nodes %1i", map::getcount());
-		if(use_focus)
+		if(use_animate)
 			animate();
 	}
 }
@@ -545,7 +545,7 @@ animate_s actor::getattackanimate(int number) const {
 }
 
 void actor::testaction() {
-	move({460, 970}, true);
+	move({460, 970}, 6*2, true);
 	set(AnimateCombatStanceTwoHanded); animate();
 	set(getattackanimate(0)); animate();
 	set(getattackanimate(1)); animate();

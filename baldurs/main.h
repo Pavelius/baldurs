@@ -619,7 +619,7 @@ struct actor : drawable {
 	bool				isvisible() const { return position.x!=0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
 	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
-	void				move(point destination, bool use_focus = false);
+	void				move(point destination, short unsigned maximum_range = 0, bool use_animate = false);
 	void				painting(point screen) const override;
 	void				paperdoll(int x, int y) const;
 	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type);

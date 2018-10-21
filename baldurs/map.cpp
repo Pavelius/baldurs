@@ -257,11 +257,13 @@ short unsigned map::stepfrom(short unsigned index) {
 // Calculate path step by step to any cell on map analizing create_wave result.
 // Go form goal to start and get lowest weight.
 // When function return 'path_stack' has step by step path and 'path_push' is top of this path.
-map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigned index)) {
+map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigned index), short unsigned maximum_range, short unsigned minimal_reach) {
 	node* result = 0;
 	node* p = 0;
 	auto n = proc(start);
-	for(; n != Blocked && path_cost[n] > 1; n = proc(n)) {
+	auto w = 0;
+	minimal_reach += 1; // Base cost is one
+	for(; n != Blocked && path_cost[n] >= 1; n = proc(n)) {
 		if(!p) {
 			result = addnode();
 			p = result;
@@ -270,16 +272,11 @@ map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigne
 			p = p->next;
 		}
 		p->index = n;
-	}
-	if(n != Blocked && path_cost[n] == 1) {
-		if(!p) {
-			result = addnode();
-			p = result;
-		} else {
-			p->next = addnode();
-			p = p->next;
-		}
-		p->index = n;
+		w += 1;
+		if(maximum_range && w>=maximum_range)
+			break;
+		if(minimal_reach >= path_cost[n])
+			break;
 	}
 	return result;
 }

@@ -28,7 +28,7 @@ bool					ispassable(unsigned short i0, unsigned short i1, int size);
 node*					removeall(node* p);
 node*					removeback(node* p);
 node*					remove(node* p);
-node*					route(short unsigned start, short unsigned(*proc)(short unsigned index));
+node*					route(short unsigned start, short unsigned(*proc)(short unsigned index), short unsigned maximum_range = 0, short unsigned minimal_reach = 0);
 extern void				set(short unsigned index, bool isblock);
 void					set(short unsigned index, bool isblock, int size);
 void					setcost(short unsigned index, short unsigned value);

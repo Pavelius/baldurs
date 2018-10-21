@@ -97,12 +97,6 @@
     <ClCompile Include="map.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
-    <ClCompile Include="sprite_store.cpp">
-      <Filter>Библиотека\Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="zip.cpp">
-      <Filter>Библиотека\Сжатие</Filter>
-    </ClCompile>
     <ClCompile Include="bstream.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
@@ -232,6 +226,12 @@
     <ClCompile Include="resource_static.cpp">
       <Filter>Графика</Filter>
     </ClCompile>
+    <ClCompile Include="sprite_util.cpp">
+      <Filter>Инструменты</Filter>
+    </ClCompile>
+    <ClCompile Include="zip_util.cpp">
+      <Filter>Инструменты</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -319,9 +319,6 @@
     </Filter>
     <Filter Include="Логика">
       <UniqueIdentifier>{4c4b65bd-b5e6-425e-bb80-f8fef1713409}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Библиотека\Сжатие">
-      <UniqueIdentifier>{1c5812e4-92db-47db-a49b-a3376d2e68ae}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
