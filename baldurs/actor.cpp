@@ -552,16 +552,7 @@ void actor::render_attack(int number) {
 }
 
 void actor::render_attack(int number, actor& opponent, bool fatal) {
+	orientation = map::getorientation(position, opponent.position);
 	set(getattackanimate(number));
 	animate(opponent, fatal ? AnimateGetHitAndDrop : AnimateGetHit);
-}
-
-void actor::testaction() {
-	//move({460, 970}, 6*2, 2, true);
-	render_attack(0, players[0], false);
-	render_attack(1, players[0], false);
-	render_attack(2, players[0], true);
-	//set(AnimateCastThird); animate();
-	//set(AnimateCastFour); animate();
-	//set(AnimateCastFourRelease); animate();
 }

@@ -114,7 +114,7 @@ enum diety_s : unsigned char {
 enum item_s : unsigned char {
 	NoItem,
 	Club, Hammer, Mace, Spear, Staff, CrossbowLight, CrossbowHeavy, Sling,
-	BattleAxe, Dagger, Greataxe, Halberd,
+	BattleAxe, Dagger, Greataxe, Halberd, HandAxe,
 	Scimitar, Longsword, Shortsword, Greatsword, Rapier, Shortbow, Longbow,
 	Waraxe, BastardSword, Katana,
 	// Items (armor)
@@ -656,7 +656,6 @@ struct actor : drawable {
 	static void			setcamera(point camera);
 	void				setposition(point newpos);
 	void				stop();
-	void				testaction();
 	void				update() override;
 	void				update_portrait();
 private:
@@ -712,6 +711,7 @@ struct creature : actor {
 	static creature*	create(monster_s type, reaction_s reaction, point postition);
 	void				create(class_s type, race_s race, gender_s gender);
 	static void			create_party();
+	void				damage(int count);
 	bool				equip(const item e);
 	void				generate(const char* title);
 	int					get(ability_s id) const;

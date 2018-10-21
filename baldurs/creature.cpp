@@ -599,23 +599,6 @@ void creature::create(class_s type, race_s race, gender_s gender) {
 	random_name();
 }
 
-void creature::create(monster_s type, reaction_s reaction) {
-	clear();
-	this->kind = type;
-	this->gender = Male;
-	this->race = Human;
-	this->reaction = reaction;
-	for(const auto& e : monster_data[type].classes) {
-		if(!e.type)
-			continue;
-		apply(e.type);
-		apply(e.type, e.level, false);
-	}
-	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
-		ability[a] = monster_data[type].ability[a];
-	update_levels();
-}
-
 creature* creature::create(monster_s type, reaction_s reaction, point postition) {
 	auto p = creature_data.add();
 	p->create(type, reaction);
@@ -716,8 +699,14 @@ void creature::attack(creature& enemy) {
 	player_index = getindex();
 	if(reach < map::getrange(player_index, enemy_index))
 		return;
-	attack_info ai; get(ai, QuickWeapon);
-	render_attack(rand() % 3);
+	attack_info ai; get(ai, QuickWeapon, enemy);
+	if(!roll(ai)) {
+		render_attack(rand() % 3);
+		return;
+	}
+	auto damage = ai.roll();
+	enemy.damage(damage);
+	render_attack(rand() % 3, enemy, enemy.gethits() <= 0);
 }
 
 void creature::get(attack_info& result, slot_s slot) const {
@@ -749,4 +738,11 @@ bool creature::roll(roll_info& e) const {
 void creature::get(attack_info& result, slot_s slot, const creature& enemy) const {
 	get(result, slot);
 	result.dc = enemy.getac(false);
+}
+
+void creature::damage(int count) {
+	hits -= count;
+	if(hits < 0) {
+		// TODO: Должны выпасть предметы и начислиться опыт. Труп не убирать.
+	}
 }

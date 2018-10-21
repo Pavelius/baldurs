@@ -58,7 +58,7 @@ static void move_down() { camera.y += camera_step; }
 static void character_invertory() { choose_menu(&creature::invertory); }
 static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
-static void character_test() { current_selected[0]->testaction(); }
+static void character_test() { current_selected[0]->attack(players[0]); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
@@ -99,7 +99,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {}};
 
 static void hitpoints(int x, int y, int width, int height, int hp, int mhp) {
-	if(!mhp || !hp)
+	if(!mhp || hp < 0)
 		return;
 	color c1;
 	if(hp == mhp)
@@ -141,7 +141,7 @@ static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd)
 		flags |= Checked;
 	int hp = player.gethits();
 	int mhp = player.gethitsmax();
-	if(!hp)
+	if(hp <= 0)
 		flags |= Disabled;
 	button(x, y, cmd, flags, res::GUIRSPOR, 1, 0, 1, 0, 0, 0, 0, true);
 	draw::image(x + 2, y + 2, res::PORTS, player.getportrait());
