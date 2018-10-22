@@ -285,6 +285,8 @@ void					setcaption(const char* string);
 void					setclip(rect rc);
 inline void				setclip() { clipping.set(0, 0, getwidth(), getheight()); }
 void					setfocus(int id, bool instant = false);
+void					setlayout(void(*proc)());
+void					setpage(void(*proc)());
 void					settimer(unsigned milleseconds);
 const char*				skiptr(const char* string);
 void					spline(point* points, int n);

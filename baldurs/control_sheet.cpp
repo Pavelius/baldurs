@@ -23,7 +23,7 @@ void switcher(int x, int y, info_page_s id) {
 }
 
 static void information() {
-	setnext(creature::help);
+	setpage(creature::help);
 }
 
 static void biography() {}

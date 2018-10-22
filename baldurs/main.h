@@ -891,7 +891,6 @@ void					mspaint(const rect& rc, const rect& rcs);
 extern surface			pallette;
 void					picker(int x, int y, unsigned char index, int type, const runable& cmd);
 void					set(color * dest, unsigned char index, int start = 4, int count = 12);
-void					setnext(void(*proc)());
 void					textblend(point pos, const char* text, unsigned duration);
 void					translate(hotkey* keys);
 void					view(rect rc, scrollbutton& e);

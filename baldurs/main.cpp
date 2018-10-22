@@ -22,7 +22,6 @@ static void quick_load() {
 	players[4].create(Rogue, Elf, Female);
 	players[5].create(Wizard, Human, Male);
 	creature::moveto("AR1000");
-	creature::create(Goblin, Hostile, {450, 800});
 }
 
 static void join_game() {}
@@ -47,15 +46,6 @@ static void start_scene() {
 		button(x + 396, y + 304 + 1 * 32, cmpr(exit_game), 0, res::GBTNMED2, "Выход из игры", KeyEscape);
 		domodal();
 	}
-}
-
-void draw::setnext(void(*proc)()) {
-	next_proc = proc;
-	breakmodal(1);
-}
-
-bool draw::isnext(void(*proc)()) {
-	return next_proc == proc;
 }
 
 extern int util_main();
@@ -83,7 +73,7 @@ static void test_character() {
 int main(int argc, char* argv[]) {
 	srand(clock());
 #ifdef _DEBUG
-	util_main();
+	//util_main();
 #endif
 	draw::initialize();
 	if(!draw::pallette)

@@ -23,7 +23,7 @@ static void character_submenu() {
 
 static void adventure_step() {
 	creature_proc = 0;
-	setnext(creature::adventure);
+	setpage(creature::adventure);
 }
 
 static void choose_menu(void (creature::*proc)()) {
@@ -31,7 +31,7 @@ static void choose_menu(void (creature::*proc)()) {
 		adventure_step();
 	else {
 		creature_proc = proc;
-		setnext(character_submenu);
+		setpage(character_submenu);
 	}
 }
 
@@ -39,7 +39,7 @@ static void choose_menu(void(*proc)()) {
 	if(isnext(proc))
 		adventure_step();
 	else
-		setnext(proc);
+		setpage(proc);
 }
 
 static void setplayer(creature* player) {
