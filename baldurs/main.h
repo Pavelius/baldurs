@@ -703,7 +703,7 @@ struct creature : actor {
 	void				apply(variant type, char level, bool interactive);
 	void				clear();
 	void				clear(variant_s value);
-	static bool			choose_index(int cursor, short unsigned& result);
+	static bool			choose_index(int cursor, short unsigned& result, short unsigned start, short unsigned max_cost);
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);

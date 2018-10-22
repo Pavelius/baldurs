@@ -14,6 +14,7 @@ struct node {
 node*					addnode();
 void					blockimpassable(short unsigned free_state = Blocked - 1);
 void					createwave(short unsigned start, int size);
+void					createwave(short unsigned start, int size, short unsigned max_cost);
 unsigned short			getcost(unsigned short index);
 int						getfree(unsigned short index, int radius, int size);
 int						getrange(unsigned short i0, unsigned short i1);

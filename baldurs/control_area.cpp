@@ -49,11 +49,12 @@ static void setplayer(creature* player) {
 
 static void nothing() {}
 static void choose_action() {
+	auto player = creature::getplayer();
 	short unsigned index;
 	current_action = (action_s)hot.param;
 	switch(current_action) {
 	case ActionGuard:
-		creature::choose_index(12, index);
+		creature::choose_index(12, index, player->getindex(), map::getrange(player->getmovement())+1);
 		break;
 	}
 }
@@ -214,6 +215,28 @@ static void render_search(const rect& rc, int mx, int my) {
 	}
 }
 
+static void render_movement(const rect& rc, int mx, int my) {
+	auto x2 = rc.x1 + imin(mx + rc.width(), map::width * 16);
+	auto y2 = rc.y1 + imin(my + rc.height(), map::height * 12);
+	auto y1 = rc.y1 + my;
+	while(y1 < y2) {
+		int x1 = rc.x1 + mx;
+		while(x1 < x2) {
+			short px = x1 - rc.x1;
+			short py = y1 - rc.y1;
+			auto index = map::getindex({px, py});
+			auto value = map::getcost(index);
+			if(value && value!=Blocked) {
+				auto x = x1 - mx + rc.x1;
+				auto y = y1 - my + rc.y1;
+				rectf({x + 1, y + 1, x + 15, y + 11}, colors::black, 0x40);
+			}
+			x1 += 16;
+		}
+		y1 += 12;
+	}
+}
+
 static void correct_camera(const rect& rc, point& camera) {
 	camera_size.x = rc.width();
 	camera_size.y = rc.height();
@@ -261,7 +284,7 @@ bool creature::isselected() const {
 	return current_selected.is((creature* const)this);
 }
 
-static drawable* render_area(rect rc, const point origin, const point hotspot) {
+static drawable* render_area(rect rc, const point origin, const point hotspot, bool show_movement = false) {
 	draw::state push;
 	draw::setclip(rc);
 	// Получим экран
@@ -274,6 +297,8 @@ static drawable* render_area(rect rc, const point origin, const point hotspot) {
 	render_tiles(rc, screen.x1, screen.y1);
 	if(settings.show_search)
 		render_search(rc, screen.x1, screen.y1);
+	if(show_movement)
+		render_movement(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
 	for(auto& e : players) {
 		if(e) {
@@ -510,7 +535,7 @@ void actor::animate(actor& opponent, animate_s id) {
 	}
 }
 
-static drawable* render_all(animation& shifter, cursorset& cur, point& hotspot, bool game_adventure = false) {
+static drawable* render_all(animation& shifter, cursorset& cur, point& hotspot, bool game_adventure = false, bool show_movement = false) {
 	rect rcs = {0, 0, getwidth(), getheight()};
 	create_shifer(rcs, shifter, camera);
 	if(settings.panel == setting::PanelFull)
@@ -527,18 +552,20 @@ static drawable* render_all(animation& shifter, cursorset& cur, point& hotspot, 
 		hotspot.x += hot.mouse.x - rcs.x1;
 		hotspot.y += hot.mouse.y - rcs.y1;
 	}
-	auto result = render_area(rcs, origin, hotspot);
+	auto result = render_area(rcs, origin, hotspot, show_movement);
 	render_shifter(shifter, cur);
 	return result;
 }
 
-bool creature::choose_index(int cursor, short unsigned& result) {
+bool creature::choose_index(int cursor, short unsigned& result, short unsigned start, short unsigned max_cost) {
 	point hotspot;
 	cursorset cur;
 	animation shifter;
+	map::blockimpassable(0);
+	map::createwave(start, 1, max_cost);
 	while(ismodal()) {
 		cur.set(res::CURSORS, cursor);
-		auto current = render_all(shifter, cur, hotspot);
+		auto current = render_all(shifter, cur, hotspot, false, true);
 		domodal();
 		translate(movement_keys);
 		switch(hot.key) {
