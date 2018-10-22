@@ -256,7 +256,7 @@ int						hittest(rect rc, const char* string, unsigned state, point mouse);
 inline bool				ischecked(unsigned flags) { return (flags&Checked) != 0; }
 inline bool				isdisabled(unsigned flags) { return (flags&Disabled) != 0; }
 inline bool				isfocused(unsigned flags) { return (flags&Focused) != 0; }
-bool					isnext(void(*proc)());
+bool					isnext(callback_proc proc);
 bool					ismodal();
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha = 0xFF);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha, color* pal);
@@ -286,8 +286,10 @@ void					setcaption(const char* string);
 void					setclip(rect rc);
 inline void				setclip() { clipping.set(0, 0, getwidth(), getheight()); }
 void					setfocus(int id, bool instant = false);
-void					setlayout(void(*proc)());
-void					setpage(void(*proc)());
+void					setlayout(callback_proc proc);
+void					setpage();
+void					setpage(callback_proc proc);
+void					setpagedef(callback_proc proc);
 void					settimer(unsigned milleseconds);
 const char*				skiptr(const char* string);
 void					spline(point* points, int n);

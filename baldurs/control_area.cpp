@@ -23,7 +23,7 @@ static void character_submenu() {
 
 static void adventure_step() {
 	creature_proc = 0;
-	setpage(creature::adventure);
+	setpage();
 }
 
 static void choose_menu(void (creature::*proc)()) {
@@ -134,7 +134,7 @@ static int act(int x, int y, const runable& cmd, formation_s id) {
 	return 41;
 }
 
-static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd) {
+static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd, bool change_player = true) {
 	color s0 = colors::green;
 	unsigned flags = 0;
 	if(current_selected.is(&player))
@@ -143,8 +143,13 @@ static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd)
 	int mhp = player.gethitsmax();
 	if(hp <= 0)
 		flags |= Disabled;
-	button(x, y, cmd, flags, res::GUIRSPOR, 1, 0, 1, 0, 0, 0, 0, true);
-	draw::image(x + 2, y + 2, res::PORTS, player.getportrait());
+	rect rc = {x, y, x + 44, y + 44};
+	image(x, y, res::GUIRSPOR, (flags&Checked) ? 1 : 0, flags);
+	image(x + 2, y + 2, res::PORTS, player.getportrait());
+	if(change_player) {
+		if(hot.key == MouseLeft && hot.pressed && area(rc) == AreaHilitedPressed)
+			cmd.execute();
+	}
 	if(player && (flags&Disabled))
 		draw::rectf({x + 2, y + 2, x + 44, y + 44}, colors::red, 128);
 	hitpoints(x, y + 48, 49 - 3, 4, hp, mhp);
@@ -382,7 +387,7 @@ static unsigned getblendtextduration() {
 	return 8000;
 }
 
-static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, bool show_players = true, bool show_background = true) {
+static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, bool show_players = true, bool show_background = true, bool change_players = true) {
 	static action_s actions[] = {ActionGuard, ActionAttack};
 	static formation_s formations[] = {Formation3by2, FormationT, FormationGather, Formation4and2, FormationProtect};
 	auto x = rcs.x1;
@@ -399,7 +404,7 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 	auto x1 = 506, y1 = y + 4;
 	if(show_players) {
 		for(auto& e : players)
-			x1 += act(x1, y1, cmpr(choose_player, (int)&e), e, pd);
+			x1 += act(x1, y1, cmpr(choose_player, (int)&e), e, pd, change_players);
 	}
 	rcs.y2 = y;
 }
@@ -488,7 +493,79 @@ void actor::animate(actor& opponent, animate_s id) {
 }
 
 void creature::makemove() {
-
+	cursorset cur;
+	animation shifter;
+	while(ismodal()) {
+		rect rcs = {0, 0, getwidth(), getheight()};
+		cur.set(res::CURSORS);
+		create_shifer(rcs, shifter, camera);
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs, true, 0, true, true, false);
+		correct_camera(rcs, camera);
+		void(*proc_point)(point pt) = 0;
+		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
+		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
+		auto current = render_area(rcs, origin, hotspot);
+		if(current) {
+			if(container_data.consist(current))
+				cur.set(res::CURSORS, 2, true);
+			else
+				cur.set(res::CURSORS, current->getcursor());
+		} else if(hot.mouse.in(rcs)) {
+			auto index = map::getindex(hotspot);
+			if(map::isblock(index))
+				cur.set(res::CURSORS, 6);
+			else {
+				proc_point = party_move_to;
+				cur.set(res::CURSORS, 4);
+			}
+		}
+		render_shifter(shifter, cur);
+		domodal();
+		translate(movement_keys);
+		switch(hot.key) {
+		case MouseLeft:
+			if(current) {
+				if(region_data.consist(current)) {
+					auto p = static_cast<region*>(current);
+					switch(p->type) {
+					case RegionInfo:
+						if(!hot.pressed)
+							textblend(p->launch, p->name, getblendtextduration());
+						break;
+					case RegionTravel:
+						if(!hot.pressed) {
+							auto destination = p->getposition();
+							if(getpartymaxdistance(destination) < 250)
+								moveto(p->move_to_area, p->move_to_entrance);
+							else
+								party_move_to(destination);
+						}
+						break;
+					}
+				} else if(container_data.consist(current)) {
+					auto p = static_cast<container*>(current);
+				} else if(door_data.consist(current)) {
+					auto p = static_cast<door*>(current);
+					if(!hot.pressed)
+						p->toggle();
+				} else if(creature_data.consist(current)) {
+					auto p = static_cast<creature*>(current);
+					if(!hot.pressed)
+						setplayer(p);
+				} else if(current >= players && current < players + sizeof(players) / sizeof(players[0])) {
+					auto p = static_cast<creature*>(current);
+					if(!hot.pressed)
+						setplayer(p);
+				}
+			} else if(proc_point)
+				proc_point(hotspot);
+			break;
+		}
+		updategame();
+	}
 }
 
 void creature::adventure() {
