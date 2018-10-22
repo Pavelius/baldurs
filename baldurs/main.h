@@ -724,9 +724,8 @@ struct creature : actor {
 	void				get(attack_info& result, slot_s slot, const creature& enemy) const;
 	static ability_s	getability(save_s id);
 	int					getac(bool flatfooted) const;
-	static creature*	getplayer();
 	int					getbab() const;
-	creature*			getbest(bool (creature::*proc)(const creature& opponent) const) const;
+	creature*			getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const;
 	int					getcasterlevel() const;
 	int					getcharlevel() const;
 	class_s				getclass() const override;
@@ -735,9 +734,11 @@ struct creature : actor {
 	static creature*	getcreature(short unsigned index);
 	static creature*	getcreature(aref<creature> source, short unsigned index);
 	void				getdescription(stringbuilder& sb) const;
+	diety_s				getdiety() const { return diety; }
 	int					getfeats() const;
 	gender_s			getgender() const override { return gender; }
-	diety_s				getdiety() const { return diety; }
+	int					getinitiative() const;
+	int					getinitiativeroll() const { return initiative; }
 	int					gethits() const override { return hits; }
 	int					gethitsmax() const;
 	monster_s			getkind() const override { return kind; }
@@ -748,6 +749,7 @@ struct creature : actor {
 	int					getmovement() const { return 30; }
 	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
 	static int			getpartymaxdistance(point position);
+	static creature*	getplayer();
 	int					getpoints(class_s id) const;
 	int					getportrait() const override { return portrait; }
 	int					getprepared(variant type) const;
@@ -792,7 +794,7 @@ struct creature : actor {
 	bool				roll(roll_info& e) const;
 	void				say(const char* format, ...) const;
 	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
-	static aref<creature*> select(const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
+	static aref<creature*> select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
 	aref<variant>		selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void				set(ability_s id, int value) { ability[id] = value; }
 	void				set(alignment_s value) { alignment = value; }
@@ -833,6 +835,7 @@ private:
 	short				hits, hits_rolled;
 	unsigned			spells_known[LastSpell / 32 + 1];
 	item				wears[LastQuickItem + 1];
+	char				initiative;
 	unsigned char		active_weapon;
 	unsigned short		portrait;
 	unsigned char		sorcerers_used_powers[9];

@@ -229,6 +229,7 @@ void creature::clear(variant_s value) {
 		gender = NoGender;
 		reaction = Undifferent;
 		portrait = 0;
+		initiative = 0;
 		break;
 	case Race: race = NoRace; break;
 	case Skill:
@@ -659,26 +660,23 @@ int creature::getpartymaxdistance(point position) {
 	return result;
 }
 
-aref<creature*> creature::select(const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum, short unsigned range_position) {
-	auto pb = source.data;
-	auto pe = source.data + source.count;
+aref<creature*> creature::select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum, short unsigned range_position) {
+	auto pb = destination.data;
+	auto pe = destination.data + destination.count;
 	if(pb < pe) {
-		aref<creature> sources[] = {creature_data, players};
-		for(auto& col : sources) {
-			for(auto& e : col) {
-				if(!e)
-					continue;
-				if(player && !(player->*proc)(e))
-					continue;
-				if(range_maximum && map::getrange(map::getindex(e.getposition()), range_position) > range_maximum)
-					continue;
-				*pb++ = &e;
-				if(pb >= pe)
-					break;
-			}
+		for(auto p : source) {
+			if(!(*p))
+				continue;
+			if(player && !(player->*proc)(*p))
+				continue;
+			if(range_maximum && map::getrange(map::getindex(p->getposition()), range_position) > range_maximum)
+				continue;
+			*pb++ = p;
+			if(pb >= pe)
+				break;
 		}
 	}
-	auto result = source;
+	auto result = destination;
 	result.count = pb - result.data;
 	return result;
 }
@@ -747,12 +745,18 @@ void creature::damage(int count) {
 	}
 }
 
-creature* creature::getbest(bool (creature::*proc)(const creature& opponent) const) const {
-	creature* source[1];
-	auto result = select(source, this, proc);
+creature* creature::getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const {
+	creature* result_data[1];
+	auto result = select(result_data, source, this, proc);
 	if(result)
 		return result[0];
 	return 0;
+}
+
+static int compare_initiative(const void* p1, const void* p2) {
+	auto c1 = *((creature**)p1);
+	auto c2 = *((creature**)p1);
+	return c1->getinitiativeroll() - c2->getinitiativeroll();
 }
 
 void creature::makecombat() {
@@ -767,13 +771,18 @@ void creature::makecombat() {
 			continue;
 		elements.add(&e);
 	}
+	if(!elements)
+		return;
+	for(auto p : elements)
+		p->initiative = 1 + (rand()%20) + p->getinitiative();
+	qsort(elements.data, elements.count, sizeof(elements.data[0]), compare_initiative);
 	for(auto p : elements) {
 		if(!(*p))
 			continue;
 		if(p->isplayer()) {
 
 		} else {
-			auto enemy = p->getbest(&creature::isenemy);
+			auto enemy = p->getbest(elements, &creature::isenemy);
 			if(enemy)
 				return;
 			p->attack(*enemy);
@@ -789,4 +798,9 @@ bool creature::isplayer() const {
 bool creature::isenemy(const creature& opponent) const {
 	return (reaction == Hostile && opponent.reaction == Helpful)
 		|| (reaction == Helpful && opponent.reaction == Hostile);
+}
+
+int creature::getinitiative() const {
+	auto result = get(Dexterity);
+	return result;
 }
