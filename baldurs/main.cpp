@@ -2,8 +2,6 @@
 
 using namespace draw;
 
-static void(*next_proc)();
-
 static void single_player() {
 	dlgmsg("Пока еще не реализовано.");
 }
@@ -79,9 +77,7 @@ int main(int argc, char* argv[]) {
 	if(!draw::pallette)
 		return -1;
 	//test_character();
-	next_proc = start_scene;
-	while(next_proc)
-		next_proc();
+	setlayout(start_scene);
 }
 
 int _stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {

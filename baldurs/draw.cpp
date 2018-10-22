@@ -2095,10 +2095,9 @@ struct layout_info {
 layout_info* layout_info::current;
 
 void draw::setlayout(void(*proc)()) {
-	if(!layout_info::current)
-		return;
-	layout_info::current->proc = proc;
-	breakmodal(1);
+	layout_info e(proc);
+	while(e.proc)
+		e.proc();
 }
 
 void draw::setpage(void(*proc)()) {

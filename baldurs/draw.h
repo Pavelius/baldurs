@@ -256,6 +256,7 @@ int						hittest(rect rc, const char* string, unsigned state, point mouse);
 inline bool				ischecked(unsigned flags) { return (flags&Checked) != 0; }
 inline bool				isdisabled(unsigned flags) { return (flags&Disabled) != 0; }
 inline bool				isfocused(unsigned flags) { return (flags&Focused) != 0; }
+bool					isnext(void(*proc)());
 bool					ismodal();
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha = 0xFF);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha, color* pal);
