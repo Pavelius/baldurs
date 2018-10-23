@@ -366,8 +366,8 @@ void creature::moveto(const char* location, const char* entrance) {
 		e.stop();
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
 	}
-	draw::setpagedef(adventure);
-	draw::setpage(adventure);
+	draw::setpagedef(makecombat);
+	draw::setpage(makecombat);
 }
 
 void creature::updategame() {
@@ -781,7 +781,13 @@ void creature::makecombat() {
 		if(!(*p))
 			continue;
 		if(p->isplayer()) {
-
+			short unsigned index;
+			p->setplayer();
+			auto distance = map::getrange(p->getmovement()) + 1;
+			if(choose_index(4, index, p->getindex(), distance)) {
+				p->move(map::getposition(index, p->getsize()), distance);
+				p->animate();
+			}
 		} else {
 			auto enemy = p->getbest(elements, &creature::isenemy);
 			if(enemy)
@@ -804,4 +810,15 @@ bool creature::isenemy(const creature& opponent) const {
 int creature::getinitiative() const {
 	auto result = get(Dexterity);
 	return result;
+}
+
+void creature::blockimpassable(short unsigned blocked) {
+	for(auto& e : players) {
+		if(e)
+			map::setcost(e.getindex(), blocked);
+	}
+	for(auto& e : creature_data) {
+		if(e)
+			map::setcost(e.getindex(), blocked);
+	}
 }

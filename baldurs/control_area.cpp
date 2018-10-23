@@ -42,9 +42,9 @@ static void choose_menu(void(*proc)()) {
 		setpage(proc);
 }
 
-static void setplayer(creature* player) {
+void creature::setplayer() {
 	current_selected.clear();
-	current_selected.add(player);
+	current_selected.add(this);
 }
 
 static void nothing() {}
@@ -59,7 +59,7 @@ static void choose_action() {
 	}
 }
 static void choose_formation() { settings.formation = (formation_s)hot.param; }
-static void choose_player() { setplayer((creature*)hot.param); }
+static void choose_player() { ((creature*)hot.param)->setplayer(); }
 static void move_left() { camera.x -= camera_step; }
 static void move_right() { camera.x += camera_step; }
 static void move_up() { camera.y -= camera_step; }
@@ -284,7 +284,7 @@ bool creature::isselected() const {
 	return current_selected.is((creature* const)this);
 }
 
-static drawable* render_area(rect rc, const point origin, const point hotspot, bool show_movement = false) {
+static drawable* render_area(rect rc, const point origin, const point hotspot) {
 	draw::state push;
 	draw::setclip(rc);
 	// Получим экран
@@ -297,8 +297,8 @@ static drawable* render_area(rect rc, const point origin, const point hotspot, b
 	render_tiles(rc, screen.x1, screen.y1);
 	if(settings.show_search)
 		render_search(rc, screen.x1, screen.y1);
-	if(show_movement)
-		render_movement(rc, screen.x1, screen.y1);
+	//if(show_movement)
+	//	render_movement(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
 	for(auto& e : players) {
 		if(e) {
@@ -535,7 +535,7 @@ void actor::animate(actor& opponent, animate_s id) {
 	}
 }
 
-static drawable* render_all(animation& shifter, cursorset& cur, point& hotspot, bool game_adventure = false, bool show_movement = false) {
+static drawable* render_map(animation& shifter, cursorset& cur, point& hotspot, bool game_adventure = false) {
 	rect rcs = {0, 0, getwidth(), getheight()};
 	create_shifer(rcs, shifter, camera);
 	if(settings.panel == setting::PanelFull)
@@ -552,7 +552,7 @@ static drawable* render_all(animation& shifter, cursorset& cur, point& hotspot, 
 		hotspot.x += hot.mouse.x - rcs.x1;
 		hotspot.y += hot.mouse.y - rcs.y1;
 	}
-	auto result = render_area(rcs, origin, hotspot, show_movement);
+	auto result = render_area(rcs, origin, hotspot);
 	render_shifter(shifter, cur);
 	return result;
 }
@@ -565,7 +565,7 @@ bool creature::choose_index(int cursor, short unsigned& result, short unsigned s
 	map::createwave(start, 1, max_cost);
 	while(ismodal()) {
 		cur.set(res::CURSORS, cursor);
-		auto current = render_all(shifter, cur, hotspot, false, true);
+		auto current = render_map(shifter, cur, hotspot, false);
 		domodal();
 		translate(movement_keys);
 		switch(hot.key) {
@@ -593,8 +593,8 @@ void creature::makemove() {
 	animation shifter;
 	while(ismodal()) {
 		cur.set(res::CURSORS);
-		auto current = render_all(shifter, cur, hotspot);
 		void(*proc_point)(point pt) = 0;
+		auto current = render_map(shifter, cur, hotspot, true);
 		if(current) {
 			if(container_data.consist(current))
 				cur.set(res::CURSORS, 2, true);
@@ -640,11 +640,11 @@ void creature::makemove() {
 				} else if(creature_data.consist(current)) {
 					auto p = static_cast<creature*>(current);
 					if(!hot.pressed)
-						setplayer(p);
+						p->setplayer();
 				} else if(current >= players && current < players + sizeof(players) / sizeof(players[0])) {
 					auto p = static_cast<creature*>(current);
 					if(!hot.pressed)
-						setplayer(p);
+						p->setplayer();
 				}
 			} else if(proc_point)
 				proc_point(hotspot);
@@ -655,29 +655,37 @@ void creature::makemove() {
 }
 
 void creature::adventure() {
+	point hotspot;
 	cursorset cur;
 	animation shifter;
 	if(!getplayer())
-		setplayer(players);
+		players[0].setplayer();
 	while(ismodal()) {
-		rect rcs = {0, 0, getwidth(), getheight()};
+		void(*proc_point)(point pt) = 0;
 		cur.set(res::CURSORS);
+		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
 		if(settings.panel == setting::PanelFull)
-			render_footer(rcs);
+			render_footer(rcs, true);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs);
+			render_panel(rcs, true, 0, true, true, true);
 		correct_camera(rcs, camera);
-		void(*proc_point)(point pt) = 0;
-		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
-		point hotspot = origin; hotspot.x += hot.mouse.x - rcs.x1; hotspot.y += hot.mouse.y - rcs.y1;
+		hotspot = {-1, -1};
+		point origin = camera;
+		origin.x -= rcs.width() / 2;
+		origin.y -= rcs.height() / 2;
+		if(hot.mouse.in(rcs)) {
+			hotspot = origin;
+			hotspot.x += hot.mouse.x - rcs.x1;
+			hotspot.y += hot.mouse.y - rcs.y1;
+		}
 		auto current = render_area(rcs, origin, hotspot);
 		if(current) {
 			if(container_data.consist(current))
 				cur.set(res::CURSORS, 2, true);
 			else
 				cur.set(res::CURSORS, current->getcursor());
-		} else if(hot.mouse.in(rcs)) {
+		} else if(hotspot.x>=0) {
 			auto index = map::getindex(hotspot);
 			if(map::isblock(index))
 				cur.set(res::CURSORS, 6);
@@ -719,11 +727,11 @@ void creature::adventure() {
 				} else if(creature_data.consist(current)) {
 					auto p = static_cast<creature*>(current);
 					if(!hot.pressed)
-						setplayer(p);
+						p->setplayer();
 				} else if(current >= players && current < players + sizeof(players) / sizeof(players[0])) {
 					auto p = static_cast<creature*>(current);
 					if(!hot.pressed)
-						setplayer(p);
+						p->setplayer();
 				}
 			} else if(proc_point)
 				proc_point(hotspot);

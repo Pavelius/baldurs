@@ -598,6 +598,7 @@ struct actor : drawable {
 	void				act(int player, const char* format, ...);
 	void				animate();
 	void				animate(actor& opponent, animate_s id);
+	virtual void		blockimpassable(short unsigned blocked) {}
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
 	void				clearpath();
@@ -701,6 +702,7 @@ struct creature : actor {
 	void				apply(race_s id, bool add_ability);
 	void				apply(class_s id);
 	void				apply(variant type, char level, bool interactive);
+	void				blockimpassable(short unsigned blocked) override;
 	void				clear();
 	void				clear(variant_s value);
 	static bool			choose_index(int cursor, short unsigned& result, short unsigned start, short unsigned max_cost);
@@ -806,6 +808,7 @@ struct creature : actor {
 	void				set(skill_s id, int value) { skills[id] = value; }
 	void				set(variant value);
 	void				setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
+	void				setplayer();
 	void				setportrait(int value) { portrait = value; }
 	void				setprepared(spell_s id, variant type, int count);
 	void				setquick(int value) { active_weapon = value; }

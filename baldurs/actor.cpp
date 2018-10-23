@@ -271,6 +271,7 @@ void actor::move(point destination, short unsigned maximum_range, short unsigned
 	auto start = map::getindex(position, s);
 	auto goal = map::getindex(destination, s);
 	map::blockimpassable(Blocked - 1);
+	blockimpassable(Blocked - 1);
 	map::createwave(goal, s);
 	path = map::route(start, map::stepto, maximum_range, minimum_reach);
 	if(path) {
