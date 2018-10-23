@@ -232,6 +232,9 @@
     <ClCompile Include="zip_util.cpp">
       <Filter>Инструменты</Filter>
     </ClCompile>
+    <ClCompile Include="target.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

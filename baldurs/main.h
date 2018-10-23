@@ -293,6 +293,28 @@ struct variant {
 	bool operator==(const variant& e) const { return type == e.type && number == e.number; }
 	operator unsigned short() { return (type << 8) + number; }
 };
+enum target_s : unsigned char {
+	NoTarget, Creature, Container, Door, Index, Region,
+};
+struct target {
+	target_s			type;
+	union {
+		struct creature*	creature;
+		short unsigned		index;
+		struct container*	container;
+		struct door*		door;
+		struct region*		region;
+	};
+	target(struct drawable* value);
+	constexpr target() : type(NoTarget), creature(0) {}
+	constexpr target(struct creature* value) : type(Creature), creature(value) {}
+	constexpr target(short unsigned value) : type(Index), index(value) {}
+	constexpr target(struct door* value) : type(Door), door(value) {}
+	constexpr target(struct region* value) : type(Region), region(value) {}
+	constexpr target(struct container* value) : type(Container), container(value) {}
+	explicit operator bool() const { return type != NoTarget; }
+	void				clear() { type = NoTarget; creature = 0; }
+};
 struct runable {
 	virtual void		execute() const = 0;
 	virtual int			getid() const { return 0; }
@@ -705,11 +727,11 @@ struct creature : actor {
 	void				blockimpassable(short unsigned blocked) override;
 	void				clear();
 	void				clear(variant_s value);
-	static bool			choose_index(int cursor, short unsigned& result, short unsigned start, short unsigned max_cost);
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
 	void				choose_skills(const char* title, const aref<variant>& elements);
+	static target		choose_target(int cursor, short unsigned start, short unsigned max_cost);
 	void				create(monster_s type, reaction_s reaction);
 	static creature*	create(monster_s type, reaction_s reaction, point postition);
 	void				create(class_s type, race_s race, gender_s gender);

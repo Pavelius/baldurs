@@ -781,12 +781,14 @@ void creature::makecombat() {
 		if(!(*p))
 			continue;
 		if(p->isplayer()) {
-			short unsigned index;
 			p->setplayer();
 			auto distance = map::getrange(p->getmovement()) + 1;
-			if(choose_index(4, index, p->getindex(), distance)) {
-				p->move(map::getposition(index, p->getsize()), distance);
+			auto tg = choose_target(4, p->getindex(), distance);
+			switch(tg.type) {
+			case Index:
+				p->move(map::getposition(tg.index, p->getsize()), distance);
 				p->animate();
+				break;
 			}
 		} else {
 			auto enemy = p->getbest(elements, &creature::isenemy);
