@@ -365,7 +365,7 @@ void creature::moveto(const char* location, const char* entrance) {
 			continue;
 		e.stop();
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
-		e.set(Friendly);
+		e.set(Helpful);
 	}
 	draw::setpagedef(makecombat);
 	draw::setpage(makecombat);
@@ -764,8 +764,8 @@ static int compare_initiative(const void* p1, const void* p2) {
 void creature::react(target& tg) {
 	auto distance = map::getrange(getmovement() * 2) + 1;
 	switch(tg.type) {
-	case Index:
-		move(map::getposition(tg.index, getsize()), distance);
+	case Position:
+		move(tg.position, distance);
 		animate();
 		break;
 	case Creature:

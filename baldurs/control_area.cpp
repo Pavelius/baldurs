@@ -376,7 +376,7 @@ static target render_area(rect rc, const point origin) {
 	if(result)
 		return result;
 	if(hotspot.in(screen))
-		return map::getindex(hotspot);
+		return hotspot;
 	return target();
 }
 
@@ -552,8 +552,8 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 		origin.y -= rcs.height() / 2;
 		tg = render_area(rcs, origin);
 		switch(tg.type) {
-		case Index:
-			if(map::getcost(tg.index) == Blocked)
+		case Position:
+			if(map::getcost(map::getindex(tg.position)) == Blocked)
 				tg.clear();
 			break;
 		}
@@ -579,7 +579,6 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 }
 
 void creature::adventure() {
-	point hotspot;
 	cursorset cur;
 	animation shifter;
 	if(!getactive())
@@ -594,7 +593,6 @@ void creature::adventure() {
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, true);
 		correct_camera(rcs, camera);
-		hotspot = {-1, -1};
 		point origin = camera;
 		origin.x -= rcs.width() / 2;
 		origin.y -= rcs.height() / 2;
@@ -612,8 +610,8 @@ void creature::adventure() {
 		case Region:
 			cur.set(res::CURSORS, tg.region->getcursor());
 			break;
-		case Index:
-			if(map::getcost(tg.index))
+		case Position:
+			if(map::isblock(map::getindex(tg.position, 1)))
 				cur.set(res::CURSORS, 6);
 			else {
 				proc_point = party_move_to;
@@ -657,9 +655,9 @@ void creature::adventure() {
 						tg.creature->setactive();
 				}
 				break;
-			case Index:
-				if(proc_point)
-					proc_point(hotspot);
+			case Position:
+				//if(proc_point)
+				//	proc_point(hotspot);
 				break;
 			}
 		}

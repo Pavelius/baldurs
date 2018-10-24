@@ -294,13 +294,13 @@ struct variant {
 	operator unsigned short() { return (type << 8) + number; }
 };
 enum target_s : unsigned char {
-	NoTarget, Creature, Container, Door, Index, Region,
+	NoTarget, Creature, Container, Door, Position, Region,
 };
 struct target {
 	target_s			type;
 	union {
 		struct creature*	creature;
-		short unsigned		index;
+		struct point		position;
 		struct container*	container;
 		struct door*		door;
 		struct region*		region;
@@ -308,7 +308,7 @@ struct target {
 	target(struct drawable* value);
 	constexpr target() : type(NoTarget), creature(0) {}
 	constexpr target(struct creature* value) : type(Creature), creature(value) {}
-	constexpr target(short unsigned value) : type(Index), index(value) {}
+	constexpr target(const point& value) : type(Position), position(value) {}
 	constexpr target(struct door* value) : type(Door), door(value) {}
 	constexpr target(struct region* value) : type(Region), region(value) {}
 	constexpr target(struct container* value) : type(Container), container(value) {}
@@ -827,6 +827,7 @@ struct creature : actor {
 	void				set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }
 	void				set(gender_s value) override { gender = value; }
 	void				set(coloration& value) const;
+	void				set(reaction_s value) { reaction = value; }
 	void				set(race_s value) { race = value; }
 	void				set(skill_s id, int value) { skills[id] = value; }
 	void				set(variant value);
