@@ -22,7 +22,7 @@ static void power_modify() {
 static void add_power() {
 	auto id = (spell_s)hot.param;
 	auto type = power_class[power_index];
-	auto player = creature::getplayer();
+	auto player = creature::getactive();
 	auto count = player->getprepared(id, type);
 	player->setprepared(id, type, count + 1);
 }
@@ -30,7 +30,7 @@ static void add_power() {
 static void remove_power() {
 	auto id = (spell_s)hot.param;
 	auto type = power_class[power_index];
-	auto player = creature::getplayer();
+	auto player = creature::getactive();
 	auto count = player->getprepared(id, type);
 	if(count)
 		player->setprepared(id, type, count - 1);

@@ -365,6 +365,7 @@ void creature::moveto(const char* location, const char* entrance) {
 			continue;
 		e.stop();
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
+		e.set(Friendly);
 	}
 	draw::setpagedef(makecombat);
 	draw::setpage(makecombat);
@@ -760,6 +761,23 @@ static int compare_initiative(const void* p1, const void* p2) {
 	return c1->getinitiativeroll() - c2->getinitiativeroll();
 }
 
+void creature::react(target& tg) {
+	auto distance = map::getrange(getmovement() * 2) + 1;
+	switch(tg.type) {
+	case Index:
+		move(map::getposition(tg.index, getsize()), distance);
+		animate();
+		break;
+	case Creature:
+		if(isenemy(*tg.creature))
+			attack(*tg.creature);
+		else {
+			// TODO: Начало диалога с сопартийцем
+		}
+		break;
+	}
+}
+
 void creature::makecombat() {
 	adat<creature*,264> elements;
 	for(auto& e : players) {
@@ -780,21 +798,19 @@ void creature::makecombat() {
 	for(auto p : elements) {
 		if(!(*p))
 			continue;
+		auto movement = map::getrange(p->getmovement())*2;
 		if(p->isplayer()) {
-			p->setplayer();
-			auto distance = map::getrange(p->getmovement()) + 1;
+			p->setactive();
+			auto distance = movement + 1;
 			auto tg = choose_target(4, p->getindex(), distance);
-			switch(tg.type) {
-			case Index:
-				p->move(map::getposition(tg.index, p->getsize()), distance);
-				p->animate();
-				break;
-			}
+			p->react(tg);
 		} else {
 			auto enemy = p->getbest(elements, &creature::isenemy);
 			if(enemy)
-				return;
-			p->attack(*enemy);
+				p->attack(*enemy);
+			else {
+				// TODO: ошибка?
+			}
 		}
 	}
 }

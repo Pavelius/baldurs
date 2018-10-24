@@ -749,6 +749,7 @@ struct creature : actor {
 	void				get(attack_info& result, slot_s slot, const creature& enemy) const;
 	static ability_s	getability(save_s id);
 	int					getac(bool flatfooted) const;
+	static creature*	getactive();
 	int					getbab() const;
 	creature*			getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const;
 	int					getcasterlevel() const;
@@ -774,7 +775,6 @@ struct creature : actor {
 	int					getmovement() const { return 30; }
 	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
 	static int			getpartymaxdistance(point position);
-	static creature*	getplayer();
 	int					getpoints(class_s id) const;
 	int					getportrait() const override { return portrait; }
 	int					getprepared(variant type) const;
@@ -815,6 +815,7 @@ struct creature : actor {
 	static void			minimap();
 	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
+	void				react(target& tg);
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	bool				roll(roll_info& e) const;
 	void				say(const char* format, ...) const;
@@ -829,8 +830,8 @@ struct creature : actor {
 	void				set(race_s value) { race = value; }
 	void				set(skill_s id, int value) { skills[id] = value; }
 	void				set(variant value);
+	void				setactive();
 	void				setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
-	void				setplayer();
 	void				setportrait(int value) { portrait = value; }
 	void				setprepared(spell_s id, variant type, int count);
 	void				setquick(int value) { active_weapon = value; }

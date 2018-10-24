@@ -29,7 +29,7 @@ static bool get_drag_target(creature* player, itemdrag& di) {
 static void choose_item() {
 	itemdrag di = {0};
 	di.source = (item*)hot.param;
-	auto player = creature::getplayer();
+	auto player = creature::getactive();
 	if(!player)
 		return;
 	if(!di.source || !*di.source)
@@ -49,7 +49,7 @@ static void choose_item() {
 }
 
 static void choose_weapon() {
-	creature::getplayer()->setquick(hot.param);
+	creature::getactive()->setquick(hot.param);
 }
 
 void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {

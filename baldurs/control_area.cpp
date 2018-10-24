@@ -13,7 +13,7 @@ const int						camera_step = 16;
 static void character_submenu() {
 	cursorset cur;
 	while(ismodal()) {
-		auto player = creature::getplayer();
+		auto player = creature::getactive();
 		if(!player)
 			break;
 		(player->*creature_proc)();
@@ -42,7 +42,7 @@ static void choose_menu(void(*proc)()) {
 		setpage(proc);
 }
 
-void creature::setplayer() {
+void creature::setactive() {
 	current_selected.clear();
 	current_selected.add(this);
 }
@@ -50,7 +50,7 @@ void creature::setplayer() {
 static void nothing() {}
 static void choose_action() { current_action = (action_s)hot.param; }
 static void choose_formation() { settings.formation = (formation_s)hot.param; }
-static void choose_player() { ((creature*)hot.param)->setplayer(); }
+static void choose_player() { ((creature*)hot.param)->setactive(); }
 static void move_left() { camera.x -= camera_step; }
 static void move_right() { camera.x += camera_step; }
 static void move_up() { camera.y -= camera_step; }
@@ -265,7 +265,7 @@ static int compare_zorder(const void* p1, const void* p2) {
 	return e1->getzorder() - e2->getzorder();
 }
 
-creature* creature::getplayer() {
+creature* creature::getactive() {
 	if(!current_selected)
 		return 0;
 	return current_selected[0];
@@ -533,9 +533,9 @@ void actor::animate(actor& opponent, animate_s id) {
 }
 
 target creature::choose_target(int cursor, short unsigned start, short unsigned max_cost) {
+	target tg;
 	cursorset cur;
 	animation shifter;
-	target tg;
 	map::blockimpassable(0);
 	map::createwave(start, 1, max_cost);
 	while(ismodal()) {
@@ -564,12 +564,8 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 		translate(movement_keys);
 		switch(hot.key) {
 		case MouseLeft:
-			if(!hot.pressed) {
-				if(tg)
-					breakmodal(1);
-				else
-					breakmodal(0);
-			}
+			if(!hot.pressed && tg)
+				breakmodal(1);
 			break;
 		case KeyEscape:
 			breakmodal(0);
@@ -586,8 +582,8 @@ void creature::adventure() {
 	point hotspot;
 	cursorset cur;
 	animation shifter;
-	if(!getplayer())
-		players[0].setplayer();
+	if(!getactive())
+		players[0].setactive();
 	while(ismodal()) {
 		void(*proc_point)(point pt) = 0;
 		cur.set(res::CURSORS);
@@ -658,7 +654,7 @@ void creature::adventure() {
 			case Creature:
 				if(tg.creature->isplayer()) {
 					if(!hot.pressed)
-						tg.creature->setplayer();
+						tg.creature->setactive();
 				}
 				break;
 			case Index:

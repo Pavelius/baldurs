@@ -20,6 +20,7 @@ static void quick_load() {
 	players[4].create(Rogue, Elf, Female);
 	players[5].create(Wizard, Human, Male);
 	creature::moveto("AR1000");
+	creature::create(Goblin, Hostile, {487, 970});
 }
 
 static void join_game() {}
