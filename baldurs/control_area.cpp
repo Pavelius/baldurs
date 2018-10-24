@@ -491,6 +491,13 @@ static void party_move_to(point destination) {
 		p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
 }
 
+static void combat_movement(point destination) {
+	auto player = creature::getactive();
+	if(!player)
+		return;
+	player->move(destination, map::getrange(player->getmovement()) + 1, player->getsize(), true);
+}
+
 void actor::animate() {
 	cursorset cur(res::NONE);
 	auto current_action = action;
@@ -579,19 +586,34 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 }
 
 void creature::adventure() {
+	adventure(false);
+}
+
+static void combat_mode_proc() {
+	creature::adventure(true);
+}
+
+void creature::choose_action() {
+	setactive();
+	draw::setlayout(combat_mode_proc);
+}
+
+void creature::adventure(bool combat_mode) {
 	cursorset cur;
 	animation shifter;
 	if(!getactive())
 		players[0].setactive();
 	while(ismodal()) {
-		void(*proc_point)(point pt) = 0;
+		void(*proc_position)(const point value) = 0;
+		void(creature::*proc_creature)(creature& opponent) = 0;
 		cur.set(res::CURSORS);
+		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
 		if(settings.panel == setting::PanelFull)
 			render_footer(rcs, true);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, true);
+			render_panel(rcs, true, 0, true, true, !combat_mode);
 		correct_camera(rcs, camera);
 		point origin = camera;
 		origin.x -= rcs.width() / 2;
@@ -605,16 +627,29 @@ void creature::adventure() {
 			cur.set(res::CURSORS, tg.door->getcursor());
 			break;
 		case Creature:
-			cur.set(res::CURSORS, tg.creature->getcursor());
+			if(player->isenemy(*tg.creature)) {
+				proc_creature = &creature::attack;
+				cur.set(res::CURSORS, 12);
+			}
+			else if(tg.creature->isplayer()) {
+				if(!combat_mode)
+					proc_creature = &creature::setactive;
+			} else {
+				proc_creature = &creature::talk;
+				cur.set(res::CURSORS, tg.creature->getcursor());
+			}
 			break;
 		case Region:
 			cur.set(res::CURSORS, tg.region->getcursor());
 			break;
 		case Position:
-			if(map::isblock(map::getindex(tg.position, 1)))
+			if(map::isblock(map::getindex(tg.position, 1))) {
 				cur.set(res::CURSORS, 6);
-			else {
-				proc_point = party_move_to;
+			} else {
+				if(combat_mode)
+					proc_position = combat_movement;
+				else
+					proc_position = party_move_to;
 				cur.set(res::CURSORS, 4);
 			}
 			break;
@@ -635,9 +670,10 @@ void creature::adventure() {
 				case RegionTravel:
 					if(!hot.pressed) {
 						auto destination = tg.region->getposition();
-						if(getpartymaxdistance(destination) < 250)
-							moveto(tg.region->move_to_area, tg.region->move_to_entrance);
-						else
+						if(getpartymaxdistance(destination) < 250) {
+							if(!combat_mode)
+								moveto(tg.region->move_to_area, tg.region->move_to_entrance);
+						} else
 							party_move_to(destination);
 					}
 					break;
@@ -650,14 +686,18 @@ void creature::adventure() {
 					tg.door->toggle();
 				break;
 			case Creature:
-				if(tg.creature->isplayer()) {
-					if(!hot.pressed)
-						tg.creature->setactive();
+				if(proc_creature) {
+					(player->*proc_creature)(*tg.creature);
+					if(combat_mode)
+						setpage(0);
 				}
 				break;
 			case Position:
-				//if(proc_point)
-				//	proc_point(hotspot);
+				if(proc_position && !hot.pressed) {
+					proc_position(tg.position);
+					if(combat_mode)
+						setpage(0);
+				}
 				break;
 			}
 		}

@@ -365,7 +365,6 @@ void creature::moveto(const char* location, const char* entrance) {
 			continue;
 		e.stop();
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
-		e.set(Helpful);
 	}
 	draw::setpagedef(makecombat);
 	draw::setpage(makecombat);
@@ -586,12 +585,13 @@ static int roll_4d6() {
 	return temp[0] + temp[1] + temp[2];
 }
 
-void creature::create(class_s type, race_s race, gender_s gender) {
+void creature::create(class_s type, race_s race, gender_s gender, reaction_s reaction) {
 	variant elements[128];
 	clear();
 	this->kind = Character;
 	this->gender = gender;
 	this->race = race;
+	this->reaction = reaction;
 	this->classes[type] = 1;
 	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
 		ability[a] = roll_4d6();
@@ -684,7 +684,7 @@ aref<creature*> creature::select(const aref<creature*>& destination, const aref<
 }
 
 short unsigned creature::getindex() const {
-	return map::getindex(getposition(), getsize());
+	return map::getindex(position, getsize());
 }
 
 void creature::attack(creature& enemy) {
@@ -761,23 +761,6 @@ static int compare_initiative(const void* p1, const void* p2) {
 	return c1->getinitiativeroll() - c2->getinitiativeroll();
 }
 
-void creature::react(target& tg) {
-	auto distance = map::getrange(getmovement() * 2) + 1;
-	switch(tg.type) {
-	case Position:
-		move(tg.position, distance);
-		animate();
-		break;
-	case Creature:
-		if(isenemy(*tg.creature))
-			attack(*tg.creature);
-		else {
-			// TODO: Начало диалога с сопартийцем
-		}
-		break;
-	}
-}
-
 void creature::makecombat() {
 	adat<creature*,264> elements;
 	for(auto& e : players) {
@@ -798,12 +781,8 @@ void creature::makecombat() {
 	for(auto p : elements) {
 		if(!(*p))
 			continue;
-		auto movement = map::getrange(p->getmovement())*2;
 		if(p->isplayer()) {
-			p->setactive();
-			auto distance = movement + 1;
-			auto tg = choose_target(4, p->getindex(), distance);
-			p->react(tg);
+			p->choose_action();
 		} else {
 			auto enemy = p->getbest(elements, &creature::isenemy);
 			if(enemy)
@@ -833,10 +812,10 @@ int creature::getinitiative() const {
 void creature::blockimpassable(short unsigned blocked) {
 	for(auto& e : players) {
 		if(e)
-			map::setcost(e.getindex(), blocked);
+			map::setcost(e.getindex(), Blocked);
 	}
 	for(auto& e : creature_data) {
 		if(e)
-			map::setcost(e.getindex(), blocked);
+			map::setcost(e.getindex(), Blocked);
 	}
 }

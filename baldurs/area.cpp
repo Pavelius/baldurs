@@ -81,6 +81,7 @@ void map::clear() {
 	memset(lightpal, 0, sizeof(lightpal));
 	animation_data.clear();
 	container_data.clear();
+	creature_data.clear();
 	door_data.clear();
 	door_tiles_data.clear();
 	entrance_data.clear();

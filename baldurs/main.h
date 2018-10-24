@@ -720,6 +720,7 @@ struct creature : actor {
 	void				add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
 	void				add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
 	void				addinfo(stringbuilder& sb) const;
+	static void			adventure(bool can_change_player);
 	static void			adventure();
 	void				apply(race_s id, bool add_ability);
 	void				apply(class_s id);
@@ -727,6 +728,7 @@ struct creature : actor {
 	void				blockimpassable(short unsigned blocked) override;
 	void				clear();
 	void				clear(variant_s value);
+	void				choose_action();
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
@@ -734,7 +736,7 @@ struct creature : actor {
 	static target		choose_target(int cursor, short unsigned start, short unsigned max_cost);
 	void				create(monster_s type, reaction_s reaction);
 	static creature*	create(monster_s type, reaction_s reaction, point postition);
-	void				create(class_s type, race_s race, gender_s gender);
+	void				create(class_s type, race_s race, gender_s gender, reaction_s reaction);
 	static void			create_party();
 	void				damage(int count);
 	bool				equip(const item e);
@@ -811,11 +813,9 @@ struct creature : actor {
 	void				invertory(itemdrag* pd);
 	static void			journal();
 	static void			makecombat();
-	void				makemove();
 	static void			minimap();
 	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
-	void				react(target& tg);
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	bool				roll(roll_info& e) const;
 	void				say(const char* format, ...) const;
@@ -832,6 +832,7 @@ struct creature : actor {
 	void				set(skill_s id, int value) { skills[id] = value; }
 	void				set(variant value);
 	void				setactive();
+	void				setactive(creature& player) { player.setactive(); }
 	void				setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
 	void				setportrait(int value) { portrait = value; }
 	void				setprepared(spell_s id, variant type, int count);
@@ -839,6 +840,7 @@ struct creature : actor {
 	void				sheet();
 	void				spellbook();
 	static void			spellinfo(spell_s id);
+	void				talk(creature& opponent) {}
 	static void			moveto(const char* location, const char* entrance = 0);
 	static void			updategame();
 private:
