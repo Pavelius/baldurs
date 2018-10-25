@@ -366,8 +366,8 @@ void creature::moveto(const char* location, const char* entrance) {
 		e.stop();
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
 	}
-	draw::setpagedef(makecombat);
-	draw::setpage(makecombat);
+	draw::setpagedef(adventure);
+	draw::setpage(adventure);
 }
 
 void creature::updategame() {
@@ -684,7 +684,7 @@ aref<creature*> creature::select(const aref<creature*>& destination, const aref<
 }
 
 short unsigned creature::getindex() const {
-	return map::getindex(position, getsize());
+	return map::getindex(getposition(), getsize());
 }
 
 void creature::attack(creature& enemy) {

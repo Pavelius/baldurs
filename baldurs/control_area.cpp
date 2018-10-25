@@ -256,8 +256,8 @@ static void add(const rect& srceen, drawablet& source, drawable& e) {
 static int compare_zorder(const void* p1, const void* p2) {
 	drawable* e1 = *((drawable**)p1);
 	drawable* e2 = *((drawable**)p2);
-	point s1 = e1->getposition();
-	point s2 = e2->getposition();
+	point s1 = e1->getposition(); s1.y -= e1->getzorder();
+	point s2 = e2->getposition(); s2.y -= e1->getzorder();
 	if(s1.y != s2.y)
 		return s1.y - s2.y;
 	if(s1.x != s2.x)

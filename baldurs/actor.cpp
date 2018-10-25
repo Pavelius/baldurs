@@ -190,10 +190,10 @@ void actor::clearpath() {
 		path = map::removeall(path);
 }
 
-point actor::getposition() const {
+int	actor::getzorder() const {
 	if(action == AnimateAgony)
-		return position - point{0, 64};
-	return position;
+		return 64;
+	return 0;
 }
 
 const sprite* actor::getsprite(int& wi) const {

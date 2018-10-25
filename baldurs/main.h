@@ -334,7 +334,7 @@ struct drawable {
 	virtual unsigned	getfps() const { return 20; }
 	virtual point		getposition() const = 0;
 	virtual rect		getrect() const = 0;
-	virtual int			getzorder() const { return 100; }// Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
+	virtual int			getzorder() const { return 0; }// Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
 	virtual bool		hittest(point position) const { return false; }
 	virtual bool		isvisible() const { return true; }
 	virtual bool		isvisibleactive() const { return false; } // Drawable visible only when active.
@@ -405,7 +405,8 @@ struct floattext : drawable {
 	explicit operator bool() const { return text != 0; }
 	void				clear();
 	bool				isvisible() const override { return stamp && text; }
-	point				getposition() const override { return{(short)(box.x1 + box.width() / 2), (short)(box.y2 + 128)}; }
+	point				getposition() const override { return{(short)(box.x1 + box.width() / 2), (short)box.y2}; }
+	int					getzorder() const override { return 128; }
 	rect				getrect() const override { return{box.x1 - 4, box.y1 - 4, box.x2 + 4, box.y2 + 4}; }
 	void				painting(point offset) const override;
 	void				update() override;
@@ -431,7 +432,8 @@ struct animation : drawable, point {
 		rsname(), rsname_pallette() {}
 	void				getinfo(info& e) const;
 	rect				getrect() const override;
-	point				getposition() const override { return {x, y + height}; }
+	point				getposition() const override { return *this; }
+	int					getzorder() const override { return height; }
 	bool				is(unsigned value) const { return (flags & value) != 0; }
 	virtual bool		isvisible() const override;
 	void				painting(point screen) const override;
@@ -642,7 +644,7 @@ struct actor : drawable {
 	virtual const char* getname() const { return ""; }
 	virtual monster_s	getkind() const { return Character; }
 	virtual int			getportrait() const { return 0; }
-	point				getposition() const override;
+	point				getposition() const override { return position; }
 	static point		getposition(point start, point dst, formation_s formation, int pos);
 	virtual race_s		getrace() const { return Human; }
 	rect				getrect() const override;
@@ -651,6 +653,7 @@ struct actor : drawable {
 	const sprite*		getsprite(int& wi) const;
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item	getwear(slot_s id) const { return NoItem; }
+	virtual int			getzorder() const override;
 	bool				hittest(point pt) const override;
 	void				interact(drawable* object);
 	virtual void		interacting(drawable* object) {}
