@@ -678,8 +678,10 @@ void creature::adventure(bool combat_mode) {
 			case Region:
 				switch(tg.region->type) {
 				case RegionInfo:
-					if(!hot.pressed)
+					if(!hot.pressed) {
+						mslog(tg.region->name);
 						textblend(tg.region->launch, tg.region->name, getblendtextduration());
+					}
 					break;
 				case RegionTravel:
 					if(!hot.pressed) {

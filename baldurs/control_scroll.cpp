@@ -9,21 +9,12 @@ void scrolltext::reset() {
 	cache_origin = -1;
 }
 
-static int* scroll_value;
-
-static void scroll_change() {
-	if(scroll_value)
-		*scroll_value = *scroll_value + hot.param;
-}
-
 static void scroll_button(rect rc, sprite* pb, int i, int& value, int inc) {
 	bool pressed = draw::area(rc) == AreaHilitedPressed;
 	draw::image(rc.x1, rc.y1, pb, i + (pressed ? 1 : 0), 0);
 	if(pressed) {
 		if(hot.key == MouseLeft && hot.pressed)
 			value += inc;
-			//scroll_value = &value;
-			//draw::execute(scroll_change, inc);
 	}
 }
 
@@ -31,12 +22,8 @@ void draw::view(rect rc, rect rcs, int pixels_per_line, scrolllist& e) {
 	int lines_per_screen = rc.height() / pixels_per_line;
 	if(draw::areb(rc) || draw::areb(rcs)) {
 		switch(hot.key) {
-		case MouseWheelDown:
-			e.origin++;
-			break;
-		case MouseWheelUp:
-			e.origin--;
-			break;
+		case MouseWheelDown: e.origin++; break;
+		case MouseWheelUp: e.origin--; break;
 		}
 	}
 	sprite* pb = gres(e.bar);
@@ -111,7 +98,6 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 	if(e.cache_origin != e.origin)
 		e.cashing(text, rc.width());
 	if(pb) {
-		//rectangle(rcs, colors::red);
 		int h = rcs.height() - pb->get(0).sy - pb->get(2).sy - pb->get(e.scroll_frame).sy - 2;
 		int h1 = valid_maximum;
 		if(h1 > 0) {
