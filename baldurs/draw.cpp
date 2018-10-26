@@ -2095,6 +2095,10 @@ struct layout_info {
 };
 layout_info* layout_info::current;
 
+callback_proc draw::getlayout() {
+	return layout_info::current ? layout_info::current->def_proc : 0;
+}
+
 void draw::setlayout(callback_proc proc) {
 	layout_info e(proc);
 	while(e.proc)

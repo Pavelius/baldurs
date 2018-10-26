@@ -238,6 +238,7 @@ void					domodal();
 void					execute(void(*callback)(), int value = 0);
 void					execute(const hotinfo& id);
 void					focusing(int id, unsigned& flags, rect rc);
+callback_proc			getlayout();
 int						getbpp();
 color					getcolor(color normal, unsigned flags);
 color					getcolor(rect rc, color normal, color hilite, unsigned flags);

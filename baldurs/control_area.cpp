@@ -451,7 +451,7 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 	rcs.y2 = y;
 }
 
-static void render_footer(rect& rcs, bool show_buttons = true, bool combat_mode = false) {
+static void render_footer(rect& rcs, bool show_buttons = true) {
 	auto i = draw::getframe(12) % 32;
 	draw::image(0, 493, res::GCOMM, 0);
 	if(show_buttons) {
@@ -467,7 +467,7 @@ static void render_footer(rect& rcs, bool show_buttons = true, bool combat_mode 
 		button(736, 536, cmpr(nothing), 0, res::CGEAR, i, i, i, i, 0, 0, 0, true);
 	} else
 		image(736, 536, gres(res::CGEAR), i, 0);
-	draw::image(757, 494, res::GCOMMBTN, combat_mode ? 19 : 18, 0);
+	draw::image(757, 494, res::GCOMMBTN, creature::iscombatmode() ? 19 : 18, 0);
 	mspaint({12, 500, 542, 592}, {554, 497, 566, 592});
 	rcs.y2 -= 107;
 }
@@ -588,6 +588,10 @@ static void combat_mode_proc() {
 	creature::adventure(true);
 }
 
+bool creature::iscombatmode() {
+	return getlayout() == combat_mode_proc;
+}
+
 void creature::choose_action() {
 	setactive();
 	draw::setlayout(combat_mode_proc);
@@ -625,7 +629,7 @@ void creature::adventure(bool combat_mode) {
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
 		if(settings.panel == setting::PanelFull)
-			render_footer(rcs, true, combat_mode);
+			render_footer(rcs, true);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, !combat_mode);
 		correct_camera(rcs, camera);

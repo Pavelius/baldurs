@@ -807,6 +807,7 @@ struct creature : actor {
 	bool				isallow(variant id) const;
 	bool				isblock(point value) const override;
 	bool				isclass(skill_s id) const;
+	static bool			iscombatmode();
 	bool				isenemy(const creature& opponent) const;
 	bool				isranged() const { return wears[active_weapon].isranged(); }
 	bool				isselected() const override;
