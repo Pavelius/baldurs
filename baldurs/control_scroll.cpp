@@ -78,7 +78,8 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 	if(e.cache_origin != e.origin) {
 		draw::state push;
 		draw::setclip({0, 0, 0, 0});
-		e.maximum = draw::textf(rc.x1, rc.y1, rc.width(), text);
+		e.maximum = draw::textf(rc.x1, rc.y1, rc.width(), text, 0, 0,
+			&e.cache_height, &e.cache_text, 0);
 		e.cache_origin = e.origin;
 	}
 	int lines_per_screen = rc.height();
@@ -86,9 +87,11 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 		switch(hot.key) {
 		case MouseWheelDown:
 			e.origin += e.increment;
+			e.reset();
 			break;
 		case MouseWheelUp:
 			e.origin -= e.increment;
+			e.reset();
 			break;
 		}
 	}
