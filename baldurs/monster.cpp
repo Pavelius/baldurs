@@ -31,5 +31,6 @@ void creature::create(monster_s type, reaction_s reaction) {
 		set(ft);
 		add(it);
 	}
+	this->name = monster_data[type].name;
 	update_levels();
 }

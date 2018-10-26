@@ -12,7 +12,7 @@ void msclear() {
 
 void draw::mslogv(const char* temp) {
 	int n = zlen(temp);
-	if(count + n > int(sizeof(textdata)))
+	if(count + n > int(sizeof(textdata)) - 8)
 		msclear();
 	if(count) {
 		zcpy(textdata + count, "\n");
@@ -20,7 +20,7 @@ void draw::mslogv(const char* temp) {
 	}
 	zcpy(textdata + count, temp);
 	count += n;
-	scroll.cache_origin = -1;
+	scroll.reset();
 	if(scroll.origin + last_rect.height() >= scroll.maximum - 4)
 		scroll.origin = scroll.maximum;
 }

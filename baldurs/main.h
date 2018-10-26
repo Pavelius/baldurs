@@ -359,6 +359,7 @@ struct scrolltext {
 	int					scroll_frame;
 	//
 	scrolltext();
+	void				cashing(const char* text, int width);
 	void				reset();
 };
 struct scrolllist : runable, scrolltext {

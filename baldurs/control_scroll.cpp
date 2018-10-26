@@ -20,10 +20,10 @@ static void scroll_button(rect rc, sprite* pb, int i, int& value, int inc) {
 	bool pressed = draw::area(rc) == AreaHilitedPressed;
 	draw::image(rc.x1, rc.y1, pb, i + (pressed ? 1 : 0), 0);
 	if(pressed) {
-		if(hot.key == MouseLeft && hot.pressed) {
-			scroll_value = &value;
-			draw::execute(scroll_change, inc);
-		}
+		if(hot.key == MouseLeft && hot.pressed)
+			value += inc;
+			//scroll_value = &value;
+			//draw::execute(scroll_change, inc);
 	}
 }
 
@@ -74,25 +74,20 @@ void draw::view(rect rc, rect rcs, int pixels_per_line, scrolllist& e) {
 	}
 }
 
+void scrolltext::cashing(const char* text, int width) {
+	draw::state push;
+	draw::setclip({0, 0, 0, 0});
+	maximum = draw::textf(0, 0, width, text, 0,
+		origin, &cache_height, &cache_text, 0);
+	cache_origin = origin;
+}
+
 void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
-	if(e.cache_origin != e.origin) {
-		draw::state push;
-		draw::setclip({0, 0, 0, 0});
-		e.maximum = draw::textf(rc.x1, rc.y1, rc.width(), text, 0, 0,
-			&e.cache_height, &e.cache_text, 0);
-		e.cache_origin = e.origin;
-	}
 	int lines_per_screen = rc.height();
 	if(draw::areb(rc) || draw::areb(rcs)) {
 		switch(hot.key) {
-		case MouseWheelDown:
-			e.origin += e.increment;
-			e.reset();
-			break;
-		case MouseWheelUp:
-			e.origin -= e.increment;
-			e.reset();
-			break;
+		case MouseWheelDown: e.origin += e.increment; break;
+		case MouseWheelUp: e.origin -= e.increment; break;
 		}
 	}
 	sprite* pb = gres(e.bar);
@@ -100,12 +95,21 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 		scroll_button({rcs.x1, rcs.y1, rcs.x2, rcs.y1 + rcs.width()}, pb, 0, e.origin, -e.increment);
 		scroll_button({rcs.x1, rcs.y2 - rcs.width(), rcs.x2, rcs.y2}, pb, 2, e.origin, e.increment);
 	}
-	//rectangle(rc, colors::white);
+	if(e.cache_origin != e.origin)
+		e.cashing(text, rc.width());
 	auto valid_maximum = e.maximum - lines_per_screen - 1;
-	if(e.origin > valid_maximum)
+	if(valid_maximum < 0)
+		valid_maximum = 0;
+	if(e.origin > valid_maximum) {
 		e.origin = valid_maximum;
-	if(e.origin < 0)
+		e.reset();
+	}
+	if(e.origin < 0) {
 		e.origin = 0;
+		e.reset();
+	}
+	if(e.cache_origin != e.origin)
+		e.cashing(text, rc.width());
 	if(pb) {
 		//rectangle(rcs, colors::red);
 		int h = rcs.height() - pb->get(0).sy - pb->get(2).sy - pb->get(e.scroll_frame).sy - 2;
@@ -117,5 +121,5 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 	}
 	draw::state push;
 	draw::setclip(rc);
-	draw::textf(rc.x1, rc.y1 - e.origin + e.cache_height, rc.width(), text);
+	draw::textf(rc.x1, rc.y1 - e.origin + e.cache_height, rc.width(), e.cache_text);
 }
