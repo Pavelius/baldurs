@@ -700,7 +700,8 @@ void creature::adventure(bool combat_mode) {
 					tg.door->toggle();
 				break;
 			case Creature:
-				if(proc_creature) {
+				if(hot.pressed && proc_creature) {
+					msdbg("Цель: [%1]", tg.creature->getname());
 					(player->*proc_creature)(*tg.creature);
 					if(combat_mode)
 						setpage(0);
@@ -708,6 +709,7 @@ void creature::adventure(bool combat_mode) {
 				break;
 			case Position:
 				if(proc_position && !hot.pressed) {
+					msdbg("Цель: позиция [%1i, %2i]", tg.position.x, tg.position.y);
 					proc_position(tg.position);
 					if(combat_mode)
 						setpage(0);

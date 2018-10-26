@@ -13,6 +13,7 @@ static void new_game() {
 static void load_game() {}
 
 static void quick_load() {
+	msdbg("Создание партии персонажей...");
 	players[0].create(Fighter, Human, Male, Helpful);
 	players[1].create(Cleric, Dwarf, Male, Helpful);
 	players[2].create(Paladin, Human, Male, Helpful);

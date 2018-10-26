@@ -10,6 +10,13 @@
 #include "screenshoot.h"
 #include "stringcreator.h"
 
+#ifdef _DEBUG
+#define msdbg(text, ...) draw::mslog(text, __VA_ARGS__)
+#else
+#define msdbg(text, ...);
+#endif // _DEBUG
+
+
 enum school_s : unsigned char {
 	NoSchool,
 	Abjuration, Conjuration, Divination, Enchantment,
