@@ -4,11 +4,13 @@ using namespace draw;
 
 typedef adat<drawable*, 256>	drawablet;
 static point					camera;
-static point					camera_size;
+static point					camera_size = {800, 600};
 static action_s					current_action = ActionGuard;
 static adat<creature*, 8>		current_selected;
 static void						(creature::*creature_proc)();
 const int						camera_step = 16;
+
+void update_timestamp();
 
 static void character_submenu() {
 	cursorset cur;
@@ -58,7 +60,7 @@ static void move_down() { camera.y += camera_step; }
 static void character_invertory() { choose_menu(&creature::invertory); }
 static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
-static void character_test() { current_selected[0]->attack(players[0]); }
+static void character_test() { actor::slide({1000, 1000}); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
@@ -231,14 +233,12 @@ static void render_movement(const rect& rc, int mx, int my) {
 static void correct_camera(const rect& rc, point& camera) {
 	camera_size.x = rc.width();
 	camera_size.y = rc.height();
-	auto mx = rc.width() / 2;
-	auto my = rc.height() / 2;
-	if(camera.x < mx)
-		camera.x = mx;
-	if(camera.y < my)
-		camera.y = my;
-	mx = map::width * 16 - rc.width() / 2;
-	my = map::height * 12 - rc.height() / 2;
+	if(camera.x < 0)
+		camera.x = 0;
+	if(camera.y < 0)
+		camera.y = 0;
+	auto mx = map::width * 16 - rc.width();
+	auto my = map::height * 12 - rc.height();
 	if(camera.x > mx)
 		camera.x = mx;
 	if(camera.y > my)
@@ -451,12 +451,12 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 	rcs.y2 = y;
 }
 
-static void render_footer(rect& rcs, bool show_buttons = true) {
+static void render_footer(rect& rcs, bool show_buttons = true, bool combat_mode = false) {
 	auto i = draw::getframe(12) % 32;
 	draw::image(0, 493, res::GCOMM, 0);
 	if(show_buttons) {
 		button(576, 496, cmpr(select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
-		button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0);
+		button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0); // ־עהûץ
 		button(600, 515, cmpr(character_sheet), 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0);
 		button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);
 		button(668, 514, cmpr(character_spellbook), 0, res::GCOMMBTN, 0, 8, 9, 0, 0, 0, 0, 0);
@@ -464,10 +464,10 @@ static void render_footer(rect& rcs, bool show_buttons = true) {
 		button(628, 553, cmpr(game_journal), 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0);
 		button(670, 550, cmpr(game_option), 0, res::GCOMMBTN, 0, 10, 11, 0, 0, 0, 0, 0);
 		button(703, 495, cmpr(nothing), 0, res::GCOMMBTN, 0, 2, 3, 0, 0, 0, 0, 0);
-		button(757, 494, cmpr(nothing), 0, res::GCOMMBTN, 19, 18, 18, 0, 0, 0, 0, 0);
 		button(736, 536, cmpr(nothing), 0, res::CGEAR, i, i, i, i, 0, 0, 0, true);
 	} else
 		image(736, 536, gres(res::CGEAR), i, 0);
+	draw::image(757, 494, res::GCOMMBTN, combat_mode ? 19 : 18, 0);
 	mspaint({12, 500, 542, 592}, {554, 497, 566, 592});
 	rcs.y2 -= 107;
 }
@@ -511,8 +511,7 @@ void actor::animate() {
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, false, 0, false, false);
 		correct_camera(rcs, camera);
-		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
-		render_area(rcs, origin);
+		render_area(rcs, camera);
 		domodal();
 	}
 }
@@ -533,8 +532,7 @@ void actor::animate(actor& opponent, animate_s id) {
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, false, 0, false, false);
 		correct_camera(rcs, camera);
-		point origin = camera; origin.x -= rcs.width() / 2; origin.y -= rcs.height() / 2;
-		render_area(rcs, origin);
+		render_area(rcs, camera);
 		domodal();
 	}
 }
@@ -554,10 +552,7 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, false);
 		correct_camera(rcs, camera);
-		point origin = camera;
-		origin.x -= rcs.width() / 2;
-		origin.y -= rcs.height() / 2;
-		tg = render_area(rcs, origin);
+		tg = render_area(rcs, camera);
 		switch(tg.type) {
 		case Position:
 			if(map::getcost(map::getindex(tg.position)) == Blocked)
@@ -598,11 +593,30 @@ void creature::choose_action() {
 	draw::setlayout(combat_mode_proc);
 }
 
+static void checkcombat(unsigned& counter) {
+	if(draw::getframe() < counter)
+		return;
+	counter += 1000;
+	for(auto& e : players) {
+		if(!e)
+			continue;
+		for(auto& m : creature_data) {
+			if(!m)
+				continue;
+			if(m.isenemy(e)) {
+				creature::makecombat();
+				return;
+			}
+		}
+	}
+}
+
 void creature::adventure(bool combat_mode) {
 	cursorset cur;
 	animation shifter;
 	if(!getactive())
 		players[0].setactive();
+	unsigned counter = draw::getframe();
 	while(ismodal()) {
 		void(*proc_position)(const point value) = 0;
 		void(creature::*proc_creature)(creature& opponent) = 0;
@@ -611,14 +625,11 @@ void creature::adventure(bool combat_mode) {
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
 		if(settings.panel == setting::PanelFull)
-			render_footer(rcs, true);
+			render_footer(rcs, true, combat_mode);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, !combat_mode);
 		correct_camera(rcs, camera);
-		point origin = camera;
-		origin.x -= rcs.width() / 2;
-		origin.y -= rcs.height() / 2;
-		auto tg = render_area(rcs, origin);
+		auto tg = render_area(rcs, camera);
 		switch(tg.type) {
 		case Container:
 			cur.set(res::CURSORS, 2, true);
@@ -630,8 +641,7 @@ void creature::adventure(bool combat_mode) {
 			if(player->isenemy(*tg.creature)) {
 				proc_creature = &creature::attack;
 				cur.set(res::CURSORS, 12);
-			}
-			else if(tg.creature->isplayer()) {
+			} else if(tg.creature->isplayer()) {
 				if(!combat_mode)
 					proc_creature = &creature::setactive;
 			} else {
@@ -702,11 +712,14 @@ void creature::adventure(bool combat_mode) {
 			}
 		}
 		updategame();
+		if(!combat_mode)
+			checkcombat(counter);
 	}
 }
 
 void actor::setcamera(point value) {
-	camera = value;
+	camera.x = value.x - camera_size.x / 2;
+	camera.y = value.y - camera_size.y / 2;
 	correct_camera({0, 0, camera_size.x, camera_size.y}, camera);
 }
 
@@ -716,4 +729,39 @@ point actor::getcamera() {
 
 point actor::getcamerasize() {
 	return camera_size;
+}
+
+void actor::slide(const point position) {
+	cursorset cur(res::NONE);
+	rect rc;
+	rc.x1 = camera.x;
+	rc.y1 = camera.y;
+	rc.x2 = rc.x1 + camera_size.x;
+	rc.y2 = rc.y1 + camera_size.y;
+	if(position.in(rc))
+		return;
+	point start, destination;
+	start = camera;
+	destination.x = position.x - camera_size.x / 2;
+	destination.y = position.y - camera_size.y / 2;
+	correct_camera({0, 0, camera_size.x, camera_size.y}, destination);
+	auto range = 0;
+	auto step = 4;
+	auto range_maximum = distance(start, destination);
+	auto dx = destination.x - start.x;
+	auto dy = destination.y - start.y;
+	while(ismodal() && range < range_maximum) {
+		update_timestamp();
+		camera.x = start.x + dx * range / range_maximum;
+		camera.y = start.y + dy * range / range_maximum;
+		rect rcs = {0, 0, getwidth(), getheight()};
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs, true);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs, true, 0, true, true, false);
+		correct_camera(rcs, camera);
+		auto tg = render_area(rcs, camera);
+		sysredraw();
+		range += step;
+	}
 }

@@ -761,6 +761,17 @@ static int compare_initiative(const void* p1, const void* p2) {
 	return c1->getinitiativeroll() - c2->getinitiativeroll();
 }
 
+static bool haveanyenemy(const aref<creature*>& elements) {
+	if(elements.count < 2)
+		return false;
+	auto p1 = elements[0];
+	for(auto p2 : elements) {
+		if(p1->isenemy(*p2))
+			return true;
+	}
+	return false;
+}
+
 void creature::makecombat() {
 	adat<creature*,264> elements;
 	for(auto& e : players) {
@@ -779,12 +790,15 @@ void creature::makecombat() {
 		p->initiative = 1 + (rand()%20) + p->getinitiative();
 	qsort(elements.data, elements.count, sizeof(elements.data[0]), compare_initiative);
 	for(auto p : elements) {
-		if(!(*p))
+		if(!p->isready())
 			continue;
+		auto enemy = p->getbest(elements, &creature::isenemy);
+		if(!enemy)
+			break;
+		slide(p->getposition());
 		if(p->isplayer()) {
 			p->choose_action();
 		} else {
-			auto enemy = p->getbest(elements, &creature::isenemy);
 			if(enemy)
 				p->attack(*enemy);
 			else {
@@ -800,6 +814,8 @@ bool creature::isplayer() const {
 }
 
 bool creature::isenemy(const creature& opponent) const {
+	if(!opponent.isready())
+		return false;
 	return (reaction == Hostile && opponent.reaction == Helpful)
 		|| (reaction == Helpful && opponent.reaction == Hostile);
 }

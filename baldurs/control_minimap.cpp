@@ -65,8 +65,6 @@ void creature::minimap() {
 		draw::image(mview.x1, mview.y1, mm, 0, 0);
 		auto camera = getcamera();
 		auto camera_size = getcamerasize();
-		camera.x -= camera_size.x / 2;
-		camera.y -= camera_size.y / 2;
 		draw::rectb({x2m(camera.x), y2m(camera.y),
 			x2m(camera.x + camera_size.x), y2m(camera.y + camera_size.y)},
 			colors::white);

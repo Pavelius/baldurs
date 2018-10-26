@@ -83,7 +83,7 @@ void draw::buttonok() {
 	breakmodal(1);
 }
 
-static void update_timestamp() {
+void update_timestamp() {
 	auto previous = timestamp;
 	timestamp = clock();
 	for(auto& e : players)

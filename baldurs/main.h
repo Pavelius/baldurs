@@ -681,6 +681,7 @@ struct actor : drawable {
 	void				set(state_s value, unsigned rounds) {}
 	static void			setcamera(point camera);
 	void				setposition(point newpos);
+	static void			slide(const point camera);
 	void				stop();
 	void				update() override;
 	void				update_portrait();
@@ -812,6 +813,7 @@ struct creature : actor {
 	static bool			isgood(class_s id, save_s value);
 	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
 	bool				isplayer() const;
+	bool				isready() const { return ability[0]>0 && hits > 0; }
 	void				invertory();
 	void				invertory(itemdrag* pd);
 	static void			journal();
