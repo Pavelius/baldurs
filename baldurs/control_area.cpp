@@ -602,10 +602,10 @@ static void checkcombat(unsigned& counter) {
 		return;
 	counter += 1000;
 	for(auto& e : players) {
-		if(!e)
+		if(!e.isready())
 			continue;
 		for(auto& m : creature_data) {
-			if(!m)
+			if(!m.isready())
 				continue;
 			if(m.isenemy(e)) {
 				creature::makecombat();

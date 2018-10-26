@@ -762,18 +762,8 @@ static int compare_initiative(const void* p1, const void* p2) {
 	return c1->getinitiativeroll() - c2->getinitiativeroll();
 }
 
-static bool haveanyenemy(const aref<creature*>& elements) {
-	if(elements.count < 2)
-		return false;
-	auto p1 = elements[0];
-	for(auto p2 : elements) {
-		if(p1->isenemy(*p2))
-			return true;
-	}
-	return false;
-}
-
 void creature::makecombat() {
+	msdbg("Началась битва");
 	adat<creature*,264> elements;
 	for(auto& e : players) {
 		if(!e)
@@ -807,6 +797,7 @@ void creature::makecombat() {
 			}
 		}
 	}
+	msdbg("Битва закончилась");
 }
 
 bool creature::isplayer() const {
