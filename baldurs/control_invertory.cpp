@@ -3,13 +3,35 @@
 using namespace draw;
 
 static struct scrollground : public scrolllist {
-	item* data[6] = {};
+
+	item*			data[6] = {};
+	int				maximum_items;
+
 	scrollground() {
 		origin = 0;
 		maximum = 5;
-		increment = 64;
 	}
+
 	void row(rect rc, int n) {}
+
+	void update(short unsigned index) {
+		auto i = origin * 2;
+		maximum_items = 0;
+		auto pb = data;
+		auto pe = pb + sizeof(data) / sizeof(data[0]);
+		for(auto& e : itemground_data) {
+			if(!e)
+				continue;
+			if(e.index != index)
+				continue;
+			if(maximum_items++ < i)
+				continue;
+			if(pb < pe)
+				*pb++ = &e;
+		}
+		maximum = (maximum_items + 1) / 2;
+	}
+
 } ground;
 
 static void show_item_ability() {
@@ -86,9 +108,12 @@ static void choose_item() {
 		if(enable)
 			enable = player->isallow(di.value);
 	}
-	if(enable)
-		*di.target = di.value;
-	else
+	if(enable) {
+		if(di.target_slot == LastBackpack)
+			map::drop(player->getindex(), di.value);
+		else
+			*di.target = di.value;
+	} else
 		*di.source = di.value;
 }
 
@@ -98,10 +123,10 @@ static void choose_weapon() {
 
 void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	int m = 0;
-	rect rc = {x+2, y+2, x + 34, y + 34};
+	rect rc = {x + 2, y + 2, x + 34, y + 34};
 	auto ar = area(rc);
 	if(pd && (ar == AreaHilited || ar == AreaHilitedPressed)) {
-		pd->target = pi; 
+		pd->target = pi;
 		pd->target_slot = id;
 	}
 	auto enabled = pi && *pi && isallow(*pi);
@@ -109,7 +134,7 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	if(hilite)
 		hilite = isallow(pd->value);
 	if(hilite) {
-		if(pd->target==pi)
+		if(pd->target == pi)
 			draw::image(x, y, res::STONSLOT, 4 + m, 0);
 		else if(id == Backpack)
 			draw::image(x, y, res::STONSLOT, m, 0);
@@ -160,15 +185,17 @@ void creature::invertory(itemdrag* pd) {
 	iconqw(572, 48, 0, pd); iconqw(679, 48, 2, pd);
 	iconqw(572, 88, 1, pd); iconqw(679, 88, 3, pd);
 	label(574, 131, 111, 22, "Колчан");
-	for(auto i=0; i<3; i++) 
+	for(auto i = 0; i < 3; i++)
 		icon(572 + 39 * i, 159, wears + Quiver + i, Quiver, pd);
 	label(574, 200, 111, 22, "На поясе");
-	for(auto i = 0; i<3; i++)
+	for(auto i = 0; i < 3; i++)
 		icon(572 + 39 * i, 228, wears + QuickItem + i, QuickItem, pd);
 	label(574, 270, 111, 22, "Земля");
-	memset(ground.data, 0, sizeof(ground.data));
-	for(auto i = 0; i<6; i++)
-		icon(572 + 39 * (i%2), 298 + 39*(i/2), ground.data[i], LastBackpack, pd);
+	ground.update(map::getindex(getposition(), getsize()));
+	for(auto i = 0; i < 6; i++) {
+		auto j = ground.maximum_items - ground.origin * 2;
+		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd);
+	}
 	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
 	label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
 	label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
@@ -187,7 +214,7 @@ void creature::invertory(itemdrag* pd) {
 	icon(510, 136, Legs, pd);
 	// Invertory
 	x = 251; y = 299;
-	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i+1)) {
+	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
 		int x1 = x + (i % 8)*d;
 		int y1 = y + (i / 8)*d;
 		icon(x1, y1, wears + i, Backpack, pd);

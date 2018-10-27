@@ -316,8 +316,10 @@ static target render_area(rect rc, const point origin) {
 		add(screen, drawables, e);
 	for(auto& e : animation_data)
 		add(screen, drawables, e);
-	for(auto& e : itemground_data)
-		add(screen, drawables, e);
+	for(auto& e : itemground_data) {
+		if(e)
+			add(screen, drawables, e);
+	}
 	for(auto& e : floattext_data) {
 		if(e)
 			add(screen, drawables, e);
