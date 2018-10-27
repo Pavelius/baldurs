@@ -68,6 +68,14 @@ void creature::minimap() {
 		draw::rectb({x2m(camera.x), y2m(camera.y),
 			x2m(camera.x + camera_size.x), y2m(camera.y + camera_size.y)},
 			colors::white);
+		for(auto& e : players) {
+			if(!e)
+				continue;
+			auto position = e.getposition();
+			auto x1 = x2m(position.x);
+			auto y1 = y2m(position.y);
+			circle(x1, y1, 2, colors::green);
+		}
 		button(664, 54, cmpr(worldmap), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
 		if(hot.mouse.in(mview))
 			cur.set(res::CURSORS, 44);

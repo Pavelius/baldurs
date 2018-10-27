@@ -758,7 +758,7 @@ creature* creature::getbest(const aref<creature*>& source, bool (creature::*proc
 
 static int compare_initiative(const void* p1, const void* p2) {
 	auto c1 = *((creature**)p1);
-	auto c2 = *((creature**)p1);
+	auto c2 = *((creature**)p2);
 	return c1->getinitiativeroll() - c2->getinitiativeroll();
 }
 
@@ -780,22 +780,30 @@ void creature::makecombat() {
 	for(auto p : elements)
 		p->initiative = 1 + (rand()%20) + p->getinitiative();
 	qsort(elements.data, elements.count, sizeof(elements.data[0]), compare_initiative);
-	for(auto p : elements) {
-		if(!p->isready())
-			continue;
-		auto enemy = p->getbest(elements, &creature::isenemy);
-		if(!enemy)
-			break;
-		slide(p->getposition());
-		if(p->isplayer()) {
-			p->choose_action();
-		} else {
-			if(enemy)
-				p->attack(*enemy);
-			else {
-				// TODO: ошибка?
+	while(true) {
+		auto continue_combat = false;
+		for(auto p : elements) {
+			if(!p->isready())
+				continue;
+			auto enemy = p->getbest(elements, &creature::isenemy);
+			if(!enemy) {
+				continue_combat = false;
+				break;
+			}
+			continue_combat = true;
+			slide(p->getposition());
+			if(p->isplayer()) {
+				p->choose_action();
+			} else {
+				if(enemy)
+					p->attack(*enemy);
+				else {
+					// TODO: ошибка?
+				}
 			}
 		}
+		if(!continue_combat)
+			break;
 	}
 	msdbg("Битва закончилась");
 }
