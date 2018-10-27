@@ -18,33 +18,30 @@ static point s2m(point m) {
 		(short)((m.y - mview.y1)*(map::height * 12) / mview.height())};
 }
 
-//static int minimap_drag() {
-//	sprite* mm = get_area_minimap();
-//	const sprite::frame& sf = mm->get(0);
-//	draw::screenshoot back;
-//	while(true) {
-//		update_logic();
-//		back.restore();
-//		set_camera(s2m(hot.mouse));
-//		draw::image(mview.x1, mview.y1, mm, 0, 0);
-//		draw::rectb({x2m(camera.x), y2m(camera.y),
-//			x2m(camera.x + camera_sizes.x), y2m(camera.y + camera_sizes.y)},
-//			colors::white);
-//		int id = draw::input();
-//		switch(id) {
-//		case 0:
-//			return 0;
-//		case KeyEscape:
-//			return Next;
-//		case MouseLeft:
-//			if(!hot.pressed)
-//				return Next;
-//			break;
-//		}
-//	}
-//}
-
 static void worldmap() {
+}
+
+static void choose_map_info() {
+	screenshoot screen(true);
+	cursorset cur;
+	while(ismodal()) {
+		int x = 201, y = 88;
+		screen.restore();
+		image(x, y, res::GUIMAP, 1, 0);
+		button(x + 61, y + 157, cmpr(buttonparam, 1), 0, res::GBTNMED, 0, 1, 2, 3, "Удалить", 0, 0);
+		button(x + 61, y + 187, cmpr(buttonok), 0, res::GBTNMED, 0, 1, 2, 2, "Применить", KeyEnter, 0);
+		button(x + 61, y + 217, cmpr(buttoncancel), 0, res::GBTNMED, 0, 1, 2, 3, "Отмена", KeyEscape, 0);
+		rectb({x + 20, y + 20, x + 258, y + 123}, colors::white);
+		button(x + 21, y + 127, cmpr(buttonparam, 5), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 51, y + 127, cmpr(buttonparam, 6), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 81, y + 127, cmpr(buttonparam, 7), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 111, y + 127, cmpr(buttonparam, 8), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 141, y + 127, cmpr(buttonparam, 9), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 171, y + 127, cmpr(buttonparam, 10), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 201, y + 127, cmpr(buttonparam, 11), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 231, y + 127, cmpr(buttonparam, 12), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		domodal();
+	}
 }
 
 void creature::minimap() {
@@ -81,6 +78,12 @@ void creature::minimap() {
 			cur.set(res::CURSORS, 44);
 		else
 			cur.set();
+		switch(hot.key) {
+		case MouseRight:
+			if(hot.pressed && hot.mouse.in(mview))
+				execute(choose_map_info);
+			break;
+		}
 		menumodal();
 		switch(hot.key) {
 		case MouseLeft:

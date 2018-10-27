@@ -12,6 +12,46 @@ static struct scrollground : public scrolllist {
 	void row(rect rc, int n) {}
 } ground;
 
+static void show_item_ability() {
+	screenshoot screen(true);
+	cursorset set;
+	while(ismodal()) {
+		int x = 252, y = 35;
+		screen.restore();
+		image(x, y, res::GUIINV, 1, 0);
+		label(x + 23, y + 22, 254, 20, "Ñïîñîáíîñòè ïğåäìåòà"); // NORMAL
+		button(x + 18, y + 49, cmpr(buttonparam, 2), Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 18, y + 89, cmpr(buttonparam, 3), Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 18, y + 129, cmpr(buttonparam, 4), Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
+		label(x + 71, y + 52, 205, 32, ""); // NORMAL
+		label(x + 71, y + 92, 205, 32, ""); // NORMAL
+		label(x + 71, y + 132, 205, 32, ""); // NORMAL
+		label(x + 24, y + 175, 232, 155, "255, 255, 255");
+		rectb({x + 266, y + 173, x + 278, y + 331}, colors::white);
+		button(x + 162, y + 339, cmpr(buttoncancel), 0, res::GBTNSTD, 0, 1, 2, 3, "Îòìåíà", KeyEscape, 0);
+		button(x + 21, y + 339, cmpr(buttonok, 11), 0, res::GBTNSTD, 0, 1, 2, 3, "Ïğèìåíèòü", KeyEnter, 0);
+		domodal();
+	}
+}
+
+static void choose_item_count() {
+	screenshoot screen(true);
+	cursorset set;
+	while(ismodal()) {
+		int x = 262, y = 205;
+		screen.restore();
+		image(x, y, res::GUIINV, 2, 0);
+		//button(x + 20, y + 20, cmpr(buttonparam, 1), 0, res::GUICTRL, 0, 0, 1, 0, 0, 0, 0);
+		button(x + 20, y + 92, cmpr(buttonparam, 2), 0, res::GBTNSTD, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 142, y + 92, cmpr(buttonparam, 3), 0, res::GBTNSTD, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 222, y + 44, cmpr(buttonparam, 4), 0, res::GBTNPLUS, 2, 1, 2, 3, 0, 0, 0);
+		button(x + 242, y + 44, cmpr(buttonparam, 5), 0, res::GBTNMINS, 0, 1, 2, 3, 0, 0, 0);
+		label(x + 71, y + 20, 187, 20, "Óêàæèòå êîëè÷åñòâî"); // NORMAL
+		//rectb({x + 180, y + 46, x + 215, y + 61}, colors::white);
+		domodal();
+	}
+}
+
 static bool get_drag_target(creature* player, itemdrag& di) {
 	cursorset set(res::ITEMS, di.value.getdragportrait(), true);
 	hot.pressed = false;
@@ -22,6 +62,10 @@ static bool get_drag_target(creature* player, itemdrag& di) {
 		menumodal(false);
 		if(hot.key == MouseLeft)
 			return true;
+		else if(hot.key == (MouseLeft | Shift)) {
+			choose_item_count();
+			return true;
+		}
 	}
 	return false;
 }
@@ -76,6 +120,8 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	//draw::rectb(rc, colors::red);
 	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
 		execute(choose_item, (int)pi);
+	else if(hot.key == MouseRight && ar == AreaHilitedPressed)
+		execute(show_item_ability, (int)pi);
 	if(!pi || !(*pi)) {
 		if(id >= Head && id <= Legs)
 			draw::image(x + 2, y + 2, gres(res::STON), id - Head, 0, 0x80);

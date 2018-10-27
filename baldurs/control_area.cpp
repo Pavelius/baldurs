@@ -632,6 +632,33 @@ static void checkcombat(unsigned& counter) {
 	}
 }
 
+static void render_container(rect& rcs) {
+	int x = 0, y = 476;
+	image(x, y, res::GUICONT, 1, 0);
+	rectb({x + 375, y + 24, x + 387, y + 100}, colors::white);
+	button(x + 150, y + 22, cmpr(buttonparam, 1), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 195, y + 22, cmpr(buttonparam, 2), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 239, y + 22, cmpr(buttonparam, 3), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 283, y + 22, cmpr(buttonparam, 4), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 327, y + 22, cmpr(buttonparam, 5), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 150, y + 65, cmpr(buttonparam, 6), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	rectb({x + 602, y + 24, x + 614, y + 100}, colors::white);
+	button(x + 509, y + 22, cmpr(buttonparam, 11), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 553, y + 22, cmpr(buttonparam, 12), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 553, y + 65, cmpr(buttonparam, 14), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	//button(x + 59, y + 25, cmpr(buttonparam, 51), 0, res::GUICTRL, 0, 0, 1, 0, 0, 0, 0);
+	button(x + 509, y + 65, cmpr(buttonparam, 13), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
+	button(x + 684, y + 28, cmpr(buttonparam, 52), Disabled, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
+	label(x + 661, y + 78, 70, 20, ""); // NORMAL
+	//button(x + 430, y + 28, cmpr(buttonparam, 55), 0, res::CONTBACK, 0, 0, 1, 0, 0, 0, 0);
+	button(x + 195, y + 65, cmpr(buttonparam, 7), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
+	button(x + 239, y + 65, cmpr(buttonparam, 8), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
+	button(x + 283, y + 65, cmpr(buttonparam, 9), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
+	button(x + 327, y + 65, cmpr(buttonparam, 10), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
+	rcs.y2 -= 107;
+	//rcs.y2 -= 60;
+}
+
 void creature::adventure(bool combat_mode) {
 	cursorset cur;
 	animation shifter;
@@ -645,10 +672,14 @@ void creature::adventure(bool combat_mode) {
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		if(settings.panel == setting::PanelFull)
-			render_footer(rcs, true);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, !combat_mode);
+		if(false)
+			render_container(rcs);
+		else {
+			if(settings.panel == setting::PanelFull)
+				render_footer(rcs, true);
+			if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+				render_panel(rcs, true, 0, true, true, !combat_mode);
+		}
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera);
 		switch(tg.type) {
