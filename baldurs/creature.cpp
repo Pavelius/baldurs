@@ -918,3 +918,8 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	if(synchronized)
 		(this->*e.method)(e);
 }
+
+void creature::getin(const target& e) {
+	if(e.type == Container)
+		choose_items(*e.container);
+}

@@ -432,6 +432,7 @@ static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
 	switch(react.type) {
 	case Container:
 		cur.set(res::CURSORS, 2, true);
+		react.method = &creature::getin;
 		break;
 	case ItemGround:
 		cur.set(res::CURSORS, 2);
@@ -656,7 +657,7 @@ static void checkcombat(unsigned& counter) {
 	}
 }
 
-static void render_container(rect& rcs) {
+static void render_container(rect& rcs, const container& element) {
 	int x = 0, y = 476;
 	image(x, y, res::GUICONT, 1, 0);
 	rectb({x + 375, y + 24, x + 387, y + 100}, colors::white);
@@ -690,9 +691,10 @@ static void player_interact(creature* player, const targetreaction& tg) {
 		player->interact(tg, 0, false);
 }
 
-static void translate_mouse(const targetreaction& tg) {
+static bool translate_mouse(const targetreaction& tg) {
 	auto combat_mode = creature::iscombatmode();
 	auto player = creature::getactive();
+	auto result = false;
 	switch(hot.key) {
 	case MouseLeft:
 		switch(tg.type) {
@@ -708,10 +710,14 @@ static void translate_mouse(const targetreaction& tg) {
 				if(!hot.pressed) {
 					auto destination = tg.region->getposition();
 					if(creature::getpartymaxdistance(destination) < 250) {
-						if(!combat_mode)
+						if(!combat_mode) {
 							creature::moveto(tg.region->move_to_area, tg.region->move_to_entrance);
-					} else
+							result = true;
+						}
+					} else {
 						party_interact(destination);
+						result = true;
+					}
 				}
 				break;
 			}
@@ -720,15 +726,39 @@ static void translate_mouse(const targetreaction& tg) {
 		case ItemGround:
 		case Door:
 		case Creature:
-			if(!hot.pressed)
+			if(!hot.pressed) {
 				player_interact(player, tg);
+				result = true;
+			}
 			break;
 		case Position:
-			if(!hot.pressed)
+			if(!hot.pressed) {
 				party_interact(tg.position);
+				result = true;
+			}
 			break;
 		}
 		break;
+	}
+	return result;
+}
+
+void creature::choose_items(container& element) {
+	cursorset cur;
+	animation shifter;
+	while(ismodal()) {
+		cur.set(res::CURSORS);
+		auto player = creature::getactive();
+		rect rcs = {0, 0, getwidth(), getheight()};
+		create_shifer(rcs, shifter, camera);
+		render_container(rcs, element);
+		correct_camera(rcs, camera);
+		auto tg = render_area(rcs, camera, cur);
+		render_shifter(shifter, cur);
+		domodal();
+		if(translate_mouse(tg))
+			breakmodal(0);
+		updategame();
 	}
 }
 
@@ -740,7 +770,6 @@ void creature::adventure() {
 	unsigned counter = draw::getframe();
 	bool combat_mode = creature::iscombatmode();
 	while(ismodal()) {
-		void(creature::*proc_creature)(const target& opponent) = 0;
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};

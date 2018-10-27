@@ -445,7 +445,7 @@ struct animation : drawable, point {
 	void				getinfo(info& e) const;
 	rect				getrect() const override;
 	point				getposition() const override { return *this; }
-	int					getzorder() const override { return height; }
+	int					getzorder() const override { return -height-256; }
 	bool				is(unsigned value) const { return (flags & value) != 0; }
 	virtual bool		isvisible() const override;
 	void				painting(point screen) const override;
@@ -772,6 +772,7 @@ struct creature : actor {
 	void				close(const target& e);
 	void				choose_action();
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
+	void				choose_items(container& element);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
 	void				choose_skills(const char* title, const aref<variant>& elements);
@@ -807,6 +808,7 @@ struct creature : actor {
 	diety_s				getdiety() const { return diety; }
 	int					getfeats() const;
 	gender_s			getgender() const override { return gender; }
+	void				getin(const target& e);
 	int					getinitiative() const;
 	int					getinitiativeroll() const { return initiative; }
 	int					gethits() const override { return hits; }
