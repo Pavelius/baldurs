@@ -82,12 +82,8 @@ static bool get_drag_target(creature* player, itemdrag& di) {
 		di.target_slot = Backpack;
 		player->invertory(&di);
 		menumodal(false);
-		if(hot.key == MouseLeft)
+		if(hot.key == MouseLeft || hot.key== (MouseLeft | Shift))
 			return true;
-		else if(hot.key == (MouseLeft | Shift)) {
-			choose_item_count();
-			return true;
-		}
 	}
 	return false;
 }
@@ -111,8 +107,10 @@ static void choose_item() {
 	if(enable) {
 		if(di.target_slot == LastBackpack)
 			map::drop(player->getindex(), di.value);
-		else
+		else if(di.target)
 			*di.target = di.value;
+		else
+			*di.source = di.value;
 	} else
 		*di.source = di.value;
 }

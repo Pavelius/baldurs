@@ -164,6 +164,7 @@
     <ClCompile Include="control_invertory.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="item.cpp" />
+    <ClCompile Include="itemcont.cpp" />
     <ClCompile Include="itemground.cpp" />
     <ClCompile Include="loadsave.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -86,6 +86,7 @@ void map::clear() {
 	door_tiles_data.clear();
 	entrance_data.clear();
 	itemground_data.clear();
+	itemcont_data.clear();
 	region_data.clear();
 	verticles.clear();
 	floattext_data.clear();

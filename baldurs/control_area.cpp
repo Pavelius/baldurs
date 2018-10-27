@@ -425,8 +425,45 @@ static void create_shifer(const rect& screen, animation& d, point& camera) {
 		d.rsname[0] = 0;
 }
 
-static unsigned getblendtextduration() {
-	return 8000;
+static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
+	auto combat_mode = creature::iscombatmode();
+	auto player = creature::getactive();
+	targetreaction react = render_area(rc, origin);
+	switch(react.type) {
+	case Container:
+		cur.set(res::CURSORS, 2, true);
+		break;
+	case ItemGround:
+		cur.set(res::CURSORS, 2);
+		break;
+	case Door:
+		cur.set(res::CURSORS, react.door->getcursor());
+		react.method = &creature::toggle;
+		break;
+	case Creature:
+		if(player->isenemy(*react.creature)) {
+			react.method = &creature::attack;
+			cur.set(res::CURSORS, 12);
+		} else if(react.creature->isplayer()) {
+			if(!combat_mode)
+				react.method = &creature::setactive;
+		} else {
+			react.method = &creature::talk;
+			cur.set(res::CURSORS, react.creature->getcursor());
+		}
+		break;
+	case Region:
+		cur.set(res::CURSORS, react.region->getcursor());
+		break;
+	case Position:
+		if(map::isblock(map::getindex(react.position, 1))) {
+			cur.set(res::CURSORS, 6);
+			react.clear();
+		} else
+			cur.set(res::CURSORS, 4);
+		break;
+	}
+	return react;
 }
 
 static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, bool show_players = true, bool show_background = true, bool change_players = true) {
@@ -493,7 +530,7 @@ static void combat_movement(point destination) {
 	player->move(destination, map::getrange(player->getmovement()) + 1, player->getsize(), true);
 }
 
-static void party_move_to(point destination) {
+static void party_interact(point destination) {
 	if(creature::iscombatmode())
 		combat_movement(destination);
 	else {
@@ -503,17 +540,6 @@ static void party_move_to(point destination) {
 		auto index = 0;
 		for(auto p : current_selected)
 			p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
-	}
-}
-
-static void player_move_to(point destination) {
-	if(creature::iscombatmode())
-		combat_movement(destination);
-	else {
-		auto player = creature::getactive();
-		if(!player)
-			return;
-		player->move(destination);
 	}
 }
 
@@ -599,12 +625,8 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 	return tg;
 }
 
-void creature::adventure() {
-	adventure(false);
-}
-
 static void combat_mode_proc() {
-	creature::adventure(true);
+	creature::adventure();
 }
 
 bool creature::iscombatmode() {
@@ -661,120 +683,79 @@ static void render_container(rect& rcs) {
 	//rcs.y2 -= 60;
 }
 
-void creature::adventure(bool combat_mode) {
+static void player_interact(creature* player, const targetreaction& tg) {
+	if(creature::iscombatmode())
+		player->interact(tg, map::getrange(player->getmovement()) + 1, true);
+	else
+		player->interact(tg, 0, false);
+}
+
+static void translate_mouse(const targetreaction& tg) {
+	auto combat_mode = creature::iscombatmode();
+	auto player = creature::getactive();
+	switch(hot.key) {
+	case MouseLeft:
+		switch(tg.type) {
+		case Region:
+			switch(tg.region->type) {
+			case RegionInfo:
+				if(!hot.pressed) {
+					mslog(tg.region->name);
+					textblend(tg.region->launch, tg.region->name, 8000);
+				}
+				break;
+			case RegionTravel:
+				if(!hot.pressed) {
+					auto destination = tg.region->getposition();
+					if(creature::getpartymaxdistance(destination) < 250) {
+						if(!combat_mode)
+							creature::moveto(tg.region->move_to_area, tg.region->move_to_entrance);
+					} else
+						party_interact(destination);
+				}
+				break;
+			}
+			break;
+		case Container:
+		case ItemGround:
+		case Door:
+		case Creature:
+			if(!hot.pressed)
+				player_interact(player, tg);
+			break;
+		case Position:
+			if(!hot.pressed)
+				party_interact(tg.position);
+			break;
+		}
+		break;
+	}
+}
+
+void creature::adventure() {
 	cursorset cur;
 	animation shifter;
 	if(!getactive())
 		players[0].setactive();
 	unsigned counter = draw::getframe();
+	bool combat_mode = creature::iscombatmode();
 	while(ismodal()) {
-		void(*proc_position)(const point value) = 0;
-		void(creature::*proc_creature)(creature& opponent) = 0;
+		void(creature::*proc_creature)(const target& opponent) = 0;
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		if(false)
-			render_container(rcs);
-		else {
-			if(settings.panel == setting::PanelFull)
-				render_footer(rcs, true);
-			if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-				render_panel(rcs, true, 0, true, true, !combat_mode);
-		}
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs, true);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs, true, 0, true, true, !combat_mode);
 		correct_camera(rcs, camera);
-		auto tg = render_area(rcs, camera);
-		switch(tg.type) {
-		case Container:
-			cur.set(res::CURSORS, 2, true);
-			break;
-		case ItemGround:
-			cur.set(res::CURSORS, 2);
-			break;
-		case Door:
-			cur.set(res::CURSORS, tg.door->getcursor());
-			break;
-		case Creature:
-			if(player->isenemy(*tg.creature)) {
-				proc_creature = &creature::attack;
-				cur.set(res::CURSORS, 12);
-			} else if(tg.creature->isplayer()) {
-				if(!combat_mode)
-					proc_creature = &creature::setactive;
-			} else {
-				proc_creature = &creature::talk;
-				cur.set(res::CURSORS, tg.creature->getcursor());
-			}
-			break;
-		case Region:
-			cur.set(res::CURSORS, tg.region->getcursor());
-			break;
-		case Position:
-			if(map::isblock(map::getindex(tg.position, 1))) {
-				cur.set(res::CURSORS, 6);
-			} else {
-				proc_position = party_move_to;
-				cur.set(res::CURSORS, 4);
-			}
-			break;
-		}
+		auto tg = render_area(rcs, camera, cur);
 		render_shifter(shifter, cur);
 		domodal();
 		translate(movement_keys);
 		translate(menu_keys);
-		switch(hot.key) {
-		case MouseLeft:
-			switch(tg.type) {
-			case Region:
-				switch(tg.region->type) {
-				case RegionInfo:
-					if(!hot.pressed) {
-						mslog(tg.region->name);
-						textblend(tg.region->launch, tg.region->name, getblendtextduration());
-					}
-					break;
-				case RegionTravel:
-					if(!hot.pressed) {
-						auto destination = tg.region->getposition();
-						if(getpartymaxdistance(destination) < 250) {
-							if(!combat_mode)
-								moveto(tg.region->move_to_area, tg.region->move_to_entrance);
-						} else
-							party_move_to(destination);
-					}
-					break;
-				}
-				break;
-			case Container:
-				if(!hot.pressed)
-					player_move_to(tg.itemground->getposition());
-				break;
-			case ItemGround:
-				if(!hot.pressed)
-					player_move_to(tg.itemground->getposition());
-				break;
-			case Door:
-				if(!hot.pressed)
-					tg.door->toggle();
-				break;
-			case Creature:
-				if(hot.pressed && proc_creature) {
-					msdbg("Цель: [%1]", tg.creature->getname());
-					(player->*proc_creature)(*tg.creature);
-					if(combat_mode)
-						setpage(0);
-				}
-				break;
-			case Position:
-				if(proc_position && !hot.pressed) {
-					msdbg("Цель: позиция [%1i, %2i]", tg.position.x, tg.position.y);
-					proc_position(tg.position);
-					if(combat_mode)
-						setpage(0);
-				}
-				break;
-			}
-		}
+		translate_mouse(tg);
 		updategame();
 		if(!combat_mode)
 			checkcombat(counter);
@@ -824,7 +805,7 @@ void actor::slide(const point position) {
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, false);
 		correct_camera(rcs, camera);
-		auto tg = render_area(rcs, camera);
+		render_area(rcs, camera);
 		sysredraw();
 		range += step;
 	}

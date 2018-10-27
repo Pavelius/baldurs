@@ -26,6 +26,7 @@ extern unsigned char	height; // current map height
 extern bool				isblock(unsigned short index);
 extern bool				isblock(unsigned short index, int size);
 bool					ispassable(unsigned short i0, unsigned short i1, int size);
+int						reachable(short unsigned start, short unsigned(*proc)(short unsigned index), short unsigned minimal_reach);
 node*					removeall(node* p);
 node*					removeback(node* p);
 node*					remove(node* p);

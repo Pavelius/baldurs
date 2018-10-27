@@ -236,6 +236,7 @@ int actor::getcicle() const {
 
 void actor::stop() {
 	action = AnimateStand;
+	action_target.clear();
 	frame = 0;
 	duration = draw::getframe();
 	clearpath();
@@ -271,7 +272,7 @@ void actor::move(point destination, short unsigned maximum_range, short unsigned
 	auto start = map::getindex(position, s);
 	auto goal = map::getindex(destination, s);
 	map::blockimpassable(Blocked - 1);
-	blockimpassable(Blocked - 1);
+	blockimpassable();
 	map::createwave(goal, s);
 	path = map::route(start, map::stepto, maximum_range, minimum_reach);
 	if(path) {
@@ -282,6 +283,22 @@ void actor::move(point destination, short unsigned maximum_range, short unsigned
 		if(use_animate)
 			animate();
 	}
+}
+
+int	actor::getmovedistance(point destination, short unsigned minimum_reach) const {
+	if(!destination)
+		return 1;
+	if(map::getindex(position) == map::getindex(destination))
+		return 1;
+	auto s = getsize();
+	auto start = map::getindex(position, s);
+	auto goal = map::getindex(destination, s);
+	map::blockimpassable(Blocked-1);
+	blockimpassable();
+	if(map::getcost(goal) == Blocked)
+		return 0;
+	map::createwave(start, s);
+	return map::getcost(goal);
 }
 
 void actor::setposition(point newpos) {
@@ -305,12 +322,10 @@ void actor::update() {
 		range += getspeed();
 		while(true) {
 			if(!path) {
-				set(AnimateStand);
-				if(action_object) {
-					auto pa = action_object;
-					action_object = 0;
-					interacting(pa);
-				}
+				auto e = action_target;
+				stop();
+				if(e.method)
+					interacting(e);
 				return;
 			}
 			newpos = map::getposition(path->index, s);
@@ -513,14 +528,9 @@ void actor::render_path(const rect& rc, int mx, int my) const {
 	}
 }
 
-void actor::interact(drawable* object) {
-	if(!object)
-		return;
-}
-
 void actor::clear() {
 	memset(&colors, 0, sizeof(colors));
-	action_object = 0;
+	action_target.clear();
 	position.clear();
 	dest.clear();
 	start.clear();

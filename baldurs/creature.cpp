@@ -53,6 +53,11 @@ void creature::operator delete (void* data) {
 	((creature*)data)->ability[0] = 0;
 }
 
+void targetreaction::clear() {
+	target::clear();
+	method = 0;
+}
+
 int	creature::get(ability_s id) const {
 	return ability[id] / 2 - 5;
 }
@@ -688,6 +693,11 @@ short unsigned creature::getindex() const {
 	return map::getindex(getposition(), getsize());
 }
 
+void creature::attack(const target& e) {
+	if(e.type==Creature)
+		attack(*e.creature);
+}
+
 void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
@@ -825,7 +835,7 @@ int creature::getinitiative() const {
 	return result;
 }
 
-void creature::blockimpassable(short unsigned blocked) {
+void creature::blockimpassable() const {
 	for(auto& e : players) {
 		if(e)
 			map::setcost(e.getindex(), Blocked);
@@ -834,4 +844,77 @@ void creature::blockimpassable(short unsigned blocked) {
 		if(e)
 			map::setcost(e.getindex(), Blocked);
 	}
+}
+
+void creature::interacting(const targetreaction& e) {
+	msdbg("[%1] выполняет скрипт", getname());
+	(this->*e.method)(e);
+}
+
+void creature::toggle(const target& e) {
+	switch(e.type) {
+	case Door:
+		if(e.door->isopen())
+			close(e);
+		else
+			open(e);
+		break;
+	}
+}
+
+void creature::open(const target& e) {
+	if(e.type == Door)
+		e.door->setopened(true);
+}
+
+void creature::close(const target& e) {
+	if(e.type == Door)
+		e.door->setopened(false);
+}
+
+void creature::interact(const targetreaction& e, short unsigned maximum_range, bool synchronized) {
+	point position;
+	short unsigned reach = 0;
+	switch(e.type) {
+	case Door:
+		if(getmovedistance(e.door->points[0], map::getrange(getreach())))
+			position = e.door->points[0];
+		else
+			position = e.door->points[1];
+		break;
+	case Container:
+		position = e.container->getposition();
+		reach = 2;
+		break;
+	case Creature:
+		position = e.creature->getposition();
+		reach = map::getrange(getreach());
+		break;
+	case ItemGround:
+		position = e.itemground->getposition();
+		break;
+	case Position:
+		position = e.position;
+		break;
+	case Region:
+		switch(e.region->type) {
+		case RegionTravel:
+			position = e.region->getposition();
+			break;
+		default:
+			return;
+		}
+		break;
+	default:
+		return;
+	}
+	stop();
+	auto index = getindex();
+	auto index_new = map::getindex(position);
+	if(!synchronized)
+		actor::set(e);
+	if(index != index_new)
+		move(position, maximum_range, reach, synchronized);
+	if(synchronized)
+		(this->*e.method)(e);
 }

@@ -301,7 +301,7 @@ struct variant {
 	operator unsigned short() { return (type << 8) + number; }
 };
 enum target_s : unsigned char {
-	NoTarget, Creature, Container, Door, ItemGround, Position, Region,
+	NoTarget, Creature, Container, Door, ItemCont, ItemGround, Position, Region,
 };
 struct target {
 	target_s			type;
@@ -312,6 +312,7 @@ struct target {
 		struct door*		door;
 		struct region*		region;
 		struct itemground*	itemground;
+		struct itemcont*	itemcont;
 	};
 	target(struct drawable* value);
 	constexpr target() : type(NoTarget), creature(0) {}
@@ -321,6 +322,7 @@ struct target {
 	constexpr target(struct region* value) : type(Region), region(value) {}
 	constexpr target(struct container* value) : type(Container), container(value) {}
 	constexpr target(struct itemground* value) : type(ItemGround), itemground(value) {}
+	constexpr target(struct itemcont* value) : type(ItemCont), itemcont(value) {}
 	explicit operator bool() const { return type != NoTarget; }
 	void				clear() { type = NoTarget; creature = 0; }
 };
@@ -392,7 +394,7 @@ struct coloration {
 	unsigned char		armor;
 	//
 	explicit operator bool() const { return skin == hair == minor == major == 0; }
-	constexpr coloration() : skin(0), hair(0), minor(0), major(0), armor(28), metal(30), leather(23) {}
+	constexpr coloration() : skin(0), hair(0), minor(0), major(0), armor(/*28*/MetalSteel), metal(MetalIron), leather(23) {}
 	void				set(short unsigned portrait);
 	void				upload(color* col) const;
 };
@@ -607,6 +609,13 @@ struct container : selectable {
 	rect				getrect() const override { return box; }
 	aref<point>			getpoints() const override { return points; }
 	bool				isvisibleactive() const override { return true; }
+	void				add(item value) const;
+};
+struct itemcont : item {
+	container*			object;
+	itemcont() = default;
+	itemcont(const item& value);
+	void* operator new(unsigned size);
 };
 struct door : public selectable {
 	unsigned char		cursor;
@@ -626,7 +635,7 @@ struct door : public selectable {
 	bool				isopen() const { return opened; }
 	bool				isvisibleactive() const override { return true; }
 	void				recount();
-	void				toggle();
+	void				setopened(bool state);
 };
 struct setting {
 	enum mode_s : unsigned char {
@@ -637,11 +646,18 @@ struct setting {
 	bool				show_search;
 	bool				show_path;
 };
+struct creature;
+struct targetreaction : target {
+	void				(creature::*method)(const target& e);
+	constexpr targetreaction() : target(), method(0) {}
+	constexpr targetreaction(const target& e) : target(e), method(0) {}
+	void				clear();
+};
 struct actor : drawable {
 	void				act(int player, const char* format, ...);
 	void				animate();
 	void				animate(actor& opponent, animate_s id);
-	virtual void		blockimpassable(short unsigned blocked) {}
+	virtual void		blockimpassable() const {}
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
 	void				clearpath();
@@ -660,6 +676,7 @@ struct actor : drawable {
 	int					getframe() const { return frame; }
 	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
+	int					getmovedistance(point destination, short unsigned minimum_reach) const;
 	virtual const char* getname() const { return ""; }
 	virtual monster_s	getkind() const { return Character; }
 	virtual int			getportrait() const { return 0; }
@@ -674,8 +691,7 @@ struct actor : drawable {
 	virtual const item	getwear(slot_s id) const { return NoItem; }
 	virtual int			getzorder() const override;
 	bool				hittest(point pt) const override;
-	void				interact(drawable* object);
-	virtual void		interacting(drawable* object) {}
+	virtual void		interacting(const targetreaction& e) {}
 	virtual bool		isblock(point value) const { return false; }
 	virtual bool		isselected() const { return false; }
 	virtual bool		isstunned() const { return false; }
@@ -698,6 +714,7 @@ struct actor : drawable {
 	void				say(const char* format, ...) const;
 	virtual void		set(gender_s value) {}
 	void				set(state_s value, unsigned rounds) {}
+	void				set(const targetreaction& e) { action_target = e; }
 	static void			setcamera(point camera);
 	void				setposition(point newpos);
 	static void			slide(const point camera);
@@ -713,7 +730,7 @@ private:
 	int					range;
 	map::node*			path;
 	coloration			colors;
-	drawable*			action_object;
+	targetreaction		action_target;
 	//
 	animate_s			getattackanimate(int number) const;
 	void				set(animate_s value);
@@ -738,6 +755,7 @@ struct creature : actor {
 	void* operator new(unsigned size);
 	void operator delete (void* data);
 	void				attack(creature& enemy);
+	void				attack(const target& enemy);
 	void				add(item e);
 	void				add(stringbuilder& sb, variant v1) const;
 	void				add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
@@ -748,9 +766,10 @@ struct creature : actor {
 	void				apply(race_s id, bool add_ability);
 	void				apply(class_s id);
 	void				apply(variant type, char level, bool interactive);
-	void				blockimpassable(short unsigned blocked) override;
+	void				blockimpassable() const override;
 	void				clear();
 	void				clear(variant_s value);
+	void				close(const target& e);
 	void				choose_action();
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
@@ -818,6 +837,8 @@ struct creature : actor {
 	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
 	void				icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
 	void				iconqw(int x, int y, int n, itemdrag* pd);
+	void				interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
+	void				interacting(const targetreaction& e) override;
 	bool				is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
 	static bool			is(spell_s id, class_s cls, int level);
 	bool				isallow(feat_s id) const;
@@ -843,6 +864,7 @@ struct creature : actor {
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	bool				roll(roll_info& e) const;
+	void				open(const target& e);
 	void				say(const char* format, ...) const;
 	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	static aref<creature*> select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
@@ -857,7 +879,7 @@ struct creature : actor {
 	void				set(skill_s id, int value) { skills[id] = value; }
 	void				set(variant value);
 	void				setactive();
-	void				setactive(creature& player) { player.setactive(); }
+	void				setactive(const target& e) { if(e.type==Creature) e.creature->setactive(); }
 	void				setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
 	void				setportrait(int value) { portrait = value; }
 	void				setprepared(spell_s id, variant type, int count);
@@ -865,7 +887,8 @@ struct creature : actor {
 	void				sheet();
 	void				spellbook();
 	static void			spellinfo(spell_s id);
-	void				talk(creature& opponent) {}
+	void				talk(const target& e) {}
+	void				toggle(const target& e);
 	static void			moveto(const char* location, const char* entrance = 0);
 	static void			updategame();
 private:
@@ -963,6 +986,7 @@ extern class_info				class_data[];
 extern adat<creature, 256>		creature_data;
 extern adat<container, 128>		container_data;
 extern adat<door, 256>			door_data;
+extern adat<itemcont, 2048>		itemcont_data;
 extern adat<itemground, 2048>	itemground_data;
 extern adat<door_tile, 1024>	door_tiles_data;
 extern adat<entrance, 128>		entrance_data;

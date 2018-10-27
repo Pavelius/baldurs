@@ -13,8 +13,8 @@ void door::recount() {
 		map::settile(e.index, isopen() ? e.open : e.closed);
 }
 
-void door::toggle() {
-	opened = !opened;
+void door::setopened(bool value) {
+	this->opened = value;
 	recount();
 }
 

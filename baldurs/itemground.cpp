@@ -28,14 +28,11 @@ void itemground::painting(point screen) const {
 
 static int get_item_height(item_s type) {
 	switch(type) {
-	case Helm:
-		return 0;
+	case Helm: return 0;
 	case Shortsword:
 	case Longsword:
-	case Staff:
-		return -64;
-	default:
-		return -128;
+	case Staff: return -64;
+	default: return -128;
 	}
 }
 
