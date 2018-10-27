@@ -10,12 +10,37 @@ rect itemground::getrect() const {
 }
 
 void itemground::painting(point screen) const {
+	color pallette[256];
 	auto pt = getposition();
-	image(pt.x - screen.x, pt.y - screen.y, gres(res::GROUND), gettype(), 0);
+	auto sp = gres(res::GROUND);
+	if(!sp)
+		return;
+	auto fr = sp->get(gettype());
+	auto pl = (color*)sp->offs(fr.pallette);
+	if(!pl)
+		return;
+	memcpy(pallette, pl, sizeof(pallette));
+	point hotspot = hot.mouse + screen;
+	if(!hittest(hotspot))
+		pallette[1] = colors::gray;
+	image(pt.x - screen.x, pt.y - screen.y, gres(res::GROUND), gettype(), ImagePallette,0xFF, pallette);
+}
+
+static int get_item_height(item_s type) {
+	switch(type) {
+	case Helm:
+		return 0;
+	case Shortsword:
+	case Longsword:
+	case Staff:
+		return -64;
+	default:
+		return -128;
+	}
 }
 
 int itemground::getzorder() const {
-	return -128;
+	return get_item_height(gettype());
 }
 
 point itemground::getposition() const {
