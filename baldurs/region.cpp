@@ -14,6 +14,7 @@ int region::getcursor() const {
 template<> void archive::set<region>(region& e) {
 	set(e.type);
 	set(e.launch);
+	set(e.use);
 	set(e.box);
 	set(e.move_to_area);
 	set(e.move_to_entrance);

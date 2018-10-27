@@ -199,7 +199,7 @@ enum tokens {
 	GBTNSPB1, GBTNSPB2, GBTNSPB3,
 	GBTNPOR, GUICONT, GUIMAP, GUIMAPWC, GUIREC, GBTNRECB, GBTNSCRL, GBTNSTD,
 	GCOMM, GCOMMBTN, FLAG1,
-	INVBUT2, INVBUT3, ITEMS, GROUND, SCROLLS, FORM,
+	INVBUT2, INVBUT3, ITEMS, GROUND, CONTAINER, SCROLLS, FORM,
 	CDMB1, CDMB2, CDMB3, CDMC4, CDMF4, CDMT1, CDMW1, CDMW2, CDMW3, CDMW4,
 	CEFB1, CEFB2, CEFB3, CEFC4, CEFF4, CEFT1, CEFW1, CEFW2, CEFW3, CEFW4,
 	CEMB1, CEMB2, CEMB3, CEMC4, CEMF4, CEMT1, CEMW1, CEMW2, CEMW3, CEMW4,
@@ -589,6 +589,7 @@ struct region : selectable {
 	region_type_s		type;
 	const char*			name;
 	point				launch;
+	point				use;
 	rect				box;
 	char				move_to_area[8];
 	char				move_to_entrance[32];
@@ -601,11 +602,17 @@ struct region : selectable {
 	void				painting(point screen) const {}
 };
 struct container : selectable {
-	int					type;
+	enum type_s : unsigned char {
+		None,
+		Bag, Chest, Drawer, Pile, Table, Shelf, Altar, Nonvisible,
+		Spellbook, Body, Barrel, Crate
+	};
+	type_s				type;
 	char				name[32];
 	point				launch;
 	rect				box;
 	aref<point>			points;
+	int					getframe() const;
 	rect				getrect() const override { return box; }
 	aref<point>			getpoints() const override { return points; }
 	bool				isvisibleactive() const override { return true; }
@@ -624,6 +631,8 @@ struct door : public selectable {
 	point				points[2];
 	aref<point>			open_points;
 	aref<point>			close_points;
+	aref<point>			search_open_points;
+	aref<point>			search_close_points;
 	aref<door_tile>		tiles;
 	bool				opened;
 	bool				locked;

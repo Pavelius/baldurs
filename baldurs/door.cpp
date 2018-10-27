@@ -1,7 +1,7 @@
 #include "main.h"
 
-adat<door, 256>			door_data;
-adat<door_tile, 1024>	door_tiles_data;
+adat<door, 256>				door_data;
+adat<door_tile, 1024>		door_tiles_data;
 
 void door::clear() {
 	opened = false;
@@ -25,6 +25,8 @@ template<> void archive::set<door>(door& e) {
 	set(e.points);
 	set(e.open_points);
 	set(e.close_points);
+	set(e.search_open_points);
+	set(e.search_close_points);
 	set(e.opened);
 	set(e.locked);
 	e.recount();

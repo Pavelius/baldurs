@@ -671,17 +671,16 @@ static void render_container(rect& rcs, const container& element) {
 	button(x + 509, y + 22, cmpr(buttonparam, 11), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
 	button(x + 553, y + 22, cmpr(buttonparam, 12), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
 	button(x + 553, y + 65, cmpr(buttonparam, 14), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	//button(x + 59, y + 25, cmpr(buttonparam, 51), 0, res::GUICTRL, 0, 0, 1, 0, 0, 0, 0);
+	image(x + 59, y + 25, res::CONTAINER, element.getframe(), 0);
 	button(x + 509, y + 65, cmpr(buttonparam, 13), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
 	button(x + 684, y + 28, cmpr(buttonparam, 52), Disabled, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
-	label(x + 661, y + 78, 70, 20, ""); // NORMAL
-	//button(x + 430, y + 28, cmpr(buttonparam, 55), 0, res::CONTBACK, 0, 0, 1, 0, 0, 0, 0);
+	label(x + 661, y + 78, 70, 20, "Некоторый текст"); // NORMAL
+	image(x + 430, y + 28, res::CONTAINER, 1, 0);
 	button(x + 195, y + 65, cmpr(buttonparam, 7), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
 	button(x + 239, y + 65, cmpr(buttonparam, 8), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
 	button(x + 283, y + 65, cmpr(buttonparam, 9), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
 	button(x + 327, y + 65, cmpr(buttonparam, 10), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
 	rcs.y2 -= 107;
-	//rcs.y2 -= 60;
 }
 
 static void player_interact(creature* player, const targetreaction& tg) {
