@@ -235,6 +235,9 @@
     <ClCompile Include="target.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="itemground.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

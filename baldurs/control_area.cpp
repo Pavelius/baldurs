@@ -256,13 +256,13 @@ static void add(const rect& srceen, drawablet& source, drawable& e) {
 static int compare_zorder(const void* p1, const void* p2) {
 	drawable* e1 = *((drawable**)p1);
 	drawable* e2 = *((drawable**)p2);
-	point s1 = e1->getposition(); s1.y -= e1->getzorder();
-	point s2 = e2->getposition(); s2.y -= e1->getzorder();
+	point s1 = e1->getposition(); s1.y += e1->getzorder();
+	point s2 = e2->getposition(); s2.y += e2->getzorder();
 	if(s1.y != s2.y)
 		return s1.y - s2.y;
 	if(s1.x != s2.x)
 		return s1.x - s2.x;
-	return e1->getzorder() - e2->getzorder();
+	return 0;
 }
 
 creature* creature::getactive() {
@@ -315,6 +315,8 @@ static target render_area(rect rc, const point origin) {
 	for(auto& e : players)
 		add(screen, drawables, e);
 	for(auto& e : animation_data)
+		add(screen, drawables, e);
+	for(auto& e : itemground_data)
 		add(screen, drawables, e);
 	for(auto& e : floattext_data) {
 		if(e)
@@ -482,20 +484,35 @@ void draw::menumodal(bool use_keys, itemdrag* pd) {
 		translate(menu_keys);
 }
 
-static void party_move_to(point destination) {
-	if(!current_selected)
-		return;
-	auto start = current_selected[0]->getposition();
-	auto index = 0;
-	for(auto p : current_selected)
-		p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
-}
-
 static void combat_movement(point destination) {
 	auto player = creature::getactive();
 	if(!player)
 		return;
 	player->move(destination, map::getrange(player->getmovement()) + 1, player->getsize(), true);
+}
+
+static void party_move_to(point destination) {
+	if(creature::iscombatmode())
+		combat_movement(destination);
+	else {
+		if(!current_selected)
+			return;
+		auto start = current_selected[0]->getposition();
+		auto index = 0;
+		for(auto p : current_selected)
+			p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
+	}
+}
+
+static void player_move_to(point destination) {
+	if(creature::iscombatmode())
+		combat_movement(destination);
+	else {
+		auto player = creature::getactive();
+		if(!player)
+			return;
+		player->move(destination);
+	}
 }
 
 void actor::animate() {
@@ -638,6 +655,9 @@ void creature::adventure(bool combat_mode) {
 		case Container:
 			cur.set(res::CURSORS, 2, true);
 			break;
+		case ItemGround:
+			cur.set(res::CURSORS, 2);
+			break;
 		case Door:
 			cur.set(res::CURSORS, tg.door->getcursor());
 			break;
@@ -660,10 +680,7 @@ void creature::adventure(bool combat_mode) {
 			if(map::isblock(map::getindex(tg.position, 1))) {
 				cur.set(res::CURSORS, 6);
 			} else {
-				if(combat_mode)
-					proc_position = combat_movement;
-				else
-					proc_position = party_move_to;
+				proc_position = party_move_to;
 				cur.set(res::CURSORS, 4);
 			}
 			break;
@@ -696,6 +713,12 @@ void creature::adventure(bool combat_mode) {
 				}
 				break;
 			case Container:
+				if(!hot.pressed)
+					player_move_to(tg.itemground->getposition());
+				break;
+			case ItemGround:
+				if(!hot.pressed)
+					player_move_to(tg.itemground->getposition());
 				break;
 			case Door:
 				if(!hot.pressed)

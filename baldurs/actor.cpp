@@ -192,7 +192,7 @@ void actor::clearpath() {
 
 int	actor::getzorder() const {
 	if(action == AnimateAgony)
-		return 64;
+		return -64;
 	return 0;
 }
 

@@ -146,10 +146,10 @@ enum magic_s : unsigned char {
 enum state_s : unsigned char {
 	Stunned,
 };
-enum item_group_s : unsigned char {
-	MiscItem,
-	SimpleWeapon, MartialWeapon, ExoticWeapon,
-};
+//enum item_group_s : unsigned char {
+//	MiscItem,
+//	SimpleWeapon, MartialWeapon, ExoticWeapon,
+//};
 enum action_s : unsigned char {
 	ActionGuard, ActionTurnUndead, ActionCast, ActionAttack, ActionUseItem, ActionPerform, ActionStop,
 };
@@ -199,7 +199,7 @@ enum tokens {
 	GBTNSPB1, GBTNSPB2, GBTNSPB3,
 	GBTNPOR, GUIMAP, GUIMAPWC, GUIREC, GBTNRECB, GBTNSCRL, GBTNSTD,
 	GCOMM, GCOMMBTN,
-	INVBUT2, INVBUT3, ITEMS, SCROLLS, FORM,
+	INVBUT2, INVBUT3, ITEMS, GROUND, SCROLLS, FORM,
 	CDMB1, CDMB2, CDMB3, CDMC4, CDMF4, CDMT1, CDMW1, CDMW2, CDMW3, CDMW4,
 	CEFB1, CEFB2, CEFB3, CEFC4, CEFF4, CEFT1, CEFW1, CEFW2, CEFW3, CEFW4,
 	CEMB1, CEMB2, CEMB3, CEMC4, CEMF4, CEMT1, CEMW1, CEMW2, CEMW3, CEMW4,
@@ -301,7 +301,7 @@ struct variant {
 	operator unsigned short() { return (type << 8) + number; }
 };
 enum target_s : unsigned char {
-	NoTarget, Creature, Container, Door, Position, Region,
+	NoTarget, Creature, Container, Door, ItemGround, Position, Region,
 };
 struct target {
 	target_s			type;
@@ -311,6 +311,7 @@ struct target {
 		struct container*	container;
 		struct door*		door;
 		struct region*		region;
+		struct itemground*	itemground;
 	};
 	target(struct drawable* value);
 	constexpr target() : type(NoTarget), creature(0) {}
@@ -319,6 +320,7 @@ struct target {
 	constexpr target(struct door* value) : type(Door), door(value) {}
 	constexpr target(struct region* value) : type(Region), region(value) {}
 	constexpr target(struct container* value) : type(Container), container(value) {}
+	constexpr target(struct itemground* value) : type(ItemGround), itemground(value) {}
 	explicit operator bool() const { return type != NoTarget; }
 	void				clear() { type = NoTarget; creature = 0; }
 };
@@ -446,7 +448,7 @@ struct animation : drawable, point {
 	virtual bool		isvisible() const override;
 	void				painting(point screen) const override;
 };
-struct selectable : public drawable {
+struct selectable : drawable {
 	virtual aref<point>	getpoints() const = 0;
 	point				getposition() const override;
 	bool				hittest(point hittest) const;
@@ -464,6 +466,7 @@ struct item {
 	int					getcount() const { return count; }
 	feat_s				getfeat() const;
 	static const char*	getfname(int type);
+	static const char*	getfgname(int type);
 	int					getframe() const;
 	magic_s				getmagic() const { return magic; }
 	int					getportrait() const { return type * 2; }
@@ -491,6 +494,14 @@ struct itemdrag {
 	item*				target;
 	item				value;
 	slot_s				target_slot;
+};
+struct itemground : item, drawable {
+	short unsigned		index;
+	virtual point		getposition() const;
+	virtual rect		getrect() const override;
+	virtual int			getzorder() const override;
+	virtual bool		hittest(point position) const override;
+	virtual void		painting(point position) const;
 };
 struct spell_info {
 	struct duration_info {
@@ -893,6 +904,7 @@ private:
 };
 namespace map {
 void					clear();
+void					drop(short unsigned index, item it);
 entrance*				find(const char* id);
 const sprite*			getareasprite();
 int						getday(unsigned value);
@@ -951,6 +963,7 @@ extern class_info				class_data[];
 extern adat<creature, 256>		creature_data;
 extern adat<container, 128>		container_data;
 extern adat<door, 256>			door_data;
+extern adat<itemground, 2048>	itemground_data;
 extern adat<door_tile, 1024>	door_tiles_data;
 extern adat<entrance, 128>		entrance_data;
 extern adat<floattext, 32>		floattext_data;

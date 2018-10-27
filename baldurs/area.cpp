@@ -85,6 +85,7 @@ void map::clear() {
 	door_data.clear();
 	door_tiles_data.clear();
 	entrance_data.clear();
+	itemground_data.clear();
 	region_data.clear();
 	verticles.clear();
 	floattext_data.clear();
@@ -255,4 +256,12 @@ point map::getfree(point position, int size) {
 	if(!isblock(i, size))
 		return position;
 	return map::getposition(getfree(i, 1, size), size);
+}
+
+void map::drop(short unsigned index, item it) {
+	auto p = itemground_data.add();
+	if(!p)
+		return;
+	*((item*)p) = it;
+	p->index = index;
 }

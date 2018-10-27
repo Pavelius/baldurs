@@ -21,7 +21,8 @@ static void quick_load() {
 	players[4].create(Rogue, Elf, Female, Helpful);
 	players[5].create(Wizard, Human, Male, Helpful);
 	creature::moveto("AR1000");
-	creature::create(Goblin, Hostile, {487, 970});
+	map::drop(map::getindex(21, 51), ChainMail);
+	//creature::create(Goblin, Hostile, {487, 970});
 }
 
 static void join_game() {}
@@ -73,7 +74,7 @@ static void test_character() {
 int main(int argc, char* argv[]) {
 	srand(clock());
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif
 	draw::initialize();
 	if(!draw::pallette)

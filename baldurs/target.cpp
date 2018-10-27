@@ -10,6 +10,9 @@ target::target(struct drawable* value) {
 	} else if(container_data.consist(value)) {
 		type = Container;
 		container = static_cast<struct container*>(value);
+	} else if(itemground_data.consist(value)) {
+		type = ItemGround;
+		itemground = static_cast<struct itemground*>(value);
 	} else if(creature_data.consist(value)
 		|| value>=players && value<=(players+sizeof(players)/ sizeof(players[0]))) {
 		type = Creature;

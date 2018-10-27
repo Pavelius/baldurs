@@ -4,53 +4,54 @@ static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
 struct item_info {
 	const char*		name;
 	const char*		image_file;
+	const char*		ground_file;
 	slot_s			slots[2];
 	feat_s			feat[2];
 	attack_info		ai;
 };
 
-static item_info item_data[] = {{"No item", "IHANDGF"},
-{"Club", "ICLUBB1", {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
-{"Hammer", "IHAMMB1", {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
-{"Mace", "IMACEB1", {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6, 1}}},
-{"Spear", "ISPERB1", {QuickWeapon}, {ProficiencySpear, FocusPolearm}, {{1, 8}}},
-{"Staff", "ISTAFB1", {QuickWeapon}, {ProficiencySimple, FocusPolearm}, {{1, 6}}},
-{"Crossbow", "IXBOWL01", {QuickWeapon}, {ProficiencyCrossbow, FocusCrossbows}, {{1, 8}}},
-{"Heavy crossbow", "IXBOWH01", {QuickWeapon}, {ProficiencyHeavyCrossbow, FocusCrossbows}, {{1, 10}}},
-{"Sling", "ISLNGB1", {QuickWeapon}, {ProficiencySimple}, {{1, 4}}},
+static item_info item_data[] = {{"No item", "IHANDGF", "GGEM01"},
+{"Club", "ICLUBB1", "GBLUN01", {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
+{"Hammer", "IHAMMB1", "GHAMM01", {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
+{"Mace", "IMACEB1", "GBLUN06", {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6, 1}}},
+{"Spear", "ISPERB1", "GSPER01", {QuickWeapon}, {ProficiencySpear, FocusPolearm}, {{1, 8}}},
+{"Staff", "ISTAFB1", "GSTAF01", {QuickWeapon}, {ProficiencySimple, FocusPolearm}, {{1, 6}}},
+{"Crossbow", "IXBOWL01", "GXBOW01", {QuickWeapon}, {ProficiencyCrossbow, FocusCrossbows}, {{1, 8}}},
+{"Heavy crossbow", "IXBOWH01", "GXBOW01", {QuickWeapon}, {ProficiencyHeavyCrossbow, FocusCrossbows}, {{1, 10}}},
+{"Sling", "ISLNGB1", "GXBOW01", {QuickWeapon}, {ProficiencySimple}, {{1, 4}}},
 //
-{"Battle axe", "IAX1HB2", {QuickWeapon}, {ProficiencyAxe, FocusAxes}, {{1, 8}}},
-{"Dagger", "IDAGGB1", {QuickWeapon, QuickOffhand}, {ProficiencyDagger, FocusDaggers}, {{1, 4}}},
-{"Greataxe", "IAX2HB1", {QuickWeapon}, {ProficiencyGreatweapon, FocusAxes}, {{1, 12}}},
-{"Halberd", "IHALBB1", {QuickWeapon}, {ProficiencyGreatweapon, FocusPolearm}, {{1, 10}}},
-{"Handaxe", "IAX1HB1", {QuickWeapon, QuickOffhand}, {ProficiencyAxe, FocusAxes}, {{1, 6}}},
-{"Scimitar", "ISWDCB2", {QuickWeapon, QuickOffhand}, {ProficiencyScimitar, FocusShortswords}, {{1, 6}}},
-{"Long sword", "ISWDLB1", {QuickWeapon}, {ProficiencyLongsword, FocusLongswords}, {{1, 8}}},
-{"Short sword", "ISWDSB1", {QuickWeapon, QuickOffhand}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}},
-{"Two handed sword", "ISWDTB1", {QuickWeapon}, {ProficiencyGreatweapon, FocusGreatswords}, {{2, 6}}},
-{"Rapier", "ISWDSB1", {QuickWeapon}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}}, // TODO: найти лучше вариант
-{"Short bow", "IBOWSB1", {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}}},
-{"Long bow", "IBOWLB1", {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}}},
+{"Battle axe", "IAX1HB2", "GHAMM01", {QuickWeapon}, {ProficiencyAxe, FocusAxes}, {{1, 8}}},
+{"Dagger", "IDAGGB1", "GDAGG01", {QuickWeapon, QuickOffhand}, {ProficiencyDagger, FocusDaggers}, {{1, 4}}},
+{"Greataxe", "IAX2HB1", "GHALB01", {QuickWeapon}, {ProficiencyGreatweapon, FocusAxes}, {{1, 12}}},
+{"Halberd", "IHALBB1", "GHALB01", {QuickWeapon}, {ProficiencyGreatweapon, FocusPolearm}, {{1, 10}}},
+{"Handaxe", "IAX1HB1", "GHAMM01", {QuickWeapon, QuickOffhand}, {ProficiencyAxe, FocusAxes}, {{1, 6}}},
+{"Scimitar", "ISWDCB2", "GSW1H07", {QuickWeapon, QuickOffhand}, {ProficiencyScimitar, FocusShortswords}, {{1, 6}}},
+{"Longsword", "ISWDLB1", "GSW1H01", {QuickWeapon}, {ProficiencyLongsword, FocusLongswords}, {{1, 8}}},
+{"Shortsword", "ISWDSB1", "GSW1H07", {QuickWeapon, QuickOffhand}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}},
+{"Two handed sword", "ISWDTB1", "GSW2H01", {QuickWeapon}, {ProficiencyGreatweapon, FocusGreatswords}, {{2, 6}}},
+{"Rapier", "ISWDSB1", "GSW1H07", {QuickWeapon}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}}, // TODO: найти лучше вариант
+{"Short bow", "IBOWSB1", "GBOW01", {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}}},
+{"Long bow", "IBOWLB1", "GBOW01", {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}}},
 //
-{"Waraxe", "IAX1HBB", {QuickWeapon}, {ProficiencyWaraxe, FocusAxes}, {{1, 10}}},
-{"Bastard sword", "ISWDBB1", {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
-{"Katana", "ISWDBB1", {QuickWeapon}, {ProficiencyCatana, FocusGreatswords}, {{1, 10}}}, // TODO: найти лучше вариант
+{"Waraxe", "IAX1HBB", "GHAMM01", {QuickWeapon}, {ProficiencyWaraxe, FocusAxes}, {{1, 10}}},
+{"Bastard sword", "ISWDBB1", "GSW1H01", {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
+{"Katana", "ISWDBB1", "GSW2H01", {QuickWeapon}, {ProficiencyCatana, FocusGreatswords}, {{1, 10}}}, // TODO: найти лучше вариант
 //
-{"Leather armor", "IARMLB1", {Body}, {ArmorProfeciencyLight}, {2}},
-{"Studded leather armor", "IARMSB1", {Body}, {ArmorProfeciencyLight}, {3}},
-{"Chain shirt", "IARMCM1", {Body}, {ArmorProfeciencyMedium}, {4}},
-{"Scale mail", "IARMSM1", {Body}, {ArmorProfeciencyMedium}, {4}},
-{"Chainmail", "IARMCB1", {Body}, {ArmorProfeciencyMedium}, {5}},
-{"Breastplate", "IARMHM3", {Body}, {ArmorProfeciencyMedium}, {5}},
-{"Splint mail", "IARMPB1", {Body}, {ArmorProfeciencyHeavy}, {6}},
-{"Banded mail", "IARMPM1", {Body}, {ArmorProfeciencyHeavy}, {7}},
-{"Plate mail", "IARMFM1", {Body}, {ArmorProfeciencyHeavy}, {8}},
+{"Leather armor", "IARMLB1", "GLEAT01", {Body}, {ArmorProfeciencyLight}, {2}},
+{"Studded leather armor", "IARMSB1", "GLEAT01", {Body}, {ArmorProfeciencyLight}, {3}},
+{"Chain shirt", "IARMCM1", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {4}},
+{"Scale mail", "IARMSM1", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {4}},
+{"Chainmail", "IARMCB1", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {5}},
+{"Breastplate", "IARMHM3", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {5}},
+{"Splint mail", "IARMPB1", "GPLAT01", {Body}, {ArmorProfeciencyHeavy}, {6}},
+{"Banded mail", "IARMPM1", "GPLAT01", {Body}, {ArmorProfeciencyHeavy}, {7}},
+{"Plate mail", "IARMFM1", "GPLAT01", {Body}, {ArmorProfeciencyHeavy}, {8}},
 //
-{"Shiled small", "ISHDSB1", {QuickOffhand}, {ShieldProfeciency}, {2}},
-{"Large shield", "ISHDLB1", {QuickOffhand}, {ShieldProfeciency}, {2}},
-{"Tower shield", "ISHDTB1", {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Shiled small", "ISHDSB1", "GSHLD01", {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Large shield", "ISHDLB1", "GSHLD03", {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Tower shield", "ISHDTB1", "GSHLD05", {QuickOffhand}, {ShieldProfeciency}, {2}},
 //
-{"Helm", "IHELMB1", {Head}, {ArmorProfeciencyMedium}},
+{"Helm", "IHELMB1", "GHELM01", {Head}, {ArmorProfeciencyMedium}},
 };
 assert_enum(item, Helm);
 getstr_enum(item);
@@ -108,6 +109,10 @@ feat_s item::getfeat() const {
 
 const char* item::getfname(int type) {
 	return item_data[type].image_file;
+}
+
+const char* item::getfgname(int type) {
+	return item_data[type].ground_file;
 }
 
 int item::getarmorindex() const {
