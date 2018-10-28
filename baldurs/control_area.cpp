@@ -3,7 +3,7 @@
 using namespace draw;
 
 typedef adat<drawable*, 256>	drawablet;
-static container*				current_container;
+static target					current_target;
 static point					camera;
 static point					camera_size = {800, 600};
 static action_s					current_action = ActionGuard;
@@ -432,11 +432,9 @@ static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
 	targetreaction react = render_area(rc, origin);
 	switch(react.type) {
 	case Container:
+	case ItemGround:
 		cur.set(res::CURSORS, 2, true);
 		react.method = &creature::getin;
-		break;
-	case ItemGround:
-		cur.set(res::CURSORS, 2);
 		break;
 	case Door:
 		cur.set(res::CURSORS, react.door->getcursor());
@@ -639,17 +637,21 @@ static void item_to_backpack() {
 
 static void item_to_container() {
 	auto pi = (item*)hot.param;
-	if(!current_container)
+	switch(current_target.type) {
+	case Container:
+		current_target.container->add(*pi);
+		break;
+	default:
 		return;
-	current_container->add(*pi);
+	}
 	pi->clear();
 }
 
-static void render_container(rect& rcs, const container& element, scrollitem& container, scrollitem& backpack) {
+static void render_container(rect& rcs, int frame, scrollitem& container, scrollitem& backpack) {
 	char temp[260];
 	int x = 0, y = 476;
 	image(x, y, res::GUICONT, 1, 0);
-	image(x + 59, y + 25, res::CONTAINER, element.getframe(), 0);
+	image(x + 59, y + 25, res::CONTAINER, frame, 0);
 	auto player = creature::getactive();
 	if(player) {
 		image(x + 430, y + 28, res::CONTAINER, 1, 0);
@@ -717,20 +719,32 @@ static bool translate_mouse(const targetreaction& tg) {
 	return result;
 }
 
-static void choose_container() {
+static void getin_container() {
 	cursorset cur;
 	animation shifter;
-	if(!current_container)
+	if(!current_target)
 		setpage();
 	scrollitem backpack(2, 2);
 	scrollitem container(5, 2);
+	short unsigned current_index = Blocked;
+	if(current_target.type == ItemGround)
+		current_index = current_target.itemground->index;
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		container.update(current_container, 5);
-		render_container(rcs, *current_container, container, backpack);
+		auto container_frame = 10;
+		switch(current_target.type) {
+		case Container:
+			container.update(current_target.container, 5);
+			container_frame = current_target.container->getframe();
+			break;
+		case ItemGround:
+			container.update(current_index, 5);
+			break;
+		}
+		render_container(rcs, container_frame, container, backpack);
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
 		render_shifter(shifter, cur);
@@ -743,9 +757,9 @@ static void choose_container() {
 	}
 }
 
-void creature::choose_items(container& element) {
-	current_container = &element;
-	setpage(choose_container);
+void creature::getin(const target& e) {
+	current_target = e;
+	setpage(getin_container);
 }
 
 void creature::adventure() {

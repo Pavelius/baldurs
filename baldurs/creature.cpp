@@ -924,11 +924,6 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	}
 }
 
-void creature::getin(const target& e) {
-	if(e.type == Container)
-		choose_items(*e.container);
-}
-
 int	creature::getmoney() {
 	return party_money;
 }

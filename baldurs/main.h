@@ -790,7 +790,6 @@ struct creature : actor {
 	void				close(const target& e);
 	void				choose_action();
 	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
-	void				choose_items(container& element);
 	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
 	void				choose_skills(const char* title, const aref<variant>& elements);
