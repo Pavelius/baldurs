@@ -144,12 +144,8 @@ enum magic_s : unsigned char {
 	Mundane, Cursed, Magical, Artifact,
 };
 enum state_s : unsigned char {
-	Stunned,
+	Stunned, ReadyToBattle,
 };
-//enum item_group_s : unsigned char {
-//	MiscItem,
-//	SimpleWeapon, MartialWeapon, ExoticWeapon,
-//};
 enum action_s : unsigned char {
 	ActionGuard, ActionTurnUndead, ActionCast, ActionAttack, ActionUseItem, ActionPerform, ActionStop,
 };
@@ -664,12 +660,9 @@ struct targetreaction : target {
 };
 struct actor : drawable {
 	void				act(int player, const char* format, ...);
-	void				animate();
-	void				animate(actor& opponent, animate_s id);
 	virtual void		blockimpassable() const {}
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
-	void				clearpath();
 	void				clearcolors();
 	static res::tokens	getanimation(item_s type);
 	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
@@ -707,7 +700,7 @@ struct actor : drawable {
 	bool				isvisible() const { return position.x!=0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
 	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
-	void				move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0, bool use_animate = false);
+	bool				move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0);
 	void				painting(point screen) const override;
 	void				paperdoll(int x, int y) const;
 	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type);
@@ -716,8 +709,8 @@ struct actor : drawable {
 	static void			pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
 	short unsigned		random_portrait() const;
 	static short unsigned random_portrait(gender_s gender, race_s race, class_s type);
-	void				render_attack(int number);
-	void				render_attack(int number, actor& opponent, bool fatal);
+	void				render_attack(int number, point position);
+	void				render_hit(bool fatal);
 	void				render_path(const rect& rc, int mx, int my) const;
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
@@ -730,6 +723,7 @@ struct actor : drawable {
 	void				stop();
 	void				update() override;
 	void				update_portrait();
+	void				wait(char percent = 0);
 private:
 	animate_s			action;
 	point				position, start, dest;
@@ -741,7 +735,9 @@ private:
 	coloration			colors;
 	targetreaction		action_target;
 	//
+	void				clearpath();
 	animate_s			getattackanimate(int number) const;
+	bool				isready() const;
 	void				set(animate_s value);
 };
 struct monster_info {
@@ -770,7 +766,7 @@ struct creature : actor {
 	void				add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
 	void				add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
 	void				addinfo(stringbuilder& sb) const;
-	static void			adventure(bool can_change_player);
+	static void			adventure_combat();
 	static void			adventure();
 	void				apply(race_s id, bool add_ability);
 	void				apply(class_s id);

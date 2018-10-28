@@ -16,11 +16,12 @@ enum animate_s : unsigned char {
 static struct animate_info {
 	const char*		name;
 	bool			disable_overlay;
+	bool			ready;
 } animate_data[] = {{"AnimateMove"},
-{"AnimateStand"}, {"AnimateStandRelax"}, {"AnimateStandLook"},
-{"AnimateCombatStance"}, {"AnimateCombatStanceTwoHanded"},
+{"AnimateStand", false, true}, {"AnimateStandRelax", false, true}, {"AnimateStandLook", false, true},
+{"AnimateCombatStance", false, true}, {"AnimateCombatStanceTwoHanded", false, true},
 {"AnimateGetHit"}, {"AnimateGetHitAndDrop"},
-{"AnimateAgony"},
+{"AnimateAgony", false, true},
 {"AnimateGetUp", true},
 {"AnimateMeleeOneHanded"}, {"AnimateMeleeOneHandedSwing"}, {"AnimateMeleeOneHandedThrust"},
 {"AnimateMeleeTwoHanded"}, {"AnimateMeleeTwoHandedSwing"}, {"AnimateMeleeTwoHandedThrust"},
@@ -260,12 +261,12 @@ int actor::getciclecount(int cicle) const {
 	return s->getcicle(cicle)->count;
 }
 
-void actor::move(point destination, short unsigned maximum_range, short unsigned minimum_reach, bool use_animate) {
+bool actor::move(point destination, short unsigned maximum_range, short unsigned minimum_reach) {
 	clearpath();
 	if(!destination)
-		return;
+		return false;
 	if(map::getindex(position) == map::getindex(destination))
-		return;
+		return true;
 	dest = destination;
 	auto s = getsize();
 	auto i = map::getindex(position, s);
@@ -273,16 +274,20 @@ void actor::move(point destination, short unsigned maximum_range, short unsigned
 	auto goal = map::getindex(destination, s);
 	map::blockimpassable(Blocked - 1);
 	blockimpassable();
+	map::setcost(start, Blocked - 1);
 	map::createwave(goal, s);
+	auto cost = map::getcost(start);
+	if(cost >= Blocked - 1)
+		return false;
+	if(minimum_reach && cost <= minimum_reach)
+		return true;
 	path = map::route(start, map::stepto, maximum_range, minimum_reach);
-	if(path) {
-		set(AnimateMove);
-		this->start = position;
-		range = 0;
-		//msdbg("Used path nodes %1i", map::getcount());
-		if(use_animate)
-			animate();
-	}
+	if(!path)
+		return false;
+	set(AnimateMove);
+	this->start = position;
+	range = 0;
+	return true;
 }
 
 int	actor::getmovedistance(point destination, short unsigned minimum_reach) const {
@@ -293,7 +298,7 @@ int	actor::getmovedistance(point destination, short unsigned minimum_reach) cons
 	auto s = getsize();
 	auto start = map::getindex(position, s);
 	auto goal = map::getindex(destination, s);
-	map::blockimpassable(Blocked-1);
+	map::blockimpassable(Blocked - 1);
 	blockimpassable();
 	if(map::getcost(goal) == Blocked)
 		return 0;
@@ -557,13 +562,16 @@ animate_s actor::getattackanimate(int number) const {
 	return animate_s(AnimateMeleeOneHanded + number);
 }
 
-void actor::render_attack(int number) {
+void actor::render_attack(int number, point destination) {
+	if(position != destination)
+		orientation = map::getorientation(position, destination);
 	set(getattackanimate(number));
-	animate();
 }
 
-void actor::render_attack(int number, actor& opponent, bool fatal) {
-	orientation = map::getorientation(position, opponent.position);
-	set(getattackanimate(number));
-	animate(opponent, fatal ? AnimateGetHitAndDrop : AnimateGetHit);
+void actor::render_hit(bool fatal) {
+	set(fatal ? AnimateGetHitAndDrop : AnimateGetHit);
+}
+
+bool actor::isready() const {
+	return animate_data[action].ready;
 }

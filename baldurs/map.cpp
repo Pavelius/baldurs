@@ -293,9 +293,9 @@ map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigne
 		}
 		p->index = n;
 		w += 1;
-		if(maximum_range && w>=maximum_range)
-			break;
 		if(minimal_reach >= path_cost[n])
+			break;
+		if(maximum_range && w >= maximum_range)
 			break;
 	}
 	return result;

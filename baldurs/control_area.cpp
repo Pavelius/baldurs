@@ -3,6 +3,7 @@
 using namespace draw;
 
 typedef adat<drawable*, 256>	drawablet;
+static container*				current_container;
 static point					camera;
 static point					camera_size = {800, 600};
 static action_s					current_action = ActionGuard;
@@ -528,7 +529,8 @@ static void combat_movement(point destination) {
 	auto player = creature::getactive();
 	if(!player)
 		return;
-	player->move(destination, map::getrange(player->getmovement()) + 1, player->getsize(), true);
+	player->move(destination, map::getrange(player->getmovement()) + 1, player->getsize());
+	player->wait();
 }
 
 static void party_interact(point destination) {
@@ -544,33 +546,15 @@ static void party_interact(point destination) {
 	}
 }
 
-void actor::animate() {
+void actor::wait(char percent) {
 	cursorset cur(res::NONE);
-	auto current_action = action;
-	while(ismodal()) {
-		setcamera(position);
-		if(current_action != action)
-			break;
-		rect rcs = {0, 0, getwidth(), getheight()};
-		if(settings.panel == setting::PanelFull)
-			render_footer(rcs, false);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs, false, 0, false, false);
-		correct_camera(rcs, camera);
-		render_area(rcs, camera);
-		domodal();
-	}
-}
-
-void actor::animate(actor& opponent, animate_s id) {
-	cursorset cur(res::NONE);
-	auto current_action = action;
 	auto maximum_frame = getciclecount(getcicle());
+	auto stop_frame = (maximum_frame * percent) / 100;
 	while(ismodal()) {
-		if(frame >= maximum_frame / 2)
-			opponent.set(id);
 		setcamera(position);
-		if(current_action != action)
+		if(isready())
+			break;
+		if(stop_frame && frame >= stop_frame)
 			break;
 		rect rcs = {0, 0, getwidth(), getheight()};
 		if(settings.panel == setting::PanelFull)
@@ -626,19 +610,6 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 	return tg;
 }
 
-static void combat_mode_proc() {
-	creature::adventure();
-}
-
-bool creature::iscombatmode() {
-	return getlayout() == combat_mode_proc;
-}
-
-void creature::choose_action() {
-	setactive();
-	draw::setlayout(combat_mode_proc);
-}
-
 static void checkcombat(unsigned& counter) {
 	if(draw::getframe() < counter)
 		return;
@@ -683,13 +654,6 @@ static void render_container(rect& rcs, const container& element) {
 	rcs.y2 -= 107;
 }
 
-static void player_interact(creature* player, const targetreaction& tg) {
-	if(creature::iscombatmode())
-		player->interact(tg, map::getrange(player->getmovement()) + 1, true);
-	else
-		player->interact(tg, 0, false);
-}
-
 static bool translate_mouse(const targetreaction& tg) {
 	auto combat_mode = creature::iscombatmode();
 	auto player = creature::getactive();
@@ -726,7 +690,10 @@ static bool translate_mouse(const targetreaction& tg) {
 		case Door:
 		case Creature:
 			if(!hot.pressed) {
-				player_interact(player, tg);
+				if(creature::iscombatmode())
+					player->interact(tg, map::getrange(player->getmovement()) + 1, true);
+				else
+					player->interact(tg, 0, false);
 				result = true;
 			}
 			break;
@@ -742,23 +709,30 @@ static bool translate_mouse(const targetreaction& tg) {
 	return result;
 }
 
-void creature::choose_items(container& element) {
+static void choose_container() {
 	cursorset cur;
 	animation shifter;
+	if(!current_container)
+		setpage();
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		render_container(rcs, element);
+		render_container(rcs, *current_container);
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
 		render_shifter(shifter, cur);
 		domodal();
 		if(translate_mouse(tg))
-			breakmodal(0);
-		updategame();
+			setpage();
+		creature::updategame();
 	}
+}
+
+void creature::choose_items(container& element) {
+	current_container = &element;
+	setpage(choose_container);
 }
 
 void creature::adventure() {
@@ -767,7 +741,6 @@ void creature::adventure() {
 	if(!getactive())
 		players[0].setactive();
 	unsigned counter = draw::getframe();
-	bool combat_mode = creature::iscombatmode();
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
@@ -776,7 +749,7 @@ void creature::adventure() {
 		if(settings.panel == setting::PanelFull)
 			render_footer(rcs, true);
 		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, !combat_mode);
+			render_panel(rcs, true, 0, true, true, true);
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
 		render_shifter(shifter, cur);
@@ -785,9 +758,42 @@ void creature::adventure() {
 		translate(menu_keys);
 		translate_mouse(tg);
 		updategame();
-		if(!combat_mode)
-			checkcombat(counter);
+		checkcombat(counter);
 	}
+}
+
+void creature::adventure_combat() {
+	cursorset cur;
+	animation shifter;
+	unsigned counter = draw::getframe();
+	while(ismodal()) {
+		cur.set(res::CURSORS);
+		auto player = creature::getactive();
+		rect rcs = {0, 0, getwidth(), getheight()};
+		create_shifer(rcs, shifter, camera);
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs, true);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs, true, 0, true, true, false);
+		correct_camera(rcs, camera);
+		auto tg = render_area(rcs, camera, cur);
+		render_shifter(shifter, cur);
+		domodal();
+		translate(movement_keys);
+		translate(menu_keys);
+		if(translate_mouse(tg))
+			setpage(0);
+		updategame();
+	}
+}
+
+bool creature::iscombatmode() {
+	return getlayout() == adventure_combat;
+}
+
+void creature::choose_action() {
+	setactive();
+	draw::setlayout(adventure_combat);
 }
 
 void actor::setcamera(point value) {

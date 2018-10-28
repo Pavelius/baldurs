@@ -113,7 +113,6 @@ bool draw::ismodal() {
 }
 
 void draw::domodal() {
-	update_timestamp();
 	if(current_execute) {
 		auto proc = current_execute;
 		before_render();

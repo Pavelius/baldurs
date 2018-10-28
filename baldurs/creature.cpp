@@ -694,7 +694,7 @@ short unsigned creature::getindex() const {
 }
 
 void creature::attack(const target& e) {
-	if(e.type==Creature)
+	if(e.type == Creature)
 		attack(*e.creature);
 }
 
@@ -702,22 +702,22 @@ void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
 	auto reach = map::getrange(getreach());
-	auto movement = map::getrange(getmovement());
-	if(reach < map::getrange(player_index, enemy_index)) {
-		auto destination = map::getposition(enemy_index, getsize());
-		move(destination, movement, reach, true);
-	}
 	player_index = getindex();
 	if(reach < map::getrange(player_index, enemy_index))
 		return;
 	attack_info ai; get(ai, QuickWeapon, enemy);
 	if(!roll(ai)) {
-		render_attack(rand() % 3);
+		render_attack(rand() % 3, enemy.getposition());
+		wait();
 		return;
 	}
+	render_attack(rand() % 3, enemy.getposition());
+	wait(50);
 	auto damage = ai.roll();
 	enemy.damage(damage);
-	render_attack(rand() % 3, enemy, enemy.gethits() <= 0);
+	enemy.render_hit(enemy.gethits() <= 0);
+	wait();
+	enemy.wait();
 }
 
 void creature::get(attack_info& result, slot_s slot) const {
@@ -774,7 +774,7 @@ static int compare_initiative(const void* p1, const void* p2) {
 
 void creature::makecombat() {
 	msdbg("Началась битва");
-	adat<creature*,264> elements;
+	adat<creature*, 264> elements;
 	for(auto& e : players) {
 		if(!e)
 			continue;
@@ -788,7 +788,7 @@ void creature::makecombat() {
 	if(!elements)
 		return;
 	for(auto p : elements)
-		p->initiative = 1 + (rand()%20) + p->getinitiative();
+		p->initiative = 1 + (rand() % 20) + p->getinitiative();
 	qsort(elements.data, elements.count, sizeof(elements.data[0]), compare_initiative);
 	while(true) {
 		auto continue_combat = false;
@@ -805,9 +805,11 @@ void creature::makecombat() {
 			if(p->isplayer()) {
 				p->choose_action();
 			} else {
-				if(enemy)
-					p->attack(*enemy);
-				else {
+				if(enemy) {
+					targetreaction tg(enemy);
+					tg.method = &creature::attack;
+					p->interact(tg, map::getrange(p->getmovement()) + 1, true);
+				} else {
 					// TODO: ошибка?
 				}
 			}
@@ -883,8 +885,7 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 			position = e.door->points[1];
 		break;
 	case Container:
-		position = e.container->getposition();
-		reach = 2;
+		position = e.container->launch;
 		break;
 	case Creature:
 		position = e.creature->getposition();
@@ -911,12 +912,15 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	stop();
 	auto index = getindex();
 	auto index_new = map::getindex(position);
-	if(!synchronized)
-		actor::set(e);
-	if(index != index_new)
-		move(position, maximum_range, reach, synchronized);
-	if(synchronized)
-		(this->*e.method)(e);
+	if(move(position, maximum_range, reach)) {
+		if(synchronized) {
+			wait();
+			if(e.method)
+				(this->*e.method)(e);
+		}
+		else
+			actor::set(e);
+	}
 }
 
 void creature::getin(const target& e) {
