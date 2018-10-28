@@ -2,6 +2,7 @@
 
 creature				players[6];
 adat<creature, 256>		creature_data;
+static int				party_money;
 
 static char	good_save[] = {2,
 2, 3, 3, 4, 4, 5, 5, 6, 6, 7,
@@ -926,4 +927,12 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 void creature::getin(const target& e) {
 	if(e.type == Container)
 		choose_items(*e.container);
+}
+
+int	creature::getmoney() {
+	return party_money;
+}
+
+void creature::setmoney(int value) {
+	party_money = value;
 }

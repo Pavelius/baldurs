@@ -2,37 +2,7 @@
 
 using namespace draw;
 
-static struct scrollground : public scrolllist {
-
-	item*			data[6] = {};
-	int				maximum_items;
-
-	scrollground() {
-		origin = 0;
-		maximum = 5;
-	}
-
-	void row(rect rc, int n) {}
-
-	void update(short unsigned index) {
-		auto i = origin * 2;
-		maximum_items = 0;
-		auto pb = data;
-		auto pe = pb + sizeof(data) / sizeof(data[0]);
-		for(auto& e : itemground_data) {
-			if(!e)
-				continue;
-			if(e.index != index)
-				continue;
-			if(maximum_items++ < i)
-				continue;
-			if(pb < pe)
-				*pb++ = &e;
-		}
-		maximum = (maximum_items + 1) / 2;
-	}
-
-} ground;
+static scrollitem ground(2, 3);
 
 static void show_item_ability() {
 	screenshoot screen(true);
@@ -119,7 +89,7 @@ static void choose_weapon() {
 	creature::getactive()->setquick(hot.param);
 }
 
-void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
+void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd) {
 	int m = 0;
 	rect rc = {x + 2, y + 2, x + 34, y + 34};
 	auto ar = area(rc);
@@ -142,7 +112,7 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 		draw::image(x, y, res::STONSLOT, m, 0);
 	//draw::rectb(rc, colors::red);
 	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
-		execute(choose_item, (int)pi);
+		cmd.execute();
 	else if(hot.key == MouseRight && ar == AreaHilitedPressed)
 		execute(show_item_ability, (int)pi);
 	if(!pi || !(*pi)) {
@@ -161,6 +131,10 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 			draw::image(x + 1, y + 1, gres(res::ITEMS), i, 0);
 		}
 	}
+}
+
+void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
+	icon(x, y, pi, id, pd, cmpr(choose_item, (int)pi));
 }
 
 void creature::iconqw(int x, int y, int n, itemdrag* pd) {
@@ -189,7 +163,7 @@ void creature::invertory(itemdrag* pd) {
 	for(auto i = 0; i < 3; i++)
 		icon(572 + 39 * i, 228, wears + QuickItem + i, QuickItem, pd);
 	label(574, 270, 111, 22, "Земля");
-	ground.update(map::getindex(getposition(), getsize()));
+	ground.update(map::getindex(getposition(), getsize()), 2);
 	for(auto i = 0; i < 6; i++) {
 		auto j = ground.maximum_items - ground.origin * 2;
 		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd);

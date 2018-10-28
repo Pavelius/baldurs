@@ -9,6 +9,76 @@ void scrolltext::reset() {
 	cache_origin = -1;
 }
 
+item* scrollitem::get(int index) const {
+	if(index < maximum_items)
+		return data[index];
+	return 0;
+}
+
+void scrollitem::update(creature* player, int item_in_line) {
+	auto bi = origin * item_in_line;
+	maximum_items = 0;
+	auto pb = data;
+	auto pe = pb + sizeof(data) / sizeof(data[0]);
+	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
+		auto pi = player->get(i);
+		if(!pi || !(*pi))
+			continue;
+		if(maximum_items++ < bi)
+			continue;
+		if(pb < pe)
+			*pb++ = pi;
+	}
+	maximum = (maximum_items + (item_in_line - 1)) / item_in_line;
+}
+
+void scrollitem::update(container* object, int item_in_line) {
+	auto bi = origin * 2;
+	maximum_items = 0;
+	auto pb = data;
+	auto pe = pb + sizeof(data) / sizeof(data[0]);
+	for(auto& e : itemcont_data) {
+		if(e.object != object)
+			continue;
+		if(!e)
+			continue;
+		if(maximum_items++ < bi)
+			continue;
+		if(pb < pe)
+			*pb++ = &e;
+	}
+	maximum = (maximum_items + 1) / 2;
+}
+
+void scrollitem::update(short unsigned index, int item_in_line) {
+	auto i = origin * 2;
+	maximum_items = 0;
+	auto pb = data;
+	auto pe = pb + sizeof(data) / sizeof(data[0]);
+	for(auto& e : itemground_data) {
+		if(!e)
+			continue;
+		if(e.index != index)
+			continue;
+		if(maximum_items++ < i)
+			continue;
+		if(pb < pe)
+			*pb++ = &e;
+	}
+	maximum = (maximum_items + 1) / 2;
+}
+
+void scrollitem::view(creature* player, int x, int y, int dx, int dy, const rect& rcs, void(*item_proc)()) {
+	auto count = getcount();
+	for(auto i = 0; i < count; i++) {
+		auto n = i % mx;
+		auto k = i / mx;
+		auto pi = get(i);
+		player->icon(x + n * dx, y + k * dy, pi, LastBackpack, 0, cmpr(item_proc, (int)pi));
+	}
+	draw::view({x, y, x + dx*mx, y + dy*my}, rcs, dy, *this);
+}
+
 static void scroll_button(rect rc, sprite* pb, int i, int& value, int inc) {
 	bool pressed = draw::area(rc) == AreaHilitedPressed;
 	draw::image(rc.x1, rc.y1, pb, i + (pressed ? 1 : 0), 0);

@@ -628,29 +628,37 @@ static void checkcombat(unsigned& counter) {
 	}
 }
 
-static void render_container(rect& rcs, const container& element) {
+static void item_to_backpack() {
+	auto pi = (item*)hot.param;
+	auto player = creature::getactive();
+	if(!player)
+		return;
+	player->add(*pi);
+	pi->clear();
+}
+
+static void item_to_container() {
+	auto pi = (item*)hot.param;
+	if(!current_container)
+		return;
+	current_container->add(*pi);
+	pi->clear();
+}
+
+static void render_container(rect& rcs, const container& element, scrollitem& container, scrollitem& backpack) {
+	char temp[260];
 	int x = 0, y = 476;
 	image(x, y, res::GUICONT, 1, 0);
-	rectb({x + 375, y + 24, x + 387, y + 100}, colors::white);
-	button(x + 150, y + 22, cmpr(buttonparam, 1), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 195, y + 22, cmpr(buttonparam, 2), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 239, y + 22, cmpr(buttonparam, 3), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 283, y + 22, cmpr(buttonparam, 4), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 327, y + 22, cmpr(buttonparam, 5), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 150, y + 65, cmpr(buttonparam, 6), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	rectb({x + 602, y + 24, x + 614, y + 100}, colors::white);
-	button(x + 509, y + 22, cmpr(buttonparam, 11), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 553, y + 22, cmpr(buttonparam, 12), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 553, y + 65, cmpr(buttonparam, 14), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
 	image(x + 59, y + 25, res::CONTAINER, element.getframe(), 0);
-	button(x + 509, y + 65, cmpr(buttonparam, 13), 0, res::STONSLOT, 0, 0, 0, 0, 0, 0, 0);
-	button(x + 684, y + 28, cmpr(buttonparam, 52), Disabled, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
-	label(x + 661, y + 78, 70, 20, "Некоторый текст"); // NORMAL
-	image(x + 430, y + 28, res::CONTAINER, 1, 0);
-	button(x + 195, y + 65, cmpr(buttonparam, 7), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
-	button(x + 239, y + 65, cmpr(buttonparam, 8), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
-	button(x + 283, y + 65, cmpr(buttonparam, 9), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
-	button(x + 327, y + 65, cmpr(buttonparam, 10), 0, res::STONSLOT, 0, 0, 1, 0, 0, 0, 0);
+	auto player = creature::getactive();
+	if(player) {
+		image(x + 430, y + 28, res::CONTAINER, 1, 0);
+		container.view(player, x + 150, y + 22, 44, 43, {x + 375, y + 24, x + 387, y + 100}, item_to_backpack);
+		backpack.update(player, 2);
+		backpack.view(player, x + 509, y + 22, 44, 43, {x + 602, y + 24, x + 614, y + 100}, item_to_container);
+		//button(x + 684, y + 28, cmpr(buttonparam, 52), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
+		labelr(x + 661, y + 78, 70, 20, szprints(temp, zendof(temp), "%1i", player->getmoney())); // NORMAL
+	}
 	rcs.y2 -= 107;
 }
 
@@ -714,16 +722,21 @@ static void choose_container() {
 	animation shifter;
 	if(!current_container)
 		setpage();
+	scrollitem backpack(2, 2);
+	scrollitem container(5, 2);
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		render_container(rcs, *current_container);
+		container.update(current_container, 5);
+		render_container(rcs, *current_container, container, backpack);
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
 		render_shifter(shifter, cur);
 		domodal();
+		translate(movement_keys);
+		translate(menu_keys);
 		if(translate_mouse(tg))
 			setpage();
 		creature::updategame();

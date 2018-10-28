@@ -370,6 +370,19 @@ struct scrolllist : runable, scrolltext {
 struct scrollbutton : runable, scrolltext {
 	virtual void		row(rect rc, int n) = 0;
 };
+struct scrollitem : scrolllist {
+	struct item*		data[10];
+	int					maximum_items;
+	int					mx, my;
+	scrollitem(int mx, int my) : maximum_items(0), mx(mx), my(my) {}
+	void				row(rect rc, int n) override {}
+	item*				get(int index) const;
+	int					getcount() const { return mx * my; }
+	void				update(creature* player, int item_in_line);
+	void				update(container* object, int item_in_line);
+	void				update(short unsigned index, int item_in_line);
+	void				view(creature* player, int x, int y, int dx, int dy, const rect& rcs, void(*item_proc)());
+};
 struct cursorset {
 	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
 	~cursorset();
@@ -795,6 +808,7 @@ struct creature : actor {
 	int					get(class_s id) const { return classes[id]; }
 	int					get(feat_s id) const { return is(id) ? 1 : 0; }
 	int					get(spell_s id) const;
+	item*				get(slot_s id) { return wears + id; }
 	void				get(attack_info& result, slot_s slot) const;
 	void				get(attack_info& result, slot_s slot, const creature& enemy) const;
 	static ability_s	getability(save_s id);
@@ -823,6 +837,7 @@ struct creature : actor {
 	short unsigned		getindex() const;
 	const char*			getname() const override { return name; }
 	int					getmaxcarry() const;
+	static int			getmoney();
 	int					getmovement() const { return 30; }
 	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
 	static int			getpartymaxdistance(point position);
@@ -842,6 +857,7 @@ struct creature : actor {
 	const item			getwear(slot_s id) const override;
 	static void			help();
 	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
+	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd);
 	void				icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
 	void				iconqw(int x, int y, int n, itemdrag* pd);
 	void				interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
@@ -888,6 +904,7 @@ struct creature : actor {
 	void				setactive();
 	void				setactive(const target& e) { if(e.type==Creature) e.creature->setactive(); }
 	void				setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
+	static void			setmoney(int value);
 	void				setportrait(int value) { portrait = value; }
 	void				setprepared(spell_s id, variant type, int count);
 	void				setquick(int value) { active_weapon = value; }
