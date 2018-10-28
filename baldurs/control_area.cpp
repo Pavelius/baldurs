@@ -659,7 +659,7 @@ static void render_container(rect& rcs, int frame, scrollitem& container, scroll
 		backpack.update(player, 2);
 		backpack.view(player, x + 509, y + 22, 44, 43, {x + 602, y + 24, x + 614, y + 100}, item_to_container);
 		//button(x + 684, y + 28, cmpr(buttonparam, 52), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
-		labelr(x + 661, y + 78, 70, 20, szprints(temp, zendof(temp), "%1i", player->getmoney())); // NORMAL
+		labelr(x + 661, y + 78, 70, 20, szprints(temp, zendof(temp), "%1i", player->getmoney()/SP)); // NORMAL
 	}
 	rcs.y2 -= 107;
 }

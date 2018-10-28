@@ -57,8 +57,13 @@ static item_info item_data[] = {{"No item", "Нет предмета", "IHANDGF", "GGEM01"}
 //
 {"Helm", "Шлем", "IHELMB1", "GHELM01", {Head}, {ArmorProfeciencyMedium}},
 //
-{"Silver Coins", "Серебро", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, 1},
-{"Gold Coins", "Золото", "IMISC07", "GMISC87", {}, {}, {}, 100, 0, 10},
+{"Cooper Pieces", "Медь", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, CP},
+{"Silver Pieces", "Серебро", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, SP},
+{"Gold Pieces", "Золото", "IMISC07", "GMISC87", {}, {}, {}, 100, 0, GP},
+{"Platinum Pieces", "Платина", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, PP},
+//
+{"Blue quarz", "Голубой кварц", "IMISC33", "GGEM01", {}, {}, {}, 25, 0, 4*GP},
+{"Carved Stone", "Резной камень", "IBSTONE", "GGEM01", {}, {}, {}, 25, 0, 15 * GP},
 };
 assert_enum(item, LastItem);
 getstr_enum(item);

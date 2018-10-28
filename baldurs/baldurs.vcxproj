@@ -199,6 +199,7 @@
     <ClCompile Include="main_util.cpp" />
     <ClCompile Include="spells_index_util.cpp" />
     <ClCompile Include="target.cpp" />
+    <ClCompile Include="treasure.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="resource_static.cpp" />
     <ClCompile Include="win_draw.cpp" />

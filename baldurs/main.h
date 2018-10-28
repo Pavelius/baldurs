@@ -16,6 +16,10 @@
 #define msdbg(text, ...);
 #endif // _DEBUG
 
+const int CP = 1;
+const int SP = 10;
+const int GP = 100;
+const int PP = 1000;
 
 enum school_s : unsigned char {
 	NoSchool,
@@ -130,8 +134,10 @@ enum item_s : unsigned char {
 	SplintMail, BandedMail, Plate,
 	ShieldSmall, ShieldLarge, ShieldTower,
 	Helm,
-	Coins, GoldCoins,
-	LastItem = GoldCoins,
+	CooperPieces, SilverPieces, GoldPieces, PlatinumPieces,
+	BlueQuarz,
+	CarvedStone,
+	LastItem = CarvedStone,
 };
 enum animate_s : unsigned char;
 enum slot_s : unsigned char {
@@ -674,6 +680,15 @@ struct targetreaction : target {
 	constexpr targetreaction() : target(), method(0) {}
 	constexpr targetreaction(const target& e) : target(e), method(0) {}
 	void				clear();
+};
+struct treasure {
+	int					cp, sp, gp, pp, gems, arts, mundane, minor, medium, major;
+	treasure();
+	void				clear();
+	void				generate(int level);
+	void				place();
+private:
+	void				place(item_s it, int count, int min, int max);
 };
 struct actor : drawable {
 	void				act(int player, const char* format, ...);

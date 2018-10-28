@@ -12,6 +12,12 @@ static void new_game() {
 
 static void load_game() {}
 
+static void generate_treasure() {
+	treasure e;
+	e.generate(1);
+	e.place();
+}
+
 static void quick_load() {
 	msdbg("Создание партии персонажей...");
 	players[0].create(Fighter, Human, Male, Helpful);
@@ -22,10 +28,8 @@ static void quick_load() {
 	players[5].create(Wizard, Human, Male, Helpful);
 	creature::moveto("AR1000");
 	map::drop(map::getindex(21, 51), ChainMail);
-	item i1(GoldCoins);
-	i1.setcount(xrand(12, 100));
-	players[0].add(i1);
-	//creature::create(Goblin, Hostile, {487, 970});
+	generate_treasure();
+	creature::create(LargeSkeleton, Hostile, {487, 970});
 }
 
 static void join_game() {}

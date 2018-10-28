@@ -479,8 +479,10 @@ void creature::add(item it) {
 	if(equip(it))
 		return;
 	switch(it.gettype()) {
-	case Coins:
-	case GoldCoins:
+	case CooperPieces:
+	case SilverPieces:
+	case GoldPieces:
+	case PlatinumPieces:
 		setmoney(getmoney() + it.getcost() * it.getcount());
 		return;
 	}
