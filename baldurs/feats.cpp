@@ -69,6 +69,9 @@ struct feat_info {
 {"Focus shortswords", "Фокус на коротких мечах", {0}, {ProficiencyShortsword}, 1},
 {"WhirlwindAttack", "Атака вихрем", {0, 13, 0, 13}, {CombatExpertise, Dodge, Mobiliy, SpringAttack}, 4},
 //
+{"FastMovement", "Быстрое передвижение"},
+{"Illiteracy", "Необразованный"},
+//
 {"Axe Proficiency", "Владение топором", {}},
 {"Club Proficiency", "Владение дубиной", {}},
 {"Crossbow Proficiency", "Владение арбалетом", {}},

@@ -79,7 +79,7 @@ enum feat_s : unsigned char {
 	DeadlyPercision, DeflectsArrows, Dodge, Endurance,
 	FarShoot,
 	GreateFortitude,
-	ImprovedCritical, ImprovedDisarm, ImprovedFeint, InprovedInitiative, ImprovedOverrun, ImprovedSunder, ImprovedTrip, ImprovedUnarmedStrike,
+	ImprovedCritical, ImprovedDisarm, ImprovedFeint, ImprovedInitiative, ImprovedOverrun, ImprovedSunder, ImprovedTrip, ImprovedUnarmedStrike,
 	IronWill,
 	Leadership, LightingReflexes,
 	Mobiliy, Multiattack,
@@ -93,6 +93,8 @@ enum feat_s : unsigned char {
 	FocusAxes, FocusBows, FocusCrossbows, FocusDaggers, FocusGreatswords,
 	FocusLongswords, FocusMaces, FocusPolearm, FocusShortswords,
 	WhirlwindAttack,
+	// Специальные особенности
+	FastMovement, Illiteracy,
 	// Владение оружием
 	ProficiencyAxe, ProficiencyClub, ProficiencyCrossbow,
 	ProficiencyDagger, ProficiencyGreatweapon, ProficiencyHeavyCrossbow,
@@ -856,7 +858,7 @@ struct creature : actor {
 	const char*			getname() const override { return name; }
 	int					getmaxcarry() const;
 	static int			getmoney();
-	int					getmovement() const { return 30; }
+	int					getmovement() const;
 	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
 	static int			getpartymaxdistance(point position);
 	int					getpoints(class_s id) const;

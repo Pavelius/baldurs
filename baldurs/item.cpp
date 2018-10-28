@@ -1,5 +1,16 @@
 #include "main.h"
 
+struct varset {
+	variant_s			type;
+	union {
+		aref<spell_s>	spells;
+		aref<skill_s>	skills;
+	};
+	constexpr varset() : type(NoVariant), spells() {}
+	constexpr varset(const aref<spell_s>& v) : type(Spell), spells(v) {}
+	constexpr varset(const aref<skill_s>& v) : type(Skill), skills(v) {}
+};
+
 static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
 struct item_info {
 	const char*		id;
@@ -11,7 +22,8 @@ struct item_info {
 	attack_info		ai;
 	unsigned char	count;
 	int				weight;
-	int				cost;
+	int				cost; // Цена в золотых монетах
+	varset			power;
 };
 
 static item_info item_data[] = {{"No item", "Нет предмета", "IHANDGF", "GGEM01"},
@@ -62,7 +74,7 @@ static item_info item_data[] = {{"No item", "Нет предмета", "IHANDGF", "GGEM01"}
 {"Gold Pieces", "Золото", "IMISC07", "GMISC87", {}, {}, {}, 100, 0, GP},
 {"Platinum Pieces", "Платина", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, PP},
 //
-{"Blue quarz", "Голубой кварц", "IMISC33", "GGEM01", {}, {}, {}, 25, 0, 4*GP},
+{"Blue quarz", "Голубой кварц", "IMISC33", "GGEM01", {}, {}, {}, 25, 0, 4 * GP},
 {"Carved Stone", "Резной камень", "IBSTONE", "GGEM01", {}, {}, {}, 25, 0, 15 * GP},
 };
 assert_enum(item, LastItem);

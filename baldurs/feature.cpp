@@ -6,6 +6,7 @@ struct feature_info {
 	const char*		name;
 	void(*proc)(creature& player, feature_info& f, bool interactive);
 	aref<variant>	elements;
+	feat_s			feats[8];
 };
 
 static void set_spells(creature& player, class_s type, char level) {
@@ -52,13 +53,19 @@ static void equipment(creature& player, feature_info& f, bool interactive) {
 	}
 }
 
+static void apply_feats(creature& player, feature_info& f, bool interactive) {
+	for(auto e : f.feats)
+		player.set(e);
+}
+
 static variant cleric_equipment[] = {Mace};
 static variant fighter_equipment[] = {Longsword, LeatherArmor, Helm};
 static variant paladin_equipment[] = {Longsword, BandedMail, Helm};
 static variant wizard_equipment[] = {Staff};
 static variant rogue_equipment[] = {Shortsword};
 
-feature_info feature_data[] = {{Cleric, 1, 0, known_all_spells},
+feature_info feature_data[] = {{Barbarian, 1, 0, apply_feats, {}, {FastMovement, Illiteracy}},
+{Cleric, 1, 0, known_all_spells},
 {Wizard, 1, 0, known_some_spells},
 {Wizard, 1, 0, equipment, wizard_equipment},
 {Fighter, 1, 0, equipment, fighter_equipment},

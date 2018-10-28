@@ -939,3 +939,10 @@ int	creature::getmoney() {
 void creature::setmoney(int value) {
 	party_money = value;
 }
+
+int creature::getmovement() const {
+	auto result = 30;
+	if(is(FastMovement))
+		result += 10;
+	return result;
+}
