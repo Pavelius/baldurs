@@ -478,6 +478,12 @@ bool creature::equip(const item it) {
 void creature::add(item it) {
 	if(equip(it))
 		return;
+	switch(it.gettype()) {
+	case Coins:
+	case GoldCoins:
+		setmoney(getmoney() + it.getcost() * it.getcount());
+		return;
+	}
 	for(auto e = Backpack; e <= LastBackpack; e = (slot_s)(e + 1)) {
 		if(!wears[e]) {
 			wears[e] = it;

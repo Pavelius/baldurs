@@ -167,6 +167,10 @@ int	item::getcount() const {
 		return 1;
 }
 
+int	item::getcost() const {
+	return item_data[type].cost;
+}
+
 void item::setcount(int value) {
 	if(value <= 0)
 		clear();

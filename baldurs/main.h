@@ -474,6 +474,7 @@ struct item {
 	int					getarmorindex() const;
 	const dice&			getattack() const;
 	int					getbonus() const;
+	int					getcost() const;
 	int					getcount() const;
 	feat_s				getfeat() const;
 	static const char*	getfname(int type);

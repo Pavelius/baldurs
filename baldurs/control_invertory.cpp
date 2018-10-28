@@ -180,7 +180,7 @@ void creature::invertory(itemdrag* pd) {
 	label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
 	label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
 	label(710, 372, 54, 16, szprints(temp, zendof(temp), "%1i", gethitsmax()), 3);
-	labelr(704, 141, 70, 20, sznum(temp, 100), 0, SkinGrey);
+	labelr(704, 141, 70, 20, sznum(temp, getmoney()), 0, MetalSilver);
 	label(341, 281, 117, 14, szprints(temp, zendof(temp), "%1i / %2i lbs", 143, 223), 0, MetalGold);
 	// Wears items
 	icon(255, 22, Body, pd);
