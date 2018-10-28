@@ -555,7 +555,7 @@ animate_s actor::getattackanimate(int number) const {
 		return animate_s(AnimateShootBow + number);
 	else if(w1.isxbow())
 		return animate_s(AnimateShootXBow + number);
-	else if(w1.isthown())
+	else if(w1.isthrown())
 		return animate_s(AnimateShootSling + number);
 	else if(w1.istwohand())
 		return animate_s(AnimateMeleeTwoHanded + number);

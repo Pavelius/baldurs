@@ -130,7 +130,8 @@ enum item_s : unsigned char {
 	SplintMail, BandedMail, Plate,
 	ShieldSmall, ShieldLarge, ShieldTower,
 	Helm,
-	LastItem = Helm,
+	Coins, GoldCoins,
+	LastItem = GoldCoins,
 };
 enum animate_s : unsigned char;
 enum slot_s : unsigned char {
@@ -467,14 +468,13 @@ struct selectable : drawable {
 };
 struct item {
 	explicit operator bool() const { return type != NoItem; }
-	constexpr item() : type(NoItem), effect(0), count(0), identified(0), magic(Mundane), quality(0) {}
-	constexpr item(item_s i) : type(i), effect(0), count(0), identified(0), magic(Mundane), quality(0) {}
+	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(0), magic(Mundane), quality(0), stolen(0), damaged(0) {}
 	void				clear();
 	int					getac() const;
 	int					getarmorindex() const;
 	const dice&			getattack() const;
 	int					getbonus() const;
-	int					getcount() const { return count; }
+	int					getcount() const;
 	feat_s				getfeat() const;
 	static const char*	getfname(int type);
 	static const char*	getfgname(int type);
@@ -486,18 +486,21 @@ struct item {
 	bool				is(feat_s value) const;
 	bool				is(slot_s value) const;
 	bool				isbow() const;
-	bool				isranged() const { return isbow() || isxbow() || isthown(); }
-	bool				isthown() const;
+	bool				isranged() const { return isbow() || isxbow() || isthrown(); }
+	bool				isthrown() const;
 	bool				istwohand() const;
 	bool				isxbow() const;
+	void				setcount(int value);
 private:
 	item_s				type;
 	unsigned char		effect;
 	unsigned char		count;
 	struct {
-		unsigned char	identified : 1;
 		magic_s			magic : 2;
 		unsigned char	quality : 2;
+		unsigned char	damaged : 2;
+		unsigned char	identified : 1;
+		unsigned char	stolen : 1;
 	};
 };
 struct itemdrag {

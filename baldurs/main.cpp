@@ -22,6 +22,9 @@ static void quick_load() {
 	players[5].create(Wizard, Human, Male, Helpful);
 	creature::moveto("AR1000");
 	map::drop(map::getindex(21, 51), ChainMail);
+	item i1(GoldCoins);
+	i1.setcount(xrand(12, 100));
+	players[0].add(i1);
 	//creature::create(Goblin, Hostile, {487, 970});
 }
 
