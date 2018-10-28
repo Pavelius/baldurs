@@ -273,7 +273,7 @@ enum tile_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name, Finish,
+	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name, Finish, Variant,
 };
 typedef aset<char, LastSkill + 1, skill_s> skillset;
 struct variant {
@@ -288,6 +288,7 @@ struct variant {
 		skill_s			skill;
 		spell_s			spell;
 		item_s			item;
+		variant_s		var;
 		unsigned char	number;
 	};
 	constexpr variant() : type(NoVariant), number(0) {}
@@ -302,6 +303,7 @@ struct variant {
 	constexpr variant(skill_s value) : type(Skill), skill(value) {}
 	constexpr variant(spell_s value) : type(Spell), spell(value) {}
 	constexpr variant(item_s value) : type(Item), item(value) {}
+	constexpr variant(variant_s value) : type(Variant), var(value) {}
 	bool operator==(const variant& e) const { return type == e.type && number == e.number; }
 	operator unsigned short() { return (type << 8) + number; }
 };
@@ -369,14 +371,10 @@ struct scrolltext {
 	//
 	scrolltext();
 	void				cashing(const char* text, int width);
+	virtual void		prerender();
 	void				reset();
 };
-struct scrolllist : runable, scrolltext {
-	virtual void		row(rect rc, int n) = 0;
-	virtual void		execute() const override {}
-	virtual int			getid() const override { return 0; }
-};
-struct scrollbutton : runable, scrolltext {
+struct scrolllist : scrolltext {
 	virtual void		row(rect rc, int n) = 0;
 };
 struct scrollitem : scrolllist {
@@ -1019,7 +1017,6 @@ void					picker(int x, int y, unsigned char index, int type, const runable& cmd)
 void					set(color * dest, unsigned char index, int start = 4, int count = 12);
 void					textblend(point pos, const char* text, unsigned duration);
 void					translate(hotkey* keys);
-void					view(rect rc, scrollbutton& e);
 void					view(rect rc, rect rcs, int pixels_per_line, scrolllist& e);
 void					view(rect rc, rect rcs, const char* text, scrolltext& e);
 }

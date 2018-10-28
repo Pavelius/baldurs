@@ -16,8 +16,9 @@ static struct variant_info {
 {"Spells", "Заклинания"},
 {"Name", "Имя"},
 {"Finish", "Закончить"},
+{"Variant", "Вариант"},
 };
-assert_enum(variant, Finish);
+assert_enum(variant, Variant);
 getstr_enum(variant);
 
 template<> const char* getstr<variant>(variant id) {
@@ -30,6 +31,7 @@ template<> const char* getstr<variant>(variant id) {
 	case Skill: return getstr(id.skill);
 	case Spell: return getstr(id.spell);
 	case Feat: return getstr(id.feat);
+	case Variant: return getstr(id.var);
 	default: return "Нет варианта";
 	}
 }

@@ -9,6 +9,9 @@ void scrolltext::reset() {
 	cache_origin = -1;
 }
 
+void scrolltext::prerender() {
+}
+
 item* scrollitem::get(int index) const {
 	if(index < maximum_items)
 		return data[index];
@@ -97,18 +100,21 @@ void draw::view(rect rc, rect rcs, int pixels_per_line, scrolllist& e) {
 		}
 	}
 	sprite* pb = gres(e.bar);
-	if(pb) {
-		scroll_button({rcs.x1, rcs.y1, rcs.x2, rcs.y1 + rcs.width()}, pb, 0, e.origin, -1);
-		scroll_button({rcs.x1, rcs.y2 - rcs.width(), rcs.x2, rcs.y2}, pb, 2, e.origin, 1);
+	if(rcs) {
+		if(pb) {
+			scroll_button({rcs.x1, rcs.y1, rcs.x2, rcs.y1 + rcs.width()}, pb, 0, e.origin, -1);
+			scroll_button({rcs.x1, rcs.y2 - rcs.width(), rcs.x2, rcs.y2}, pb, 2, e.origin, 1);
+		}
 	}
-	//rectangle(rc, colors::white);
+	//rectb(rc, colors::white);
+	e.prerender();
 	auto valid_maximum = e.maximum - lines_per_screen - 1;
 	if(e.origin > valid_maximum)
 		e.origin = valid_maximum;
 	if(e.origin < 0)
 		e.origin = 0;
 	if(pb) {
-		//rectangle(rcs, colors::red);
+		//rectb(rcs, colors::red);
 		int h = rcs.height() - pb->get(0).sy - pb->get(2).sy - pb->get(e.scroll_frame).sy - 2;
 		int h1 = valid_maximum;
 		if(h1 > 0) {
@@ -152,6 +158,7 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 		scroll_button({rcs.x1, rcs.y1, rcs.x2, rcs.y1 + rcs.width()}, pb, 0, e.origin, -e.increment);
 		scroll_button({rcs.x1, rcs.y2 - rcs.width(), rcs.x2, rcs.y2}, pb, 2, e.origin, e.increment);
 	}
+	e.prerender();
 	if(e.cache_origin != e.origin)
 		e.cashing(text, rc.width());
 	auto valid_maximum = e.maximum - lines_per_screen - 1;
