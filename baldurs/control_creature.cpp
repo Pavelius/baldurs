@@ -31,15 +31,19 @@ static int getcost(const char* ability, const char* modifier) {
 	return result;
 }
 
-static void update_description(variant id) {
+const char* creature::getdescription(variant id) {
 	stringcreator dr;
 	stringbuilder sb(dr, description);
-	getrule(sb, id);
+	switch(id.type) {
+	case Race: getrule(sb, id.race); break;
+	case Alignment: getrule(sb, id.alignment); break;
+	}
+	return description;
 }
 
 static void select_variant() {
 	current_variant = hot.param;
-	update_description(current_variant);
+	creature::getdescription(current_variant);
 }
 
 static void next() {
@@ -286,7 +290,7 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 				flags = Disabled;
 			button(rc.x1 + 211, rc.y1 - 3, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
 			if(area(rc) == AreaHilitedPressed)
-				update_description(id);
+				getdescription(id);
 		}
 		scroll(creature& player, const aref<variant>& elements, const char* minimal) : player(player), minimal(minimal), elements(elements.data) {
 			maximum = elements.count;
@@ -359,7 +363,7 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 				flags = Disabled;
 			button(rc.x1 + 211, rc.y1 - 3, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
 			if(area(rc) == AreaHilitedPressed)
-				update_description(id);
+				getdescription(id);
 		}
 		bool is(feat_s id) const {
 			return (minimal[id / 32] & (1 << (id % 32))) != 0;

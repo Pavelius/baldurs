@@ -154,7 +154,9 @@ void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
 		}
 	}
 	sprite* pb = gres(e.bar);
+	//rectb(rc, colors::white);
 	if(pb) {
+		//rectb(rcs, colors::red);
 		scroll_button({rcs.x1, rcs.y1, rcs.x2, rcs.y1 + rcs.width()}, pb, 0, e.origin, -e.increment);
 		scroll_button({rcs.x1, rcs.y2 - rcs.width(), rcs.x2, rcs.y2}, pb, 2, e.origin, e.increment);
 	}

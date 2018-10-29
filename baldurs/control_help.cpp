@@ -49,8 +49,9 @@ struct listbox : scrolllist {
 
 listbox* listbox::current_focus;
 
-static variant topics[] = {Skill, Spell, Feat, Alignment, Race, Class};
-static listbox topic_list(topics);
+static variant		topics[] = {Skill, Spell, Feat, Alignment, Race, Class, Ability};
+static listbox		topic_list(topics);
+static scrolltext	description_control;
 
 static aref<variant> select_data(const aref<variant>& result, const variant v1, const variant v2) {
 	auto pb = result.data;
@@ -72,8 +73,10 @@ void creature::help() {
 	stringcreator sc;
 	stringbuilder sb(sc, temp);
 	auto list_height = texth() + 2;
+	variant last_variant;
 	while(ismodal()) {
 		background(res::GUIHELP);
+		label(300, 26, 200, 24, "Справка", 2);
 		view({72, 70, 72 + 98, 70 + 276}, {0}, list_height, topic_list);
 		switch(topic_list.get().var) {
 		case Feat: elements_list.set(select_data(elements, FirstFeat, LastFeat)); break;
@@ -82,9 +85,14 @@ void creature::help() {
 		case Alignment: elements_list.set(select_data(elements, LawfulGood, ChaoticEvil)); break;
 		case Race: elements_list.set(select_data(elements, FirstRace, LastRace)); break;
 		case Class: elements_list.set(select_data(elements, FirstClass, LastClass)); break;
+		case Ability: elements_list.set(select_data(elements, Strenght, Charisma)); break;
 		default: break;
 		}
 		view({193, 70, 193 + 200, 70 + 276}, {404, 70, 404 + 12, 70 + 291}, list_height, elements_list);
+		auto description = getdescription(elements_list.get());
+		if(last_variant != elements_list.get())
+			description_control.reset();
+		view({434, 70, 706, 70 + 288}, {720, 70, 720 + 12, 70 + 291}, description, description_control);
 		menumodal();
 		switch(hot.key) {
 		case KeyUp:

@@ -36,12 +36,6 @@ template<> const char* getstr<variant>(variant id) {
 	}
 }
 
-template<> void getrule<variant>(stringbuilder& sb, variant id) {
-	switch(id.type) {
-	case Race: getrule(sb, id.race); break;
-	}
-}
-
 int compare_variant(const void* v1, const void* v2) {
 	auto s1 = getstr(*((variant*)v1));
 	auto s2 = getstr(*((variant*)v2));

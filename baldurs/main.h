@@ -841,6 +841,7 @@ struct creature : actor {
 	static creature*	getcreature(point position);
 	static creature*	getcreature(short unsigned index);
 	static creature*	getcreature(aref<creature> source, short unsigned index);
+	static const char*	getdescription(variant id);
 	void				getdescription(stringbuilder& sb) const;
 	diety_s				getdiety() const { return diety; }
 	int					getfeats() const;
