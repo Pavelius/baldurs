@@ -140,10 +140,22 @@ bool creature::isallow(feat_s id, const unsigned char* ability, char character_l
 	return true;
 }
 
+static const char* getdescription(feat_s id) {
+	return feat_data[id].text;
+}
+
+template<> void getrule<feat_s>(stringbuilder& sb, feat_s id) {
+	sb.add("##%1\n", race_data[id].name);
+	auto p = getdescription(id);
+	if(p && p[0])
+		sb.add(p);
+}
+
 void add_feat(stringbuilder& sb, feat_s id) {
 	sb.add("\n\n[**%1**]", getstr(id));
-	if(feat_data[id].text && feat_data[id].text[0])
-		sb.add(": %1", feat_data[id].text);
+	auto p = getdescription(id);
+	if(p && p[0])
+		sb.add(": %1", p);
 }
 
 //void get_feat_description(char* result, int id) {

@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<itemcont, 2048>	itemcont_data;
+adat<itemcont, 2048> itemcont_data;
 
 itemcont::itemcont(const item& value) : item(value) {}
 
