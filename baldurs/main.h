@@ -103,7 +103,8 @@ enum feat_s : unsigned char {
 	// Специальные особенности
 	FastMovement, Illiteracy,
 	// Особенности расы
-	Darkvision, HateGoblinoids, SaveBonusVsPoison, SaveBonusVsSpell, Stability, Stonecunning,
+	HateGoblinoids, Infravision, ImmunityToSleepSpell, FindSecretDoors, Lucky, PreciseThrower,
+	SaveBonusVsEnchantment, SaveBonusVsFear, SaveBonusVsIllusion, SaveBonusVsPoison, SaveBonusVsSpell, Stability, Stonecunning,
 	FirstFeat = Alertness, LastFeat = Stonecunning,
 };
 enum race_s : unsigned char {
