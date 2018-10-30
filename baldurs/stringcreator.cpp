@@ -174,6 +174,13 @@ void stringbuilder::addv(const char* format, const char* format_param) {
 	p = driver.printv(p, result_maximum, format, format_param);
 }
 
+void stringbuilder::sep(const char* header, const char* p) {
+	if(ispos(p))
+		add(header);
+	else
+		add(", ");
+}
+
 char* szprintvs(char* result, const char* result_maximum, const char* src, const char* vl) {
 	stringcreator e;
 	e.printv(result, result_maximum, src, vl);

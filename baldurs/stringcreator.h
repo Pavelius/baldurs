@@ -20,6 +20,9 @@ struct stringbuilder {
 	void				addv(const char* format, const char* format_param);
 	void				addn(const char* format, ...);
 	void				clear() { result[0] = 0; p = result; }
+	const char*			getpos() const { return p; }
+	bool				ispos(const char* v) const { return p==v; }
+	void				sep(const char* header, const char* p);
 private:
 	stringcreator&		driver;
 	char				*p, *result;

@@ -19,6 +19,5 @@ assert_enum(alignment, ChaoticEvil);
 getstr_enum(alignment);
 
 template<> void getrule<alignment_s>(stringbuilder& sb, alignment_s id) {
-	sb.add("##%1\n", alignment_data[id].name);
 	sb.add(alignment_data[id].text);
 }

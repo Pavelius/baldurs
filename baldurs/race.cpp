@@ -46,7 +46,6 @@ static void add_feats(stringbuilder& sb, race_s id) {
 }
 
 template<> void getrule<race_s>(stringbuilder& sb, race_s id) {
-	sb.add("##%1\n", race_data[id].name);
 	sb.add(race_data[id].text);
 	add_ability(sb, id);
 	add_skills(sb, id);

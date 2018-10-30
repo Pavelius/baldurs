@@ -16,6 +16,7 @@ struct feat_info {
 	char			base_attack;
 	char			character_level;
 	const char*		text;
+	const char*		benefit;
 	prerequisit_s	prerequisit_special;
 } feat_data[] = {{"None"},
 {"Alertness", "Бдительность"},
@@ -25,15 +26,15 @@ struct feat_info {
 {"Blind-Fight", "Сражение вслепую"},
 {"Cleave", "Рассечение", {13}, {PowerAttack}},
 {"Combat Casting", "Боевые заклинания"},
-{"Combat Expertise", "Боевой опыт", {0, 0, 0, 13}},
-{"Combat Reflexes", "Боевые рефлексы"},
+{"Combat Expertise", "Боевой опыт", {0, 0, 0, 13}, {}, 0, 0, "Вы хорошо владеете своими боевыми навыками как в атаке, так и в защите."},
+{"Combat Reflexes", "Боевые рефлексы", {}, {},0,0, "Вы способны молниеносно наносить ответные атаки, если ваш противник теряет бдительность.", "Если враг оставляет в поединке себя открытым, вы способны провести благоприятные атаки. Их количество равно модификатору вашей Ловкости."},
 {"Deadly Precision", "Смертельная меткость", {0, 15}, {}, 5},
 {"Deflects Arrows", "Отбивание стрел", {0, 13}, {ImprovedUnarmedStrike}},
 {"Dodge", "Уклонение", {0, 13}},
 {"Endurance", "Выносливость"},
 {"Far Shoot", "Дальний выстрел", {}, {PointBlankShoot}},
 {"Greate Fortitude", "Великая стойкость"},
-{"Improved Critical", "Улучшенный критический", {}, {}, 8, 0, "", ProfecienceWithWeapon},
+{"Improved Critical", "Улучшенный критический", {}, {}, 8, 0, ""},
 {"Improved Disarm", "Улучшенное обезоруживание", {0, 0, 0, 13}, {CombatExpertise}},
 {"Improved Feint", "Улучшенный финт", {0, 0, 0, 13}, {CombatExpertise}},
 {"Improved Initiative", "Улучшенная инициатива"},
@@ -45,7 +46,7 @@ struct feat_info {
 {"Leadership", "Лидерство", {}, {}, 0, 6},
 {"Lighting Reflexes", "Молниеносные рефлексы"},
 {"Mobiliy", "Подвижность", {0, 13}, {Dodge}},
-{"Multiattack", "Множество атак", {}, {}, 0, 0, "", ThreeOrMoreNaturalAttack},
+{"Multiattack", "Множество атак", {}, {}, 0, 0, ""},
 {"Point-Blank Shoot", "Выстрел навскидку"},
 {"Power Attack", "Мощная атака", {13}},
 {"Precise Shoot", "Меткий выстрел", {}, {PointBlankShoot}},
@@ -140,85 +141,59 @@ bool creature::isallow(feat_s id, const unsigned char* ability, char character_l
 	return true;
 }
 
-static const char* getdescription(feat_s id) {
-	return feat_data[id].text;
+static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0) {
+	if(feat_data[id].text && feat_data[id].text[0]) {
+		if(prefix)
+			sb.add(prefix);
+		sb.add(feat_data[id].text);
+	}
+}
+
+static void add_required(stringbuilder& sb, feat_s id) {
+	auto p = sb.getpos();
+	auto h = "\n\n[Требует:] ";
+	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i+1)) {
+		if(!feat_data[id].ability[i])
+			continue;
+		sb.sep(h, p);
+		sb.add("%1 %2i", getstr(i), feat_data[id].ability[i]);
+	}
+	for(auto e : feat_data[id].prerequisit) {
+		if(!e)
+			break;
+		sb.sep(h, p);
+		sb.add(getstr(e));
+	}
+	if(feat_data[id].base_attack) {
+		sb.sep(h, p);
+		sb.add("базовая атака %+1i", feat_data[id].base_attack);
+	}
+	if(feat_data[id].character_level) {
+		sb.sep(h, p);
+		sb.add("уровень персонажа %+1i+", feat_data[id].character_level);
+	}
+	if(!sb.ispos(p))
+		sb.add(".");
+}
+
+static void add_header(stringbuilder& sb, const char* header, const char* text) {
+	if(!text)
+		return;
+	if(header)
+		sb.add("\n\n[%1:] ", header);
+	sb.add(text);
 }
 
 template<> void getrule<feat_s>(stringbuilder& sb, feat_s id) {
-	sb.add("##%1\n", race_data[id].name);
-	auto p = getdescription(id);
-	if(p && p[0])
-		sb.add(p);
+	add_description(sb, id);
+	add_header(sb, "Преемущество", feat_data[id].benefit);
+	add_required(sb, id);
 }
 
 void add_feat(stringbuilder& sb, feat_s id) {
 	sb.add("\n\n[**%1**]", getstr(id));
-	auto p = getdescription(id);
-	if(p && p[0])
-		sb.add(": %1", p);
+	add_description(sb, id, ": ");
 }
-
-//void get_feat_description(char* result, int id) {
-//	const feat_t* requisites[16];
-//	szprint(result, "###%1\n", bsgets(id, Name));
-//	const char* pb = get_benefit(feats, id);
-//	const char* pn = get_normal(feats, id);
-//	const char* ps = get_special(feats, id);
-//	if(pb && pb[0]) {
-//		zcat(result, "[Benefit]: ");
-//		zcat(result, pb);
-//		zcat(result, "\n");
-//	}
-//	if(pn && pn[0]) {
-//		zcat(result, "[Normal]: ");
-//		zcat(result, pn);
-//		zcat(result, "\n");
-//	}
-//	if(ps && ps[0]) {
-//		zcat(result, "[Special]: ");
-//		zcat(result, ps);
-//		zcat(result, "\n");
-//	}
-//	int maximum = get_feat_max_rating(id);
-//	int count = 0;
-//	const feat_t** r = requisites;
-//	for(int i = 0; i < maximum; i++) {
-//		auto p = find_req(id, i + 1);
-//		if(p)
-//			*r++ = p;
-//	}
-//	*r = 0;
-//	if(requisites[0]) {
-//		zcat(result, "[Required]: ");
-//		for(int z = 0; requisites[z]; z++) {
-//			if(requisites[1]) {
-//				if(requisites[z]->level)
-//					szprint(zend(result), "\n%1 level: ", levels_naming[requisites[z]->level - 1]);
-//				else
-//					szprint(zend(result), "\n0-level: ");
-//			}
-//			const feat_t* p = requisites[z];
-//			int count = 0;
-//			const unsigned short* pr = p->requisites;
-//			while(*pr) {
-//				int pid = *pr++;
-//				int plevel = 1;
-//				if(pid >= FirstFeat && pid <= LastFeat) {
-//					if(*pr && (*pr < FirstFeat))
-//						plevel = *pr++;
-//				} else
-//					plevel = *pr++;
-//				if(count)
-//					zcat(result, ", ");
-//				if(pid >= FirstFeat && pid <= LastFeat)
-//					get_feat_name(zend(result), pid, plevel);
-//				else
-//					szprint(zend(result), "%1 %2i+", bsgets(pid, Name), plevel);
-//				count++;
-//			}
-//		}
-//	}
-//}
 
 //void get_race_description(char* result, int id) {
 //	char* p;

@@ -34,9 +34,11 @@ static int getcost(const char* ability, const char* modifier) {
 const char* creature::getdescription(variant id) {
 	stringcreator dr;
 	stringbuilder sb(dr, description);
+	sb.add("###%1\n", getstr(id));
 	switch(id.type) {
 	case Race: getrule(sb, id.race); break;
 	case Alignment: getrule(sb, id.alignment); break;
+	case Feat: getrule(sb, id.feat); break;
 	}
 	return description;
 }
