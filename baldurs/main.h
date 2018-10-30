@@ -93,8 +93,6 @@ enum feat_s : unsigned char {
 	FocusAxes, FocusBows, FocusCrossbows, FocusDaggers, FocusGreatswords,
 	FocusLongswords, FocusMaces, FocusPolearm, FocusShortswords,
 	WhirlwindAttack,
-	// Специальные особенности
-	FastMovement, Illiteracy,
 	// Владение оружием
 	ProficiencyAxe, ProficiencyClub, ProficiencyCrossbow,
 	ProficiencyDagger, ProficiencyGreatweapon, ProficiencyHeavyCrossbow,
@@ -102,7 +100,11 @@ enum feat_s : unsigned char {
 	ProficiencyLongbow, ProficiencyLongsword,
 	ProficiencyScimitar, ProficiencyShortbow, ProficiencyShortsword,
 	ProficiencyBastardsword, ProficiencyCatana, ProficiencyWaraxe,
-	FirstFeat = Alertness, LastFeat = ProficiencyWaraxe,
+	// Специальные особенности
+	FastMovement, Illiteracy,
+	// Особенности расы
+	Darkvision, HateGoblinoids, SaveBonusVsPoison, SaveBonusVsSpell, Stability, Stonecunning,
+	FirstFeat = Alertness, LastFeat = Stonecunning,
 };
 enum race_s : unsigned char {
 	NoRace,

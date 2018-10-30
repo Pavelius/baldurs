@@ -573,7 +573,7 @@ bool creature::choose_skills(const char* title, const aref<variant>& elements, b
 	auto feat_points = 1;
 	feat_points += race_data[race].quick_learn;
 	if(!choose_feats(title, "Выбор особенностей",
-		select(elements, FirstFeat, LastFeat, !interactive), feats, feat_points, interactive))
+		select(elements, FirstFeat, ProficiencyWaraxe, !interactive), feats, feat_points, interactive))
 		return false;
 	if(!choose_skills(title, "Выбор навыков",
 		select(elements, FirstSkill, LastSkill, !interactive), skills, getpoints(getclass()) * 4, 4, interactive))

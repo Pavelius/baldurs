@@ -15,6 +15,7 @@ struct feat_info {
 	feat_s			prerequisit[4];
 	char			base_attack;
 	char			character_level;
+	const char*		text;
 	prerequisit_s	prerequisit_special;
 } feat_data[] = {{"None"},
 {"Alertness", "Бдительность"},
@@ -32,7 +33,7 @@ struct feat_info {
 {"Endurance", "Выносливость"},
 {"Far Shoot", "Дальний выстрел", {}, {PointBlankShoot}},
 {"Greate Fortitude", "Великая стойкость"},
-{"Improved Critical", "Улучшенный критический", {}, {}, 8, 0, ProfecienceWithWeapon},
+{"Improved Critical", "Улучшенный критический", {}, {}, 8, 0, "", ProfecienceWithWeapon},
 {"Improved Disarm", "Улучшенное обезоруживание", {0, 0, 0, 13}, {CombatExpertise}},
 {"Improved Feint", "Улучшенный финт", {0, 0, 0, 13}, {CombatExpertise}},
 {"Improved Initiative", "Улучшенная инициатива"},
@@ -44,7 +45,7 @@ struct feat_info {
 {"Leadership", "Лидерство", {}, {}, 0, 6},
 {"Lighting Reflexes", "Молниеносные рефлексы"},
 {"Mobiliy", "Подвижность", {0, 13}, {Dodge}},
-{"Multiattack", "Множество атак", {}, {}, 0, 0, ThreeOrMoreNaturalAttack},
+{"Multiattack", "Множество атак", {}, {}, 0, 0, "", ThreeOrMoreNaturalAttack},
 {"Point-Blank Shoot", "Выстрел навскидку"},
 {"Power Attack", "Мощная атака", {13}},
 {"Precise Shoot", "Меткий выстрел", {}, {PointBlankShoot}},
@@ -69,9 +70,6 @@ struct feat_info {
 {"Focus shortswords", "Фокус на коротких мечах", {0}, {ProficiencyShortsword}, 1},
 {"WhirlwindAttack", "Атака вихрем", {0, 13, 0, 13}, {CombatExpertise, Dodge, Mobiliy, SpringAttack}, 4},
 //
-{"FastMovement", "Быстрое передвижение"},
-{"Illiteracy", "Необразованный"},
-//
 {"Axe Proficiency", "Владение топором", {}},
 {"Club Proficiency", "Владение дубиной", {}},
 {"Crossbow Proficiency", "Владение арбалетом", {}},
@@ -89,8 +87,18 @@ struct feat_info {
 {"Bastardsword Proficiency", "Владение полуторным мечем", {ProficiencyLongsword}},
 {"Catana Proficiency", "Владение катаной", {}},
 {"Waraxe Proficiency", "Владение военным топором", {ProficiencyAxe}},
+//
+{"FastMovement", "Быстрое передвижение"},
+{"Illiteracy", "Необразованный"},
+//
+{"Darkvision", "Инфрарение", {}, {}, 0, 0, "Может видеть в темноте на 20 метров и не получает штрафы при сражении в темноте."},
+{"Hate orc and goblins", "Ненависть к оркам и гоблинам", {}, {}, 0, 0, "+1 бонус к атаке орков (включая полу-орков) и гоблинов (включая кобольдов и хобовлинов)."},
+{"Save Bonus Vs Poison", "Бонус защиты от Яда", {}, {}, 0, 0, "+2 к спас-броску от ядов."},
+{"Save Bonus Vs Spells", "Бонус защиты от Заклинаний", {}, {}, 0, 0, "+2 к спас-броску от заклинаний и магии."},
+{"Stability", "Устойчивость", {}, {}, 0, 0, "+4 к защите от попыток сделать подсечку или обросить под натичком назад."},
+{"Stonecunning", "Обработка камня", {}, {}, 0, 0, "+2 к Поиску при попытке обнаружить ловушки в подземелье. Делают это аналогично ворам."},
 };
-assert_enum(feat, ProficiencyWaraxe);
+assert_enum(feat, LastFeat);
 getstr_enum(feat);
 
 bool creature::isallow(feat_s id) const {
@@ -123,6 +131,12 @@ bool creature::isallow(feat_s id, const unsigned char* ability, char character_l
 	if(feat_data[id].character_level && character_level < feat_data[id].character_level)
 		return false;
 	return true;
+}
+
+void add_feat(stringbuilder& sb, feat_s id) {
+	sb.add("\n\n[**%1**]", getstr(id));
+	if(feat_data[id].text && feat_data[id].text[0])
+		sb.add(": %1", feat_data[id].text);
 }
 
 //void get_feat_description(char* result, int id) {
