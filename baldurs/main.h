@@ -910,6 +910,7 @@ struct creature : actor {
 	static void			moveto(aref<creature> players, point pt, formation_s formation);
 	static void			options();
 	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
+	void				remove(state_s id) { state &= ~(1 << id); }
 	bool				roll(roll_info& e) const;
 	void				open(const target& e);
 	void				say(const char* format, ...) const;

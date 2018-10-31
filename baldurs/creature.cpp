@@ -806,6 +806,8 @@ void creature::makecombat() {
 				continue;
 			if(!p->is(ReadyToBattle)) {
 				p->set(ReadyToBattle);
+				p->stop();
+				continue_combat = true;
 				continue;
 			}
 			auto enemy = p->getbest(elements, &creature::isenemy);
@@ -829,6 +831,12 @@ void creature::makecombat() {
 		}
 		if(!continue_combat)
 			break;
+	}
+	for(auto p : elements) {
+		if(*p && p->gethits() > 0) {
+			p->remove(ReadyToBattle);
+			p->stop();
+		}
 	}
 	msdbg("Битва закончилась");
 }

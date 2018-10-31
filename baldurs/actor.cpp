@@ -237,8 +237,12 @@ int actor::getcicle() const {
 
 void actor::stop() {
 	action = AnimateStand;
-	if(is(ReadyToBattle))
-		action = AnimateCombatStance;
+	if(is(ReadyToBattle)) {
+		if(getwear(QuickWeapon).istwohand())
+			action = AnimateCombatStanceTwoHanded;
+		else
+			action = AnimateCombatStance;
+	}
 	action_target.clear();
 	frame = 0;
 	duration = draw::getframe();
@@ -246,8 +250,10 @@ void actor::stop() {
 }
 
 void actor::set(animate_s id) {
-	if(action == id)
+	if(action == id) {
+		action_target.clear();
 		return;
+	}
 	action = id;
 	frame = 0;
 	duration = draw::getframe();
