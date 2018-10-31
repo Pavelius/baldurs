@@ -1,6 +1,6 @@
 #include "main.h"
 
-spell_info spell_data[] = {{"No spell", "", "SPWI104C"},
+spell_info spell_data[] = {{"No spell", "Нет Заклинания", "SPWI104C"},
 //
 {"Armor of Faith", "Доспех веры", "SPPR115C", Abjuration, {{Cleric, 1}}},
 {"Bane", "Погибель", "SPPR111C", Enchantment, {{Cleric, 1}}},
@@ -38,7 +38,7 @@ spell_info spell_data[] = {{"No spell", "", "SPWI104C"},
 {"Mage Armor", "Доспех мага", "SPWI102C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Magic Missile", "Волшебный снаряд", "SPWI112C", Evocation, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Minor Mirror Image", "Слабое зеркальное отображение", "SPWI120C", Illusion, {{Sorcerer, 1}, {Wizard, 1}}},
-{"Protection from Petrification", "", "SPWI108C", Abjuration, {{Sorcerer, 1}, {Wizard, 1}}},
+{"Protection from Petrification", "Защита от окаменения", "SPWI108C", Abjuration, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Shield", "Щит", "SPWI114C", Abjuration, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Shocking Grasp", "Шокирующая хватка", "SPWI115C", Transmutation, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Sleep", "Сон", "SPWI116C", Enchantment, {{Sorcerer, 1}, {Wizard, 1}}},
