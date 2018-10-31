@@ -729,6 +729,7 @@ struct actor : drawable {
 	virtual int			getzorder() const override;
 	bool				hittest(point pt) const override;
 	virtual void		interacting(const targetreaction& e) {}
+	virtual bool		is(state_s id) const { return false; }
 	virtual bool		isblock(point value) const { return false; }
 	virtual bool		isselected() const { return false; }
 	virtual bool		isstunned() const { return false; }
@@ -750,7 +751,7 @@ struct actor : drawable {
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
 	virtual void		set(gender_s value) {}
-	void				set(state_s value, unsigned rounds) {}
+	virtual void		set(state_s value) {}
 	void				set(const targetreaction& e) { action_target = e; }
 	static void			setcamera(point camera);
 	void				setposition(point newpos);
@@ -886,6 +887,7 @@ struct creature : actor {
 	void				interacting(const targetreaction& e) override;
 	bool				is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
 	static bool			is(spell_s id, class_s cls, int level);
+	bool				is(state_s id) const override { return (state&(1 << id))!=0; }
 	bool				isallow(feat_s id) const;
 	static bool			isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack);
 	bool				isallow(const item& it) const;
@@ -917,6 +919,7 @@ struct creature : actor {
 	void				set(ability_s id, int value) { ability[id] = value; }
 	void				set(alignment_s value) { alignment = value; }
 	void				set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }
+	void				set(state_s id) override { state |= 1 << id; }
 	void				set(gender_s value) override { gender = value; }
 	void				set(coloration& value) const;
 	void				set(reaction_s value) { reaction = value; }
@@ -956,6 +959,7 @@ private:
 	char				classes[LastClass + 1];
 	char				skills[LastSkill + 1];
 	unsigned			feats[LastFeat / 32 + 1];
+	unsigned			state;
 	short				hits, hits_rolled;
 	unsigned			spells_known[LastSpell / 32 + 1];
 	item				wears[LastQuickItem + 1];

@@ -804,6 +804,10 @@ void creature::makecombat() {
 		for(auto p : elements) {
 			if(!p->isready())
 				continue;
+			if(!p->is(ReadyToBattle)) {
+				p->set(ReadyToBattle);
+				continue;
+			}
 			auto enemy = p->getbest(elements, &creature::isenemy);
 			if(!enemy) {
 				continue_combat = false;

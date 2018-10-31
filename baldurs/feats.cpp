@@ -17,6 +17,7 @@ struct feat_info {
 	char			character_level;
 	const char*		text;
 	const char*		benefit;
+	const char*		normal;
 	prerequisit_s	prerequisit_special;
 } feat_data[] = {{"None"},
 {"Alertness", "Бдительность"},
@@ -31,7 +32,7 @@ struct feat_info {
 {"Deadly Precision", "Смертельная меткость", {0, 15}, {}, 5},
 {"Deflects Arrows", "Отбивание стрел", {0, 13}, {ImprovedUnarmedStrike}},
 {"Dodge", "Уклонение", {0, 13}},
-{"Endurance", "Выносливость"},
+{"Endurance", "Выносливость", {}, {}, 0, 0, "Вы выработали поразительную черту, благодаря чему вы очень выносливы.", "В любой ситуации, где необходима проверка физического напряжения, требуемого на длительный промежуток времени, у вас +4 бонус к проверке\n* против перенесения временного повреждения во время плавания.\n* проверок Телосложения во время бега.\n* проверок Телосложения для избежания временного повреждения от форсированного марша.\n* проверок Телосложения для задержания дыхания.\n* проверок Телосложения для избежания временного повреждения от голода или жажды.\n* спас броскам Стойкости для избежания временных повреждений от горячей или холодной окружающей среды.\n* спас броскам Стойкости для противостояния повреждений от задыхания.\nВы также можете без усталости спать в легких или средних доспехах, что разрешает вам оставаться готовым к бою, при нападении на привале.", "Персонаж без этой черты, который спит в средних и более тяжелых доспехах при внезапном бою на привале автоматически не готов к бою."},
 {"Far Shoot", "Дальний выстрел", {}, {PointBlankShoot}},
 {"Greate Fortitude", "Великая стойкость"},
 {"Improved Critical", "Улучшенный критический", {}, {}, 8, 0, ""},
@@ -50,7 +51,7 @@ struct feat_info {
 {"Point-Blank Shoot", "Выстрел навскидку"},
 {"Power Attack", "Мощная атака", {13}},
 {"Precise Shoot", "Меткий выстрел", {}, {PointBlankShoot}},
-{"Rapid Shoot", "Быстрый выстрел", {13}, {PointBlankShoot}},
+{"Rapid Shoot", "Быстрый выстрел", {13}, {PointBlankShoot}, 0, 0, "Вы использует стрелковое/метательное оружие с поразительной скоростью.", "Вы получаете одну дополнительную атаку в раунд со стрелковым оружием. Атака имеет ваш самый высокий базовый бонус атаки, но каждая атака имеет штраф –2 к броску атаки (как дополнительная, так и стандартные)."},
 {"Rapid Reload", "Быстрая перезарядка"},
 {"Shield Profeciency", "Владение щитом"},
 {"Short On the Run", "Выстрел на бегу", {0, 13}, {Dodge, Mobiliy, PointBlankShoot}, 4},
@@ -75,7 +76,7 @@ struct feat_info {
 {"Club Proficiency", "Владение дубиной", {}},
 {"Crossbow Proficiency", "Владение арбалетом", {}},
 {"Dagger Proficiency", "Владение кинжалом", {}},
-{"Greatweapon Proficiency", "Владение большим оружием", {ProficiencyLongsword}},
+{"Greatweapon Proficiency", "Владение большим оружием", {}, {ProficiencyLongsword}},
 {"Heavy Crossbow Proficiency", "Владение тяжелым арбалетом", {}},
 {"Mace Proficiency", "Владение булавой", {}},
 {"Simple weapon Proficiency", "Владение простым оружием", {}},
@@ -85,9 +86,9 @@ struct feat_info {
 {"Shortbow Proficiency", "Владение коротким луком", {}},
 {"Scimitar Proficiency", "Владение саблей", {}},
 {"Shortsword Proficiency", "Владение коротким мечом", {}},
-{"Bastardsword Proficiency", "Владение полуторным мечем", {ProficiencyLongsword}},
+{"Bastardsword Proficiency", "Владение полуторным мечем", {}, {ProficiencyLongsword}},
 {"Catana Proficiency", "Владение катаной", {}},
-{"Waraxe Proficiency", "Владение военным топором", {ProficiencyAxe}},
+{"Waraxe Proficiency", "Владение военным топором", {}, {ProficiencyAxe}},
 //
 {"FastMovement", "Быстрое передвижение"},
 {"Illiteracy", "Необразованный"},
@@ -108,6 +109,8 @@ struct feat_info {
 };
 assert_enum(feat, LastFeat);
 getstr_enum(feat);
+
+void add_feat_item(stringbuilder& sb, feat_s id);
 
 bool creature::isallow(feat_s id) const {
 	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e+1)) {
@@ -142,7 +145,12 @@ bool creature::isallow(feat_s id, const unsigned char* ability, char character_l
 }
 
 static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0) {
-	if(feat_data[id].text && feat_data[id].text[0]) {
+	if(id >= ProficiencyAxe && id <= ProficiencyWaraxe) {
+		if(prefix)
+			sb.add(prefix);
+		sb.add("Вы умеете использовать такое оружие как ");
+		add_feat_item(sb, id);
+	} else if(feat_data[id].text && feat_data[id].text[0]) {
 		if(prefix)
 			sb.add(prefix);
 		sb.add(feat_data[id].text);
@@ -187,6 +195,7 @@ static void add_header(stringbuilder& sb, const char* header, const char* text) 
 template<> void getrule<feat_s>(stringbuilder& sb, feat_s id) {
 	add_description(sb, id);
 	add_header(sb, "Преемущество", feat_data[id].benefit);
+	add_header(sb, "Обычно", feat_data[id].normal);
 	add_required(sb, id);
 }
 

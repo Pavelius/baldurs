@@ -80,6 +80,18 @@ static item_info item_data[] = {{"No item", "Нет предмета", "IHANDGF", "GGEM01"}
 assert_enum(item, LastItem);
 getstr_enum(item);
 
+void add_feat_item(stringbuilder& sb, feat_s id) {
+	auto p = sb.getpos();
+	for(auto& e : item_data) {
+		if(e.feat[0] == id) {
+			sb.sep(0, p);
+			sb.add(e.name);
+		}
+	}
+	if(!sb.ispos(p))
+		sb.add(".");
+}
+
 void item::clear() {
 	memset(this, 0, sizeof(*this));
 }

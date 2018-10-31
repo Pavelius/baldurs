@@ -237,6 +237,8 @@ int actor::getcicle() const {
 
 void actor::stop() {
 	action = AnimateStand;
+	if(is(ReadyToBattle))
+		action = AnimateCombatStance;
 	action_target.clear();
 	frame = 0;
 	duration = draw::getframe();
@@ -351,7 +353,7 @@ void actor::update() {
 			break;
 		}
 		if(isblock(newpos)) {
-			set(Stunned, xrand(2, 5));
+			set(Stunned);
 			return;
 		}
 		setposition(newpos);

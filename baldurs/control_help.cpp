@@ -45,6 +45,21 @@ struct listbox : scrolllist {
 		}
 		fore = push_color;
 	}
+	void ensurevisible(int index) {
+
+	}
+	void translate() {
+		switch(hot.key) {
+		case KeyUp:
+			current--;
+			ensurevisible(current);
+			break;
+		case KeyDown:
+			current++;
+			ensurevisible(current);
+			break;
+		}
+	}
 };
 
 listbox* listbox::current_focus;
@@ -94,15 +109,7 @@ void creature::help() {
 			description_control.reset();
 		view({434, 70, 706, 70 + 288}, {720, 70, 720 + 12, 70 + 291}, description, description_control);
 		menumodal();
-		switch(hot.key) {
-		case KeyUp:
-			if(listbox::current_focus)
-				listbox::current_focus->current--;
-			break;
-		case KeyDown:
-			if(listbox::current_focus)
-				listbox::current_focus->current++;
-			break;
-		}
+		if(listbox::current_focus)
+			listbox::current_focus->translate();
 	}
 }
