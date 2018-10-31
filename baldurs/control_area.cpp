@@ -443,12 +443,16 @@ static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
 	case Creature:
 		if(player->isenemy(*react.creature)) {
 			react.method = &creature::attack;
+			react.reach = map::getrange(player->getreach());
 			cur.set(res::CURSORS, 12);
 		} else if(react.creature->isplayer()) {
-			if(!combat_mode)
+			if(!combat_mode) {
 				react.method = &creature::setactive;
+				react.reach = 0xFFFF;
+			}
 		} else {
 			react.method = &creature::talk;
+			react.reach = 4;
 			cur.set(res::CURSORS, react.creature->getcursor());
 		}
 		break;

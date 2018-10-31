@@ -680,8 +680,9 @@ struct setting {
 struct creature;
 struct targetreaction : target {
 	void				(creature::*method)(const target& e);
-	constexpr targetreaction() : target(), method(0) {}
-	constexpr targetreaction(const target& e) : target(e), method(0) {}
+	short unsigned		reach;
+	constexpr targetreaction() : target(), method(0), reach(0) {}
+	constexpr targetreaction(const target& e) : target(e), method(0), reach(0) {}
 	void				clear();
 };
 struct treasure {

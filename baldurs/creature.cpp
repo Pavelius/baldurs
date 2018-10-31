@@ -910,7 +910,7 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 		break;
 	case Creature:
 		position = e.creature->getposition();
-		reach = map::getrange(getreach());
+		reach = e.reach;
 		break;
 	case ItemGround:
 		position = e.itemground->getposition();
@@ -933,7 +933,10 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	stop();
 	auto index = getindex();
 	auto index_new = map::getindex(position);
-	if(move(position, maximum_range, reach)) {
+	if(reach == 0xFFFF) {
+		if(e.method)
+			(this->*e.method)(e);
+	} else if(move(position, maximum_range, reach)) {
 		if(synchronized) {
 			wait();
 			if(e.method)
