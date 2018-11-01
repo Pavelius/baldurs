@@ -821,6 +821,7 @@ struct creature : actor {
 	static target		choose_target(int cursor, short unsigned start, short unsigned max_cost);
 	void				create(monster_s type, reaction_s reaction);
 	static creature*	create(monster_s type, reaction_s reaction, point postition);
+	static void			create(monster_s type, reaction_s reaction, point postition, unsigned char orientation, int count);
 	void				create(class_s type, race_s race, gender_s gender, reaction_s reaction);
 	static void			create_party();
 	void				damage(int count);

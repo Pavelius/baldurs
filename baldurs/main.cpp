@@ -29,7 +29,7 @@ static void quick_load() {
 	creature::moveto("AR1000");
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
-	creature::create(LargeSkeleton, Hostile, {487, 870});
+	creature::create(Goblin, Hostile, {487, 870}, 6, 4);
 }
 
 static void join_game() {}

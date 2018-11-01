@@ -625,6 +625,14 @@ creature* creature::create(monster_s type, reaction_s reaction, point postition)
 	return p;
 }
 
+void creature::create(monster_s type, reaction_s reaction, point position, unsigned char orientation, int count) {
+	auto formation = Formation3by2;
+	auto index = 0;
+	point start = getbackward(position, 5, orientation);
+	for(int i = 0; i < count; i++)
+		create(type, reaction, getposition(start, position, formation, index++));
+}
+
 void creature::moveto(aref<creature> players, point destination, formation_s formation) {
 	if(!players)
 		return;
