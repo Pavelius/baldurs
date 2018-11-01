@@ -170,6 +170,12 @@ enum monster_s : unsigned char {
 	Goblin, LargeSkeleton,
 	FirstMonster = Goblin, LastMonster = LargeSkeleton,
 };
+enum special_s : unsigned char {
+	NoSpecial,
+	OfBaneOrc,
+	OfFlaming, OfFlamingBurst, OfFrost, OfIcyBurst, OfShock, OfGhostTouch,
+	OfHoly, OfKeen, OfShockingBurst, OfSpeed, OfThundering, OfUnholy, OfWounding, OfVorpal,
+};
 enum sprite_type_s : unsigned char {
 	CID1, MID1,
 };
@@ -756,6 +762,7 @@ struct actor : drawable {
 	virtual void		set(state_s value) {}
 	void				set(const targetreaction& e) { action_target = e; }
 	static void			setcamera(point camera);
+	void				setorientation(unsigned char value) { orientation = value; }
 	void				setposition(point newpos);
 	static void			slide(const point camera);
 	void				stop();

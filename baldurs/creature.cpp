@@ -629,8 +629,10 @@ void creature::create(monster_s type, reaction_s reaction, point position, unsig
 	auto formation = Formation3by2;
 	auto index = 0;
 	point start = getbackward(position, 5, orientation);
-	for(int i = 0; i < count; i++)
-		create(type, reaction, getposition(start, position, formation, index++));
+	for(int i = 0; i < count; i++) {
+		auto p = create(type, reaction, getposition(start, position, formation, index++));
+		p->setorientation(orientation);
+	}
 }
 
 void creature::moveto(aref<creature> players, point destination, formation_s formation) {
