@@ -768,10 +768,27 @@ void creature::damage(int count) {
 }
 
 creature* creature::getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const {
-	creature* result_data[1];
+	creature* result_data[32];
 	auto result = select(result_data, source, this, proc);
-	if(result)
-		return result[0];
+	if(result) {
+		int result_distance;
+		creature* result_creature = 0;
+		auto start = getposition();
+		for(auto p : result) {
+			if(!result_creature) {
+				result_creature = p;
+				result_distance = distance(start, p->getposition());
+			}
+			else {
+				auto this_distance = distance(start, p->getposition());
+				if(this_distance < result_distance) {
+					result_creature = p;
+					result_distance = this_distance;
+				}
+			}
+		}
+		return result_creature;
+	}
 	return 0;
 }
 
@@ -779,6 +796,12 @@ static int compare_initiative(const void* p1, const void* p2) {
 	auto c1 = *((creature**)p1);
 	auto c2 = *((creature**)p2);
 	return c1->getinitiativeroll() - c2->getinitiativeroll();
+}
+
+short unsigned creature::getreach() const {
+	if(getweapon().isreach())
+		return 10;
+	return 5;
 }
 
 void creature::makecombat() {

@@ -117,6 +117,19 @@ bool item::istwohand() const {
 	switch(type) {
 	case Staff:
 	case Greataxe:
+	case Greatsword:
+	case Halberd:
+		return true;
+	default:
+		return false;
+	}
+}
+
+bool item::isreach() const {
+	switch(type) {
+	case Staff:
+	case Spear:
+	case Halberd:
 		return true;
 	default:
 		return false;

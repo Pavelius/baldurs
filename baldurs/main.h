@@ -497,6 +497,7 @@ struct item {
 	bool				is(slot_s value) const;
 	bool				isbow() const;
 	bool				isranged() const { return isbow() || isxbow() || isthrown(); }
+	bool				isreach() const;
 	bool				isthrown() const;
 	bool				istwohand() const;
 	bool				isxbow() const;
@@ -871,7 +872,7 @@ struct creature : actor {
 	int					getprepared(spell_s id, variant type) const;
 	int					getr(ability_s id) const { return ability[id]; }
 	race_s				getrace() const override { return race; }
-	short unsigned		getreach() const { return 5; }
+	short unsigned		getreach() const;
 	int					getskillpoints() const;
 	int					getspellslots(variant type, int spell_level) const;
 	const sprite*		getsprite(int& wi) const;
