@@ -61,12 +61,21 @@ static void move_down() { camera.y += camera_step; }
 static void character_invertory() { choose_menu(&creature::invertory); }
 static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
-static void character_test() { actor::slide({1000, 1000}); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
 static void layer_search() { settings.show_search = !settings.show_search; }
 static void layer_path() { settings.show_path = !settings.show_path; }
+
+static void character_test() {
+	auto player = creature::getactive();
+	if(!player)
+		return;
+	player->render_attack(0, {1030, 2220});
+	player->wait();
+	player->render_attack(1, {1030, 2220});
+	player->wait();
+}
 
 static void change_mode() {
 	settings.panel = (setting::mode_s)(settings.panel + 1);

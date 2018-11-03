@@ -89,26 +89,6 @@ point actor::getposition(point src, point dst, formation_s formation, int pos) {
 	return dst;
 }
 
-res::tokens actor::getanimation(item_s type) {
-	switch(type) {
-	case BattleAxe: return res::WQSAX;
-	case Mace: case Club: return res::WQSMC;
-	case Dagger: return res::WQSDD;
-	case Hammer: return res::WQSWH;
-	case Halberd: return res::WQSHB;
-	case Spear: return res::WQSSP;
-	case Staff: return res::WQSQS;
-	case Longsword: return res::WQSS1;
-	case Shortsword: return res::WQSSS;
-	case Greatsword: return res::WQSS2;
-	case ShieldSmall: return res::WQSD1;
-	case ShieldLarge: return res::WQSD3;
-	case ShieldTower: return res::WQSD4;
-	case Helm: return res::WQSH1; // Helm is separate?
-	default: return res::NONE;
-	}
-}
-
 res::tokens actor::getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws) {
 	res::tokens icn;
 	switch(race) {
@@ -428,9 +408,9 @@ void actor::painting(point screen) const {
 	switch(monster_data[kind].sptype) {
 	case CID1:
 		if(!animate_data[action].disable_overlay) {
-			sprites[1] = getsprite(getanimation(getwear(Head).gettype()), wi);
-			sprites[2] = getsprite(getanimation(getwear(QuickWeapon).gettype()), wi);
-			sprites[3] = getsprite(getanimation(getwear(QuickOffhand).gettype()), wi);
+			sprites[1] = getsprite(item::getanwear(getwear(Head).gettype()), wi);
+			sprites[2] = getsprite(item::getanwear(getwear(QuickWeapon).gettype()), wi);
+			sprites[3] = getsprite(item::getanwear(getwear(QuickOffhand).gettype()), wi);
 		}
 		break;
 	case MID1:
@@ -456,8 +436,10 @@ void actor::painting(point screen) const {
 static void painting_equipment(int x, int y, item equipment, int ws, int frame, unsigned flags, color* pallette) {
 	if(!equipment)
 		return;
-	res::tokens t1 = res::tokens(actor::getanimation(equipment.gettype()) + ws);
-	image(x, y, gres(t1), frame, flags, 255, pallette);
+	auto tb = item::getanwear(equipment.gettype());
+	if(!tb)
+		return;
+	image(x, y, gres(res::tokens(tb + ws)), frame, flags, 255, pallette);
 }
 
 void actor::paperdoll(int x, int y) const {
@@ -560,11 +542,11 @@ animate_s actor::getattackanimate(int number) const {
 	if(w2.is(QuickOffhand) && w2.is(QuickWeapon))
 		return animate_s(AnimateMeleeTwoWeapon + number);
 	else if(w1.isbow())
-		return animate_s(AnimateShootBow + number);
+		return AnimateShootBow;
 	else if(w1.isxbow())
-		return animate_s(AnimateShootXBow + number);
+		return AnimateShootXBow;
 	else if(w1.isthrown())
-		return animate_s(AnimateShootSling + number);
+		return AnimateShootSling;
 	else if(w1.istwohand())
 		return animate_s(AnimateMeleeTwoHanded + number);
 	return animate_s(AnimateMeleeOneHanded + number);

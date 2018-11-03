@@ -142,6 +142,7 @@ enum item_s : unsigned char {
 	SplintMail, BandedMail, Plate,
 	ShieldSmall, ShieldLarge, ShieldTower,
 	Helm,
+	Arrow,
 	CooperPieces, SilverPieces, GoldPieces, PlatinumPieces,
 	BlueQuarz,
 	CarvedStone,
@@ -497,6 +498,8 @@ struct item {
 	void				clear();
 	int					getac() const;
 	int					getarmorindex() const;
+	item_s				getammunition() const;
+	static res::tokens	getanwear(int type);
 	const dice&			getattack() const;
 	int					getbonus() const;
 	int					getcost() const;
@@ -612,12 +615,13 @@ struct roll_info {
 };
 struct attack_info : dice, roll_info {
 	attack_info() = default;
-	constexpr attack_info(const dice& d, char c = 0, char m = 0) : dice(d), critical(c), multiplier(m), ac(0), weapon(0) {};
-	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), weapon(0) {};
+	constexpr attack_info(const dice& d, char c = 0, char m = 0, item_s amn = NoItem) : dice(d), critical(c), multiplier(m), ac(0), weapon(0), ammunition(amn) {}
+	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), weapon(0), ammunition(NoItem) {};
 	char				critical;
 	char				multiplier;
 	char				ac;
 	item*				weapon;
+	item_s				ammunition;
 };
 struct entrance {
 	char				name[32];
@@ -717,7 +721,6 @@ struct actor : drawable {
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
 	void				clearcolors();
-	static res::tokens	getanimation(item_s type);
 	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
 	static point		getbackward(point start, int step, int orientation);
 	static point		getcamera();

@@ -11,12 +11,17 @@ struct varset {
 	constexpr varset(const aref<skill_s>& v) : type(Skill), skills(v) {}
 };
 
+struct item_animation {
+	const char*		avatar;
+	const char*		ground;
+	res::tokens		wear;
+};
+
 static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
 struct item_info {
 	const char*		id;
 	const char*		name;
-	const char*		image_file;
-	const char*		ground_file;
+	item_animation	images;
 	slot_s			slots[2];
 	feat_s			feat[2];
 	attack_info		ai;
@@ -26,56 +31,58 @@ struct item_info {
 	varset			power;
 };
 
-static item_info item_data[] = {{"No item", "Нет предмета", "IHANDGF", "GGEM01"},
-{"Club", "Дубина", "ICLUBB1", "GBLUN01", {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
-{"Hammer", "Молот", "IHAMMB1", "GHAMM01", {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
-{"Mace", "Булава", "IMACEB1", "GBLUN06", {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6, 1}}},
-{"Spear", "Копье", "ISPERB1", "GSPER01", {QuickWeapon}, {ProficiencySpear, FocusPolearm}, {{1, 8}}},
-{"Staff", "Посох", "ISTAFB1", "GSTAF01", {QuickWeapon}, {ProficiencySimple, FocusPolearm}, {{1, 6}}},
-{"Crossbow", "Арбалет", "IXBOWL01", "GXBOW01", {QuickWeapon}, {ProficiencyCrossbow, FocusCrossbows}, {{1, 8}}},
-{"Heavy crossbow", "Тяжелый арбалет", "IXBOWH01", "GXBOW01", {QuickWeapon}, {ProficiencyHeavyCrossbow, FocusCrossbows}, {{1, 10}}},
-{"Sling", "Праща", "ISLNGB1", "GSLNG01", {QuickWeapon}, {ProficiencySimple}, {{1, 4}}},
+static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
+{"Club", "Дубина", {"ICLUBB1", "GBLUN01", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
+{"Hammer", "Молот", {"IHAMMB1", "GHAMM01", res::WQSWH}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
+{"Mace", "Булава", {"IMACEB1", "GBLUN06", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6, 1}}},
+{"Spear", "Копье", {"ISPERB1", "GSPER01", res::WQSSP}, {QuickWeapon}, {ProficiencySpear, FocusPolearm}, {{1, 8}}},
+{"Staff", "Посох", {"ISTAFB1", "GSTAF01", res::WQSQS}, {QuickWeapon}, {ProficiencySimple, FocusPolearm}, {{1, 6}}},
+{"Crossbow", "Арбалет", {"IXBOWL01", "GXBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyCrossbow, FocusCrossbows}, {{1, 8}}},
+{"Heavy crossbow", "Тяжелый арбалет", {"IXBOWH01", "GXBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyHeavyCrossbow, FocusCrossbows}, {{1, 10}}},
+{"Sling", "Праща", {"ISLNGB1", "GSLNG01", res::WQSSL}, {QuickWeapon}, {ProficiencySimple}, {{1, 4}}},
 //
-{"Battle axe", "Боевой топор", "IAX1HB2", "GAX1H01", {QuickWeapon}, {ProficiencyAxe, FocusAxes}, {{1, 8}}},
-{"Dagger", "Кинжал", "IDAGGB1", "GDAGG01", {QuickWeapon, QuickOffhand}, {ProficiencyDagger, FocusDaggers}, {{1, 4}}},
-{"Greataxe", "Секира", "IAX2HB1", "GHALB01", {QuickWeapon}, {ProficiencyGreatweapon, FocusAxes}, {{1, 12}}},
-{"Halberd", "Алебарда", "IHALBB1", "GHALB01", {QuickWeapon}, {ProficiencyGreatweapon, FocusPolearm}, {{1, 10}}},
-{"Handaxe", "Топор", "IAX1HB1", "GAX1H01", {QuickWeapon, QuickOffhand}, {ProficiencyAxe, FocusAxes}, {{1, 6}}},
-{"Scimitar", "Сабля", "ISWDCB2", "GSW1H07", {QuickWeapon, QuickOffhand}, {ProficiencyScimitar, FocusShortswords}, {{1, 6}}},
-{"Longsword", "Длинный меч", "ISWDLB1", "GSW1H01", {QuickWeapon}, {ProficiencyLongsword, FocusLongswords}, {{1, 8}}},
-{"Shortsword", "Короткий меч", "ISWDSB1", "GSW1H07", {QuickWeapon, QuickOffhand}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}},
-{"Two handed sword", "Двуручный меч", "ISWDTB1", "GSW2H01", {QuickWeapon}, {ProficiencyGreatweapon, FocusGreatswords}, {{2, 6}}},
-{"Rapier", "Рапира", "ISWDSB1", "GSW1H07", {QuickWeapon}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}}, // TODO: найти лучше вариант
-{"Short bow", "Короткий лук", "IBOWSB1", "GBOW01", {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}}},
-{"Long bow", "Длинный лук", "IBOWLB1", "GBOW01", {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}}},
+{"Battle axe", "Боевой топор", {"IAX1HB2", "GAX1H01", res::WQSAX}, {QuickWeapon}, {ProficiencyAxe, FocusAxes}, {{1, 8}}},
+{"Dagger", "Кинжал", {"IDAGGB1", "GDAGG01", res::WQSDD}, {QuickWeapon, QuickOffhand}, {ProficiencyDagger, FocusDaggers}, {{1, 4}}},
+{"Greataxe", "Секира", {"IAX2HB1", "GHALB01", res::WQSHB}, {QuickWeapon}, {ProficiencyGreatweapon, FocusAxes}, {{1, 12}}},
+{"Halberd", "Алебарда", {"IHALBB1", "GHALB01", res::WQSHB}, {QuickWeapon}, {ProficiencyGreatweapon, FocusPolearm}, {{1, 10}}},
+{"Handaxe", "Топор", {"IAX1HB1", "GAX1H01", res::WQSAX}, {QuickWeapon, QuickOffhand}, {ProficiencyAxe, FocusAxes}, {{1, 6}}},
+{"Scimitar", "Сабля", {"ISWDCB2", "GSW1H07", res::WQSSS}, {QuickWeapon, QuickOffhand}, {ProficiencyScimitar, FocusShortswords}, {{1, 6}}},
+{"Longsword", "Длинный меч", {"ISWDLB1", "GSW1H01", res::WQSS1}, {QuickWeapon}, {ProficiencyLongsword, FocusLongswords}, {{1, 8}}},
+{"Shortsword", "Короткий меч", {"ISWDSB1", "GSW1H07", res::WQSSS}, {QuickWeapon, QuickOffhand}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}},
+{"Two handed sword", "Двуручный меч", {"ISWDTB1", "GSW2H01", res::WQSS2}, {QuickWeapon}, {ProficiencyGreatweapon, FocusGreatswords}, {{2, 6}}},
+{"Rapier", "Рапира", {"ISWDSB1", "GSW1H07", res::WQSSS}, {QuickWeapon}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}}, // TODO: найти лучше вариант
+{"Short bow", "Короткий лук", {"IBOWSB1", "GBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}}},
+{"Long bow", "Длинный лук", {"IBOWLB1", "GBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}}},
 //
-{"Waraxe", "Военный топор", "IAX1HBB", "GHAMM01", {QuickWeapon}, {ProficiencyWaraxe, FocusAxes}, {{1, 10}}},
-{"Bastard sword", "Полутораручный меч", "ISWDBB1", "GSW1H01", {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
-{"Katana", "Катана", "ISWDBB1", "GSW2H01", {QuickWeapon}, {ProficiencyCatana, FocusGreatswords}, {{1, 10}}}, // TODO: найти лучше вариант
+{"Waraxe", "Военный топор", {"IAX1HBB", "GHAMM01", res::WQSAX}, {QuickWeapon}, {ProficiencyWaraxe, FocusAxes}, {{1, 10}}},
+{"Bastard sword", "Полутораручный меч", {"ISWDBB1", "GSW1H01", res::WQSS1}, {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
+{"Katana", "Катана", {"ISWDBB1", "GSW2H01", res::WQSS2}, {QuickWeapon}, {ProficiencyCatana, FocusGreatswords}, {{1, 10}}}, // TODO: найти лучше вариант
 //
-{"Leather armor", "Кожанная броня", "IARMLB1", "GLEAT01", {Body}, {ArmorProfeciencyLight}, {2}},
-{"Studded leather armor", "Клепанная кожанная броня", "IARMSB1", "GLEAT01", {Body}, {ArmorProfeciencyLight}, {3}},
-{"Chain shirt", "Кольчужная рубаха", "IARMCM1", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {4}},
-{"Scale mail", "Чешуйчатый доспех", "IARMSM1", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {4}},
-{"Chainmail", "Кольчуга", "IARMCB1", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {5}},
-{"Breastplate", "Нагрудник", "IARMHM3", "GCHAN01", {Body}, {ArmorProfeciencyMedium}, {5}},
-{"Splint mail", "", "IARMPB1", "GPLAT01", {Body}, {ArmorProfeciencyHeavy}, {6}},
-{"Banded mail", "Кольцевой доспех", "IARMPM1", "GPLAT01", {Body}, {ArmorProfeciencyHeavy}, {7}},
-{"Plate mail", "Латы", "IARMFM1", "GPLAT01", {Body}, {ArmorProfeciencyHeavy}, {8}},
+{"Leather armor", "Кожанная броня", {"IARMLB1", "GLEAT01"}, {Body}, {ArmorProfeciencyLight}, {2}},
+{"Studded leather armor", "Клепанная кожанная броня", {"IARMSB1", "GLEAT01"}, {Body}, {ArmorProfeciencyLight}, {3}},
+{"Chain shirt", "Кольчужная рубаха", {"IARMCM1", "GCHAN01"}, {Body}, {ArmorProfeciencyMedium}, {4}},
+{"Scale mail", "Чешуйчатый доспех", {"IARMSM1", "GCHAN01"}, {Body}, {ArmorProfeciencyMedium}, {4}},
+{"Chainmail", "Кольчуга", {"IARMCB1", "GCHAN01"}, {Body}, {ArmorProfeciencyMedium}, {5}},
+{"Breastplate", "Нагрудник", {"IARMHM3", "GCHAN01"}, {Body}, {ArmorProfeciencyMedium}, {5}},
+{"Splint mail", "", {"IARMPB1", "GPLAT01"}, {Body}, {ArmorProfeciencyHeavy}, {6}},
+{"Banded mail", "Кольцевой доспех", {"IARMPM1", "GPLAT01"}, {Body}, {ArmorProfeciencyHeavy}, {7}},
+{"Plate mail", "Латы", {"IARMFM1", "GPLAT01"}, {Body}, {ArmorProfeciencyHeavy}, {8}},
 //
-{"Shield small", "Малый щит", "ISHDSB1", "GSHLD01", {QuickOffhand}, {ShieldProfeciency}, {2}},
-{"Large shield", "Средний щит", "ISHDLB1", "GSHLD03", {QuickOffhand}, {ShieldProfeciency}, {2}},
-{"Tower shield", "Огромный щит", "ISHDTB1", "GSHLD05", {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Shield small", "Малый щит", {"ISHDSB1", "GSHLD01", res::WQSD1}, {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Large shield", "Средний щит", {"ISHDLB1", "GSHLD03", res::WQSD3}, {QuickOffhand}, {ShieldProfeciency}, {2}},
+{"Tower shield", "Огромный щит", {"ISHDTB1", "GSHLD05", res::WQSD4}, {QuickOffhand}, {ShieldProfeciency}, {2}},
 //
-{"Helm", "Шлем", "IHELMB1", "GHELM01", {Head}, {ArmorProfeciencyMedium}},
+{"Helm", "Шлем", {"IHELMB1", "GHELM01", res::WQSH1}, {Head}, {ArmorProfeciencyMedium}},
 //
-{"Cooper Pieces", "Медь", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, CP},
-{"Silver Pieces", "Серебро", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, SP},
-{"Gold Pieces", "Золото", "IMISC07", "GMISC87", {}, {}, {}, 100, 0, GP},
-{"Platinum Pieces", "Платина", "IMISC08", "GMISC87", {}, {}, {}, 100, 0, PP},
+{"Arrow", "Стрелы", {"IAROWB1", "GAROW01"}, {Quiver}},
 //
-{"Blue quarz", "Голубой кварц", "IMISC33", "GGEM01", {}, {}, {}, 25, 0, 4 * GP},
-{"Carved Stone", "Резной камень", "IBSTONE", "GGEM01", {}, {}, {}, 25, 0, 15 * GP},
+{"Cooper Pieces", "Медь", {"IMISC08", "GMISC87"}, {}, {}, {}, 100, 0, CP},
+{"Silver Pieces", "Серебро", {"IMISC08", "GMISC87"}, {}, {}, {}, 100, 0, SP},
+{"Gold Pieces", "Золото", {"IMISC07", "GMISC87"}, {}, {}, {}, 100, 0, GP},
+{"Platinum Pieces", "Платина", {"IMISC08", "GMISC87"}, {}, {}, {}, 100, 0, PP},
+//
+{"Blue quarz", "Голубой кварц", {"IMISC33", "GGEM01"}, {}, {}, {}, 25, 0, 4 * GP},
+{"Carved Stone", "Резной камень", {"IBSTONE", "GGEM01"}, {}, {}, {}, 25, 0, 15 * GP},
 };
 assert_enum(item, LastItem);
 getstr_enum(item);
@@ -157,11 +164,19 @@ feat_s item::getfeat() const {
 }
 
 const char* item::getfname(int type) {
-	return item_data[type].image_file;
+	return item_data[type].images.avatar;
 }
 
 const char* item::getfgname(int type) {
-	return item_data[type].ground_file;
+	return item_data[type].images.ground;
+}
+
+res::tokens item::getanwear(int type) {
+	return item_data[type].images.wear;
+}
+
+item_s item::getammunition() const {
+	return item_data[type].ai.ammunition;
 }
 
 int item::getarmorindex() const {
