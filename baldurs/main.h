@@ -986,6 +986,28 @@ private:
 	static const char*	random_name(gender_s gender, race_s race);
 	void				update_levels();
 };
+struct worldmap {
+	struct link {
+		short unsigned	index;
+		const char*		entry;
+		unsigned		time;
+		unsigned		flags;
+		unsigned		encounter_chance;
+		char			encounter[5][9];
+	};
+	struct area {
+		const char*		id;
+		const char*		name;
+		const char*		tips;
+		point			position;
+		int				avatar;
+		link			direction[4][4];
+	};
+	const char*			background;
+	const char*			name;
+	const char*			icons;
+	aref<area>			areas;
+};
 namespace map {
 void					clear();
 void					drop(short unsigned index, item it);
@@ -1061,6 +1083,7 @@ extern school_info				school_data[];
 extern skill_info				skill_data[];
 extern spell_info				spell_data[];
 extern adat<point, 256 * 256>	verticles;
+extern worldmap					world[];
 
 template<> void archive::set<container>(container& e);
 template<> void archive::set<door>(door& e);

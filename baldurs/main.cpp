@@ -29,7 +29,7 @@ static void quick_load() {
 	creature::moveto("AR1000");
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
-	creature::create(Goblin, Hostile, {487, 870}, 6, 4);
+	//creature::create(Goblin, Hostile, {487, 870}, 6, 4);
 }
 
 static void join_game() {}
@@ -81,7 +81,7 @@ static void test_character() {
 int main(int argc, char* argv[]) {
 	srand(clock());
 #ifdef _DEBUG
-	//util_main();
+	util_main();
 #endif
 	draw::initialize();
 	if(!draw::pallette)

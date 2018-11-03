@@ -244,6 +244,9 @@
     <ClCompile Include="treasure.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="worldmap.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

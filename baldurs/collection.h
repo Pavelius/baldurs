@@ -30,7 +30,7 @@ struct adat {
 	T						data[count_max];
 	unsigned				count;
 	//
-	constexpr adat() : data(), count(0) {}
+	adat() : count(0) {}
 	constexpr adat(std::initializer_list<T> list) : count(0) { for(auto& e : list) *add() = e; }
 	constexpr const T& operator[](unsigned index) const { return data[index]; }
 	constexpr T& operator[](unsigned index) { return data[index]; }

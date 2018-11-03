@@ -18,9 +18,6 @@ static point s2m(point m) {
 		(short)((m.y - mview.y1)*(map::height * 12) / mview.height())};
 }
 
-static void worldmap() {
-}
-
 static void choose_map_info() {
 	screenshoot screen(true);
 	cursorset cur;
@@ -44,6 +41,44 @@ static void choose_map_info() {
 	}
 }
 
+void choose_menu(void(*proc)());
+
+static void open_minimap() {
+	choose_menu(creature::minimap);
+}
+
+static void render_worldmap() {
+	cursorset cur;
+	auto& wm = world[2];
+	auto icons = gres(wm.icons, "data/worldmap");
+	while(ismodal()) {
+		background(res::GUIMAP, 2);
+		int x = 0, y = 0;
+		auto x1 = x + 23, y1 = y + 20;
+		image(x1, y1, gres(wm.background, "data/worldmap"), 0, 0);
+		if(icons) {
+			for(auto& e : wm.areas) {
+				auto x = x1 + e.position.x;
+				auto y = y1 + e.position.y;
+				image(x, y, icons, e.avatar, 0);
+				auto w = textw(e.name);
+				text(x - w / 2 + 8, y + 16, e.name, -1, TextStroke);
+			}
+		}
+		button(x + 680, y + 288, cmpr(open_minimap), 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0);
+		label(x + 666, y + 18, 113, 22, "Карта мира");
+		menumodal();
+		switch(hot.key) {
+		case MouseLeft:
+			break;
+		}
+	}
+}
+
+static void open_worldmap() {
+	choose_menu(render_worldmap);
+}
+
 void creature::minimap() {
 	cursorset cur;
 	char description[4096]; description[0] = 0;
@@ -58,7 +93,7 @@ void creature::minimap() {
 		label(666, 18, 113, 22, "Карта местности");
 		label(696, 56, 82, 20, "Обозначения");
 		label(668, 92, 109, 165, description);
-		button(680, 288, cmpr(worldmap), 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0, 0);
+		button(680, 288, cmpr(open_worldmap), 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0, 0);
 		draw::image(mview.x1, mview.y1, mm, 0, 0);
 		auto camera = getcamera();
 		auto camera_size = getcamerasize();
@@ -73,7 +108,7 @@ void creature::minimap() {
 			auto y1 = y2m(position.y);
 			circle(x1, y1, 2, colors::green);
 		}
-		button(664, 54, cmpr(worldmap), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
+		button(664, 54, cmpr(buttonparam), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
 		if(hot.mouse.in(mview))
 			cur.set(res::CURSORS, 44);
 		else

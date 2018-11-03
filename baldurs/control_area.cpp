@@ -38,7 +38,7 @@ static void choose_menu(void (creature::*proc)()) {
 	}
 }
 
-static void choose_menu(void(*proc)()) {
+void choose_menu(void(*proc)()) {
 	if(isnext(proc))
 		adventure_step();
 	else
