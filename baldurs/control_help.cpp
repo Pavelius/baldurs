@@ -68,10 +68,12 @@ static variant		topics[] = {Skill, Spell, Feat, Alignment, Race, Class, Ability}
 static listbox		topic_list(topics);
 static scrolltext	description_control;
 
-static aref<variant> select_data(const aref<variant>& result, const variant v1, const variant v2) {
+static aref<variant> select_data(const aref<variant>& result, const variant v1, const variant v2, bool *test(variant) = 0) {
 	auto pb = result.data;
 	auto pe = pb + result.count;
 	for(auto e = v1; e.number <= v2.number; e.number++) {
+		if(test && !test(e))
+			continue;
 		if(pb < pe)
 			*pb++ = e;
 	}
@@ -94,7 +96,7 @@ void creature::help() {
 		label(300, 26, 200, 24, "Справка", 2);
 		view({72, 70, 72 + 98, 70 + 276}, {0}, list_height, topic_list);
 		switch(topic_list.get().var) {
-		case Feat: elements_list.set(select_data(elements, FirstFeat, LastFeat)); break;
+		case Feat: elements_list.set(select_data(elements, Alertness, ProficiencyWaraxe)); break;
 		case Skill: elements_list.set(select_data(elements, FirstSkill, LastSkill)); break;
 		case Spell: elements_list.set(select_data(elements, FirstSpell, LastSpell)); break;
 		case Alignment: elements_list.set(select_data(elements, LawfulGood, ChaoticEvil)); break;
