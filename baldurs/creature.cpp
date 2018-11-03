@@ -374,6 +374,7 @@ void creature::moveto(const char* location, const char* entrance) {
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
 	}
 	select_all();
+	msdbg("Зашли в область [%1]", move_to_location);
 	draw::setpagedef(adventure);
 	draw::setpage(adventure);
 }

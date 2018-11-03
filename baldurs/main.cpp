@@ -26,7 +26,7 @@ static void quick_load() {
 	players[3].create(Ranger, HalfElf, Female, Helpful);
 	players[4].create(Rogue, Elf, Female, Helpful);
 	players[5].create(Wizard, Human, Male, Helpful);
-	creature::moveto("AR1000");
+	creature::moveto("AR4000");
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
 	//creature::create(Goblin, Hostile, {487, 870}, 6, 4);

@@ -68,7 +68,7 @@ template<class T> struct aref {
 	void					clear() { count = 0; }
 	constexpr T*			end() { return data + count; }
 	constexpr const T*		end() const { return data + count; }
-	int						indexof(const T* t) const { if(t<data || t>data + count) return -1; return t - data; }
+	int						indexof(const T* t) const { if(t<data || t>=data + count) return -1; return t - data; }
 	int						indexof(const T t) const { for(unsigned i = 0; i < count; i++) if(data[i] == t) return i; return -1; }
 	bool					is(const T value) const { return indexof(value) != -1; }
 	void					remove(int index, int elements_count = 1) { if(index < 0 || index >= count) return; count -= elements_count; if(index >= count) return; memmove(data + index, data + index + elements_count, sizeof(data[0])*(count - index)); }
