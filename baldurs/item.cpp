@@ -31,6 +31,8 @@ struct item_info {
 	varset			power;
 };
 
+static item ammunition_arrow(Arrow);
+
 static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
 {"Club", "Дубина", {"ICLUBB1", "GBLUN01", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
 {"Hammer", "Молот", {"IHAMMB1", "GHAMM01", res::WQSWH}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
@@ -176,7 +178,7 @@ res::tokens item::getanwear(int type) {
 }
 
 item_s item::getammunition() const {
-	return item_data[type].ai.ammunition;
+	return item_data[type].ai.ammunition ? item_data[type].ai.ammunition->type : NoItem;
 }
 
 int item::getarmorindex() const {

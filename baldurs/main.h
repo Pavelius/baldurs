@@ -515,7 +515,7 @@ struct item {
 	bool				is(feat_s value) const;
 	bool				is(slot_s value) const;
 	bool				isbow() const;
-	bool				isranged() const { return isbow() || isxbow() || isthrown(); }
+	bool				isranged() const { return getammunition()!=NoItem || isthrown(); }
 	bool				isreach() const;
 	bool				isthrown() const;
 	bool				istwohand() const;
@@ -615,13 +615,13 @@ struct roll_info {
 };
 struct attack_info : dice, roll_info {
 	attack_info() = default;
-	constexpr attack_info(const dice& d, char c = 0, char m = 0, item_s amn = NoItem) : dice(d), critical(c), multiplier(m), ac(0), weapon(0), ammunition(amn) {}
-	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), weapon(0), ammunition(NoItem) {};
+	constexpr attack_info(const dice& d, char c = 0, char m = 0, item* pam = 0) : dice(d), critical(c), multiplier(m), ac(0), weapon(0), ammunition(pam) {}
+	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), weapon(0), ammunition(0) {};
 	char				critical;
 	char				multiplier;
 	char				ac;
 	item*				weapon;
-	item_s				ammunition;
+	item*				ammunition;
 };
 struct entrance {
 	char				name[32];
