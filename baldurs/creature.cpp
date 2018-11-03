@@ -370,6 +370,7 @@ void creature::moveto(const char* location, const char* entrance) {
 		if(!e)
 			continue;
 		e.stop();
+		e.setorientation(pe->orientation);
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
 	}
 	msdbg("Партия зашла в область [%1] со входа [+%2]", move_to_location, pe->name);

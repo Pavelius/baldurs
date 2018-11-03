@@ -21,6 +21,9 @@ const int SP = 10;
 const int GP = 100;
 const int PP = 1000;
 
+enum geography_s : unsigned char {
+	North, East, South, West
+};
 enum school_s : unsigned char {
 	NoSchool,
 	Abjuration, Conjuration, Divination, Enchantment,
@@ -403,6 +406,7 @@ struct cursorset {
 	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
 	~cursorset();
 	static void			set(res::tokens rid = res::CURSORS, int frame = 267, bool single = false);
+	static void			setblock() { set(res::CURSORS, 6); }
 	static res::tokens	getres();
 private:
 	res::tokens			rid;
@@ -988,25 +992,34 @@ private:
 };
 struct worldmap {
 	struct link {
-		short unsigned	index;
+		geography_s		side;
+		unsigned char	index;
 		const char*		entry;
 		unsigned		time;
+		unsigned char	encounter_chance;
 		unsigned		flags;
-		unsigned		encounter_chance;
-		char			encounter[5][9];
 	};
 	struct area {
 		const char*		id;
 		const char*		name;
-		const char*		tips;
 		point			position;
 		int				avatar;
-		link			direction[4][4];
+		link			links[16];
 	};
 	const char*			background;
 	const char*			name;
 	const char*			icons;
 	aref<area>			areas;
+	static area*		getarea();
+	static area*		getarea(const char* id);
+	static worldmap*	getworld(area* p);
+	static worldmap*	getworld() { return getworld(getarea()); }
+	static worldmap*	getworld(const char* id) { return getworld(getarea(id)); }
+	static void			set(area* value);
+};
+struct geography_info {
+	const char*			id;
+	const char*			name;
 };
 namespace map {
 void					clear();
@@ -1083,7 +1096,7 @@ extern school_info				school_data[];
 extern skill_info				skill_data[];
 extern spell_info				spell_data[];
 extern adat<point, 256 * 256>	verticles;
-extern worldmap					world[];
+extern geography_info			geography_data[];
 
 template<> void archive::set<container>(container& e);
 template<> void archive::set<door>(door& e);

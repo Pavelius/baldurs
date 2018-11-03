@@ -49,27 +49,43 @@ static void open_minimap() {
 
 static void render_worldmap() {
 	cursorset cur;
-	auto& wm = world[2];
-	auto icons = gres(wm.icons, "data/worldmap");
+	auto pw = worldmap::getworld();
 	while(ismodal()) {
+		cur.set(res::CURSORS, 267);
+		worldmap::area* current_area_hilite = 0;
 		background(res::GUIMAP, 2);
 		int x = 0, y = 0;
 		auto x1 = x + 23, y1 = y + 20;
-		image(x1, y1, gres(wm.background, "data/worldmap"), 0, 0);
-		if(icons) {
-			for(auto& e : wm.areas) {
-				auto x = x1 + e.position.x;
-				auto y = y1 + e.position.y;
-				image(x, y, icons, e.avatar, 0);
-				auto w = textw(e.name);
-				text(x - w / 2 + 8, y + 16, e.name, -1, TextStroke);
+		if(pw) {
+			auto back = gres(pw->background, "data/worldmap");
+			image(x1, y1, back, 0, 0);
+			auto icons = gres(pw->icons, "data/worldmap");
+			if(icons) {
+				rect rc = {x1, y1, x1 + back->get(0).sx, y1 + back->get(0).sy};
+				if(hot.mouse.in(rc))
+					cur.setblock();
+				for(auto& e : pw->areas) {
+					auto x = x1 + e.position.x;
+					auto y = y1 + e.position.y;
+					image(x, y, icons, e.avatar, 0);
+					auto w = textw(e.name);
+					text(x - w / 2 + 8, y + 16, e.name, -1, TextStroke);
+					if(hot.mouse.in({x, y, x + 16, y + 16}))
+						current_area_hilite = &e;
+				}
 			}
 		}
 		button(x + 680, y + 288, cmpr(open_minimap), 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0);
 		label(x + 666, y + 18, 113, 22, "Карта мира");
+		if(current_area_hilite)
+			cur.set(res::CURSORS, 267);
 		menumodal();
 		switch(hot.key) {
 		case MouseLeft:
+			if(hot.pressed) {
+				if(current_area_hilite)
+					creature::moveto(current_area_hilite->id);
+			}
 			break;
 		}
 	}

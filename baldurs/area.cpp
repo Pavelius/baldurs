@@ -209,6 +209,7 @@ bool map::load(const char* name) {
 		return false;
 	if(!load_mmp_file(rsts))
 		return false;
+	worldmap::set(worldmap::getarea(name));
 	return true;
 }
 
