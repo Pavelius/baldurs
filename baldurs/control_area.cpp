@@ -74,7 +74,7 @@ static void change_mode() {
 		settings.panel = setting::PanelFull;
 }
 
-static void select_all() {
+void creature::select_all() {
 	for(auto& e : players) {
 		if(!current_selected.is(&e))
 			current_selected.add(&e);
@@ -93,7 +93,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {character_spellbook, Alpha + 'S', "Заклинания персонажа"},
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
-{select_all, Alpha + '=', "Выбрать всех"},
+{creature::select_all, Alpha + '=', "Выбрать всех"},
 {character_test, Alpha + 'T', "Тестирование анимации"},
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
@@ -500,7 +500,7 @@ static void render_footer(rect& rcs, bool show_buttons = true) {
 	auto i = draw::getframe(12) % 32;
 	draw::image(0, 493, res::GCOMM, 0);
 	if(show_buttons) {
-		button(576, 496, cmpr(select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
+		button(576, 496, cmpr(creature::select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
 		button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0); // Отдых
 		button(600, 515, cmpr(character_sheet), 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0);
 		button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);

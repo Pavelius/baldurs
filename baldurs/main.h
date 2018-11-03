@@ -179,6 +179,12 @@ enum special_s : unsigned char {
 	OfFlaming, OfFlamingBurst, OfFrost, OfIcyBurst, OfShock, OfGhostTouch,
 	OfHoly, OfKeen, OfShockingBurst, OfSpeed, OfThundering, OfUnholy, OfWounding, OfVorpal,
 };
+enum area_flag_s {
+	AreaVisible = 1,
+	AreaVisibleFromAdjanced = 2,
+	AreaReachable = 4,
+	AlreadyVisited = 8,
+};
 enum sprite_type_s : unsigned char {
 	CID1, MID1,
 };
@@ -930,6 +936,7 @@ struct creature : actor {
 	void				say(const char* format, ...) const;
 	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	static aref<creature*> select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
+	static void			select_all();
 	aref<variant>		selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void				set(ability_s id, int value) { ability[id] = value; }
 	void				set(alignment_s value) { alignment = value; }
@@ -1003,8 +1010,11 @@ struct worldmap {
 		const char*		id;
 		const char*		name;
 		point			position;
-		int				avatar;
+		short unsigned	avatar;
+		short unsigned	flags;
 		link			links[16];
+		bool			is(area_flag_s value) const { return (flags&value) != 0; }
+		void			set(area_flag_s value) { flags |= value; }
 	};
 	const char*			background;
 	const char*			name;
@@ -1015,6 +1025,8 @@ struct worldmap {
 	static worldmap*	getworld(area* p);
 	static worldmap*	getworld() { return getworld(getarea()); }
 	static worldmap*	getworld(const char* id) { return getworld(getarea(id)); }
+	link*				find(const area* start, const area* dest) const;
+	bool				isneighboard(const area* start, const area* dest) const { return find(start, dest) != 0; }
 	static void			set(area* value);
 };
 struct geography_info {

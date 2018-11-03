@@ -373,7 +373,7 @@ void creature::moveto(const char* location, const char* entrance) {
 		e.setorientation(pe->orientation);
 		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
 	}
-	msdbg("Партия зашла в область [%1] со входа [+%2]", move_to_location, pe->name);
+	select_all();
 	draw::setpagedef(adventure);
 	draw::setpage(adventure);
 }
@@ -904,7 +904,6 @@ void creature::blockimpassable() const {
 }
 
 void creature::interacting(const targetreaction& e) {
-	msdbg("[%1] выполняет скрипт", getname());
 	(this->*e.method)(e);
 }
 
