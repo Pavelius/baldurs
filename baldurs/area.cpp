@@ -98,13 +98,13 @@ void map::settile(short unsigned index, short unsigned tile) {
 
 unsigned char map::getorientation(point s, point d) {
 	const int osize = 5;
-	int deltaX = d.x - s.x;
-	int deltaY = d.y - s.y;
-	int st = (2 * imax(iabs(deltaX), iabs(deltaY)) + osize - 1) / osize;
+	int dx = d.x - s.x;
+	int dy = d.y - s.y;
+	int st = (2 * imax(iabs(dx), iabs(dy)) + osize - 1) / osize;
 	if(!st)
 		return 0;
-	int ax = deltaX / st;
-	int ay = deltaY / st;
+	int ax = dx / st;
+	int ay = dy / st;
 	return orientations_5b5[(ay + (osize / 2))*osize + ax + (osize / 2)];
 }
 
@@ -177,7 +177,7 @@ bool archive_ard(io::stream& file, bool writemode, char* sprites_resname) {
 	ar.set(map::height); max_height = (map::height * 12 + 15) / 16;
 	ar.set(sprites_resname, 8);
 	// Карты тайлов
-	archive_bitmap(ar, (unsigned char*)tilemap, 16, 64*sizeof(tilemap[0]), map::width / 4, max_height / 4, 0);
+	archive_bitmap(ar, (unsigned char*)tilemap, 16, 64 * sizeof(tilemap[0]), map::width / 4, max_height / 4, 0);
 	archive_bitmap(ar, lightmap, 8, 256, map::width, map::height, lightpal);
 	archive_bitmap(ar, statemap, 8, 256, map::width, map::height, 0);
 	// Объекты
