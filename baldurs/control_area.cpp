@@ -72,9 +72,11 @@ static void character_test() {
 	if(!player)
 		return;
 	player->render_attack(0, {1030, 2220});
-	player->wait();
-	player->render_attack(1, {1030, 2220});
-	player->wait();
+	player->wait(70);
+	auto pos = player->getposition(); pos.y -= 40;
+	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 30);
+	pa->set(player->getcolors());
+	player->wait(0, pa);
 }
 
 static void change_mode() {
@@ -326,6 +328,8 @@ static target render_area(rect rc, const point origin) {
 		add(screen, drawables, e);
 	for(auto& e : animation_data)
 		add(screen, drawables, e);
+	for(auto& e : moveable_data)
+		add(screen, drawables, e);
 	for(auto& e : itemground_data) {
 		if(e)
 			add(screen, drawables, e);
@@ -557,7 +561,7 @@ static void party_interact(point destination) {
 	}
 }
 
-void actor::wait(char percent) {
+void actor::wait(char percent, const moveable* pa) {
 	cursorset cur(res::NONE);
 	auto maximum_frame = getciclecount(getcicle());
 	auto stop_frame = (maximum_frame * percent) / 100;

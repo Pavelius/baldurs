@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-adat<animation, 128> animation_data;
+adat<animation> animation_data;
 
 enum animation_flag_s {
 	AnimationEnabled = 1,

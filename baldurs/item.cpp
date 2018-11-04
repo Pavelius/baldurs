@@ -15,6 +15,7 @@ struct item_animation {
 	const char*		avatar;
 	const char*		ground;
 	res::tokens		wear;
+	res::tokens		thrown;
 };
 
 static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
@@ -37,11 +38,11 @@ static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"
 {"Club", "Дубина", {"ICLUBB1", "GBLUN01", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
 {"Hammer", "Молот", {"IHAMMB1", "GHAMM01", res::WQSWH}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
 {"Mace", "Булава", {"IMACEB1", "GBLUN06", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6, 1}}},
-{"Spear", "Копье", {"ISPERB1", "GSPER01", res::WQSSP}, {QuickWeapon}, {ProficiencySpear, FocusPolearm}, {{1, 8}}},
+{"Spear", "Копье", {"ISPERB1", "GSPER01", res::WQSSP}, {QuickWeapon}, {ProficiencySpear, FocusPolearm}, {{1, 8}, 0, 0, 20}},
 {"Staff", "Посох", {"ISTAFB1", "GSTAF01", res::WQSQS}, {QuickWeapon}, {ProficiencySimple, FocusPolearm}, {{1, 6}}},
-{"Crossbow", "Арбалет", {"IXBOWL01", "GXBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyCrossbow, FocusCrossbows}, {{1, 8}}},
-{"Heavy crossbow", "Тяжелый арбалет", {"IXBOWH01", "GXBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyHeavyCrossbow, FocusCrossbows}, {{1, 10}}},
-{"Sling", "Праща", {"ISLNGB1", "GSLNG01", res::WQSSL}, {QuickWeapon}, {ProficiencySimple}, {{1, 4}}},
+{"Crossbow", "Арбалет", {"IXBOWL01", "GXBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyCrossbow, FocusCrossbows}, {{1, 8}, 0, 0, 80}},
+{"Heavy crossbow", "Тяжелый арбалет", {"IXBOWH01", "GXBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyHeavyCrossbow, FocusCrossbows}, {{1, 10}, 0, 0, 120}},
+{"Sling", "Праща", {"ISLNGB1", "GSLNG01", res::WQSSL}, {QuickWeapon}, {ProficiencySimple}, {{1, 4}, 0, 0, 50}},
 //
 {"Battle axe", "Боевой топор", {"IAX1HB2", "GAX1H01", res::WQSAX}, {QuickWeapon}, {ProficiencyAxe, FocusAxes}, {{1, 8}}},
 {"Dagger", "Кинжал", {"IDAGGB1", "GDAGG01", res::WQSDD}, {QuickWeapon, QuickOffhand}, {ProficiencyDagger, FocusDaggers}, {{1, 4}}},
@@ -53,8 +54,8 @@ static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"
 {"Shortsword", "Короткий меч", {"ISWDSB1", "GSW1H07", res::WQSSS}, {QuickWeapon, QuickOffhand}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}},
 {"Two handed sword", "Двуручный меч", {"ISWDTB1", "GSW2H01", res::WQSS2}, {QuickWeapon}, {ProficiencyGreatweapon, FocusGreatswords}, {{2, 6}}},
 {"Rapier", "Рапира", {"ISWDSB1", "GSW1H07", res::WQSSS}, {QuickWeapon}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}}, // TODO: найти лучше вариант
-{"Short bow", "Короткий лук", {"IBOWSB1", "GBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}}},
-{"Long bow", "Длинный лук", {"IBOWLB1", "GBOW01", res::WQSBW}, {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}}},
+{"Short bow", "Короткий лук", {"IBOWSB1", "GBOW01", res::WQSBW, res::ARARROW}, {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}, 0, 0, 60}},
+{"Long bow", "Длинный лук", {"IBOWLB1", "GBOW01", res::WQSBW, res::ARARROW}, {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}, 0, 0, 100}},
 //
 {"Waraxe", "Военный топор", {"IAX1HBB", "GHAMM01", res::WQSAX}, {QuickWeapon}, {ProficiencyWaraxe, FocusAxes}, {{1, 10}}},
 {"Bastard sword", "Полутораручный меч", {"ISWDBB1", "GSW1H01", res::WQSS1}, {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
@@ -122,6 +123,10 @@ bool item::is(slot_s value) const {
 	return false;
 }
 
+bool item::isranged() const {
+	return item_data[type].ai.range != 0;
+}
+
 bool item::istwohand() const {
 	switch(type) {
 	case Staff:
@@ -175,6 +180,10 @@ const char* item::getfgname(int type) {
 
 res::tokens item::getanwear(int type) {
 	return item_data[type].images.wear;
+}
+
+res::tokens item::getanthrown() const {
+	return item_data[type].images.thrown;
 }
 
 item_s item::getammunition() const {

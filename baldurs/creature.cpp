@@ -727,6 +727,9 @@ void creature::attack(creature& enemy) {
 	if(reach < map::getrange(player_index, enemy_index))
 		return;
 	attack_info ai; get(ai, QuickWeapon, enemy);
+	if(ai.range) {
+		auto pa = new moveable(getposition(), enemy.getposition(), ai.weapon->getanthrown(), 40);
+	}
 	if(!roll(ai)) {
 		render_attack(rand() % 3, enemy.getposition());
 		wait();

@@ -267,6 +267,8 @@ enum tokens {
 	WQSSP, WQNSP, WQMSP, WQLSP,
 	WQSSS, WQNSS, WQMSS, WQLSS,
 	WQSWH, WQNWH, WQMWH, WQLWH,
+	// Метание стреляние
+	ARARROW,
 	// Монстры
 	MGO1, MSKA, MSKAA,
 	Count
@@ -366,12 +368,10 @@ private:
 };
 struct drawable {
 	virtual int			getcursor() const { return 0; } // Get cursor index when over this drawable
-	virtual const char*	getdescription() const { return ""; }
-	virtual const char*	getid() const { return ""; }
 	virtual unsigned	getfps() const { return 20; }
 	virtual point		getposition() const = 0;
 	virtual rect		getrect() const = 0;
-	virtual int			getzorder() const { return 0; }// Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
+	virtual int			getzorder() const { return 0; } // Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
 	virtual bool		hittest(point position) const { return false; }
 	virtual bool		isvisible() const { return true; }
 	virtual bool		isvisibleactive() const { return false; } // Drawable visible only when active.
@@ -486,6 +486,25 @@ struct animation : drawable, point {
 	virtual bool		isvisible() const override;
 	void				painting(point screen) const override;
 };
+struct moveable : drawable {
+	moveable() = default;
+	moveable(point start, point finish, res::tokens id, unsigned feets_per_second = 30);
+	explicit operator bool() const { return avatar != res::NONE; }
+	void* operator new(unsigned size);
+	bool				isvisible() const override { return avatar != res::NONE; }
+	point				getposition() const override { return position; }
+	rect				getrect() const override { return {position.x - 16, position.y - 16, position.x + 16, position.y + 16}; }
+	void				painting(point screen) const override;
+	void				set(const coloration& v) { colors = v; use_colors = true; }
+	void				update();
+private:
+	point				position, start, finish;
+	res::tokens			avatar;
+	char				orientation;
+	unsigned			time_start, time_finish;
+	coloration			colors;
+	bool				use_colors;
+};
 struct selectable : drawable {
 	virtual aref<point>	getpoints() const = 0;
 	point				getposition() const override;
@@ -500,6 +519,7 @@ struct item {
 	int					getarmorindex() const;
 	item_s				getammunition() const;
 	static res::tokens	getanwear(int type);
+	res::tokens			getanthrown() const;
 	const dice&			getattack() const;
 	int					getbonus() const;
 	int					getcost() const;
@@ -515,7 +535,7 @@ struct item {
 	bool				is(feat_s value) const;
 	bool				is(slot_s value) const;
 	bool				isbow() const;
-	bool				isranged() const { return getammunition()!=NoItem || isthrown(); }
+	bool				isranged() const;
 	bool				isreach() const;
 	bool				isthrown() const;
 	bool				istwohand() const;
@@ -615,11 +635,12 @@ struct roll_info {
 };
 struct attack_info : dice, roll_info {
 	attack_info() = default;
-	constexpr attack_info(const dice& d, char c = 0, char m = 0, item* pam = 0) : dice(d), critical(c), multiplier(m), ac(0), weapon(0), ammunition(pam) {}
-	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), weapon(0), ammunition(0) {};
+	constexpr attack_info(const dice& d, char c = 0, char m = 0, int rg = 0, item* pam = 0) : dice(d), critical(c), multiplier(m), ac(0), range(rg), weapon(0), ammunition(pam) {}
+	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), range(0), weapon(0), ammunition(0) {};
 	char				critical;
 	char				multiplier;
 	char				ac;
+	int					range;
 	item*				weapon;
 	item*				ammunition;
 };
@@ -637,7 +658,6 @@ struct region : selectable {
 	char				move_to_area[8];
 	char				move_to_entrance[32];
 	aref<point>			points;
-	const char*			getid() const override { return name; }
 	rect				getrect() const override { return box; }
 	int					getcursor() const override;
 	aref<point>			getpoints() const override { return points; }
@@ -728,6 +748,7 @@ struct actor : drawable {
 	int					getcicle() const;
 	int					getciclecount(int cicle) const;
 	virtual class_s		getclass() const { return Fighter; }
+	const coloration&	getcolors() const { return colors; }
 	int					getflags() const;
 	unsigned			getfps() const override { return 12; }
 	static point		getforward(point start, int step, int orientation);
@@ -781,7 +802,7 @@ struct actor : drawable {
 	void				stop();
 	void				update() override;
 	void				update_portrait();
-	void				wait(char percent = 0);
+	void				wait(char percent = 0, const moveable* pa = 0);
 private:
 	animate_s			action;
 	point				position, start, dest;
@@ -1091,17 +1112,18 @@ void					view(rect rc, rect rcs, const char* text, scrolltext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
 template<class T> void			getrule(stringbuilder& sb, T value);
-extern adat<animation, 128>		animation_data;
+extern adat<animation>			animation_data;
 extern class_info				class_data[];
 extern adat<creature, 256>		creature_data;
-extern adat<container, 128>		container_data;
+extern adat<container>			container_data;
 extern adat<door, 256>			door_data;
 extern adat<itemcont, 2048>		itemcont_data;
 extern adat<itemground, 2048>	itemground_data;
 extern adat<door_tile, 1024>	door_tiles_data;
-extern adat<entrance, 128>		entrance_data;
+extern adat<entrance>			entrance_data;
 extern adat<floattext, 32>		floattext_data;
 extern monster_info				monster_data[];
+extern adat<moveable>			moveable_data;
 extern creature					players[6];
 extern portrait_info			portrait_data[];
 extern race_info				race_data[];

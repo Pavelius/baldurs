@@ -3,6 +3,7 @@
 const char* root = "data/pma";
 const char* chra = "data/characters";
 const char* mons = "data/monsters";
+const char* proj = "data/projectiles";
 
 res::element res::elements[] = {{"NONE"}, {"CURSORS", root}, {"CURSARW", root}, {"COLGRAD", root}, {"COLOR", root},
 {"GACTN", root},
@@ -53,6 +54,8 @@ res::element res::elements[] = {{"NONE"}, {"CURSORS", root}, {"CURSARW", root}, 
 {"WQSSP", chra}, {"WQNSP", chra}, {"WQMSP", chra}, {"WQLSP", chra},
 {"WQSSS", chra}, {"WQNSS", chra}, {"WQMSS", chra}, {"WQLSS", chra},
 {"WQSWH", chra}, {"WQNWH", chra}, {"WQMWH", chra}, {"WQLWH", chra},
+//
+{"ARARROW", proj},
 //
 {"MGO1", mons}, {"MSKA", mons}, {"MSKAA", mons},
 {0}

@@ -175,6 +175,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="control_minimap.cpp" />
     <ClCompile Include="monster.cpp" />
+    <ClCompile Include="moveable.cpp" />
     <ClCompile Include="mslog.cpp" />
     <ClCompile Include="names.cpp" />
     <ClCompile Include="map.cpp" />

@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<container, 128>	container_data;
+adat<container>		container_data;
 
 void container::add(item value) const {
 	auto p = new itemcont(value);

@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<entrance, 128> entrance_data;
+adat<entrance> entrance_data;
 
 template<> void archive::set<entrance>(entrance& e) {
 	set(e.name);

@@ -90,6 +90,8 @@ void update_timestamp() {
 		e.update();
 	for(auto& e : creature_data)
 		e.update();
+	for(auto& e : moveable_data)
+		e.update();
 }
 
 static void before_render() {
