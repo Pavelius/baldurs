@@ -755,11 +755,13 @@ struct actor : drawable {
 	int					getframe() const { return frame; }
 	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
+	virtual int			getbodyheight() const { return 40; }
 	int					getmovedistance(point destination, short unsigned minimum_reach) const;
 	virtual const char* getname() const { return ""; }
 	virtual monster_s	getkind() const { return Character; }
 	virtual int			getportrait() const { return 0; }
 	point				getposition() const override { return position; }
+	point				getposition(int percent) const;
 	static point		getposition(point start, point dst, formation_s formation, int pos);
 	virtual race_s		getrace() const { return Human; }
 	rect				getrect() const override;
@@ -882,6 +884,7 @@ struct creature : actor {
 	static creature*	getactive();
 	int					getbab() const;
 	creature*			getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const;
+	int					getbodyheight() const;
 	int					getcasterlevel() const;
 	int					getcharlevel() const;
 	class_s				getclass() const override;

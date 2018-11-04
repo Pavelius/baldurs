@@ -73,8 +73,8 @@ static void character_test() {
 		return;
 	player->render_attack(0, {1030, 2220});
 	player->wait(70);
-	auto pos = player->getposition(); pos.y -= 40;
-	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 30);
+	auto pos = player->getposition(85);
+	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 300);
 	pa->set(player->getcolors());
 	player->wait(0, pa);
 }

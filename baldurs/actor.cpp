@@ -565,3 +565,8 @@ void actor::render_hit(bool fatal) {
 bool actor::isready() const {
 	return animate_data[action].ready;
 }
+
+point actor::getposition(int percent) const {
+	auto height = position.y - (getbodyheight() * percent) / 100;
+	return {position.x, (short)height};
+}

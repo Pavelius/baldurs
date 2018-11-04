@@ -998,3 +998,12 @@ int creature::getmovement() const {
 		result += 10;
 	return result;
 }
+
+int	creature::getbodyheight() const {
+	switch(race) {
+	case Elf:
+	case HalfElf: return 40;
+	case Gnome: case Dwarf: return 30;
+	default: return 50;
+	}
+}

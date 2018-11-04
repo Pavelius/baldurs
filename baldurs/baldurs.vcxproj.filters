@@ -97,9 +97,6 @@
     <ClCompile Include="map.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
-    <ClCompile Include="bstream.cpp">
-      <Filter>Библиотека\Классы</Filter>
-    </ClCompile>
     <ClCompile Include="converter.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
@@ -253,6 +250,9 @@
     <ClCompile Include="moveable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="bstream.cpp">
+      <Filter>Инструменты</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -303,9 +303,6 @@
     <ClInclude Include="map.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
-    <ClInclude Include="bstream.h">
-      <Filter>Библиотека\Классы</Filter>
-    </ClInclude>
     <ClInclude Include="converter.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
@@ -314,6 +311,9 @@
     </ClInclude>
     <ClInclude Include="archive.h">
       <Filter>Библиотека\Классы</Filter>
+    </ClInclude>
+    <ClInclude Include="bstream.h">
+      <Filter>Инструменты</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

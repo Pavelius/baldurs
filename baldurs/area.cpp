@@ -97,7 +97,7 @@ void map::settile(short unsigned index, short unsigned tile) {
 }
 
 unsigned char map::getorientation(point s, point d) {
-	const int osize = 5;
+	const int osize = 7;
 	int dx = d.x - s.x;
 	int dy = d.y - s.y;
 	int st = (2 * imax(iabs(dx), iabs(dy)) + osize - 1) / osize;
@@ -105,7 +105,7 @@ unsigned char map::getorientation(point s, point d) {
 		return 0;
 	int ax = dx / st;
 	int ay = dy / st;
-	return orientations_5b5[(ay + (osize / 2))*osize + ax + (osize / 2)];
+	return orientations_7b7[(ay + (osize / 2))*osize + ax + (osize / 2)];
 }
 
 unsigned short map::getindex(point pos) {
