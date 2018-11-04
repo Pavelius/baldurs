@@ -76,7 +76,7 @@ static void character_test() {
 	auto pos = player->getposition(85);
 	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 300);
 	pa->set(player->getcolors());
-	player->wait(0, pa);
+	player->wait(pa);
 }
 
 static void change_mode() {
@@ -561,7 +561,7 @@ static void party_interact(point destination) {
 	}
 }
 
-void actor::wait(char percent, const moveable* pa) {
+void actor::wait(char percent) {
 	cursorset cur(res::NONE);
 	auto maximum_frame = getciclecount(getcicle());
 	auto stop_frame = (maximum_frame * percent) / 100;
@@ -570,6 +570,22 @@ void actor::wait(char percent, const moveable* pa) {
 		if(isready())
 			break;
 		if(stop_frame && frame >= stop_frame)
+			break;
+		rect rcs = {0, 0, getwidth(), getheight()};
+		if(settings.panel == setting::PanelFull)
+			render_footer(rcs, false);
+		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+			render_panel(rcs, false, 0, false, false);
+		correct_camera(rcs, camera);
+		render_area(rcs, camera);
+		domodal();
+	}
+}
+
+void actor::wait(const moveable* pa) {
+	cursorset cur(res::NONE);
+	while(ismodal()) {
+		if(!pa || !(*pa))
 			break;
 		rect rcs = {0, 0, getwidth(), getheight()};
 		if(settings.panel == setting::PanelFull)

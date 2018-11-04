@@ -181,7 +181,7 @@ const sprite* actor::getsprite(int& wi) const {
 	auto kind = getkind();
 	switch(monster_data[kind].sptype) {
 	case CID1:
-		return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body).getarmorindex(), wi));
+		return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body)->getarmorindex(), wi));
 	case MID1:
 		return draw::gres(monster_data[kind].sprites[0]);
 	default:
@@ -218,7 +218,7 @@ int actor::getcicle() const {
 void actor::stop() {
 	action = AnimateStand;
 	if(is(ReadyToBattle)) {
-		if(getwear(QuickWeapon).istwohand())
+		if(getwear(QuickWeapon)->istwohand())
 			action = AnimateCombatStanceTwoHanded;
 		else
 			action = AnimateCombatStance;
@@ -408,9 +408,9 @@ void actor::painting(point screen) const {
 	switch(monster_data[kind].sptype) {
 	case CID1:
 		if(!animate_data[action].disable_overlay) {
-			sprites[1] = getsprite(item::getanwear(getwear(Head).gettype()), wi);
-			sprites[2] = getsprite(item::getanwear(getwear(QuickWeapon).gettype()), wi);
-			sprites[3] = getsprite(item::getanwear(getwear(QuickOffhand).gettype()), wi);
+			sprites[1] = getsprite(item::getanwear(getwear(Head)->gettype()), wi);
+			sprites[2] = getsprite(item::getanwear(getwear(QuickWeapon)->gettype()), wi);
+			sprites[3] = getsprite(item::getanwear(getwear(QuickOffhand)->gettype()), wi);
 		}
 		break;
 	case MID1:
@@ -444,7 +444,7 @@ static void painting_equipment(int x, int y, item equipment, int ws, int frame, 
 
 void actor::paperdoll(int x, int y) const {
 	paperdoll(x, y, colors, getrace(), getgender(), getclass(), AnimateStand, 2,
-		getwear(Body), getwear(QuickWeapon), getwear(QuickOffhand), getwear(Head));
+		*getwear(Body), *getwear(QuickWeapon), *getwear(QuickOffhand), *getwear(Head));
 }
 
 void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type) {
@@ -539,15 +539,15 @@ void actor::clear() {
 animate_s actor::getattackanimate(int number) const {
 	auto w1 = getwear(QuickWeapon);
 	auto w2 = getwear(QuickOffhand);
-	if(w2.is(QuickOffhand) && w2.is(QuickWeapon))
+	if(w2->is(QuickOffhand) && w2->is(QuickWeapon))
 		return animate_s(AnimateMeleeTwoWeapon + number);
-	else if(w1.isbow())
+	else if(w2->isbow())
 		return AnimateShootBow;
-	else if(w1.isxbow())
+	else if(w2->isxbow())
 		return AnimateShootXBow;
-	else if(w1.isthrown())
+	else if(w2->isthrown())
 		return AnimateShootSling;
-	else if(w1.istwohand())
+	else if(w2->istwohand())
 		return animate_s(AnimateMeleeTwoHanded + number);
 	return animate_s(AnimateMeleeOneHanded + number);
 }

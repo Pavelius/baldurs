@@ -54,8 +54,8 @@ static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"
 {"Shortsword", "Короткий меч", {"ISWDSB1", "GSW1H07", res::WQSSS}, {QuickWeapon, QuickOffhand}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}},
 {"Two handed sword", "Двуручный меч", {"ISWDTB1", "GSW2H01", res::WQSS2}, {QuickWeapon}, {ProficiencyGreatweapon, FocusGreatswords}, {{2, 6}}},
 {"Rapier", "Рапира", {"ISWDSB1", "GSW1H07", res::WQSSS}, {QuickWeapon}, {ProficiencyShortsword, FocusShortswords}, {{1, 6}}}, // TODO: найти лучше вариант
-{"Short bow", "Короткий лук", {"IBOWSB1", "GBOW01", res::WQSBW, res::ARARROW}, {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}, 0, 0, 60}},
-{"Long bow", "Длинный лук", {"IBOWLB1", "GBOW01", res::WQSBW, res::ARARROW}, {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}, 0, 0, 100}},
+{"Short bow", "Короткий лук", {"IBOWSB1", "GBOW01", res::WQSBW, res::ARARROW}, {QuickWeapon}, {ProficiencyShortbow, FocusBows}, {{1, 6}, 0, 0, 60, &ammunition_arrow}},
+{"Long bow", "Длинный лук", {"IBOWLB1", "GBOW01", res::WQSBW, res::ARARROW}, {QuickWeapon}, {ProficiencyLongbow, FocusBows}, {{1, 8}, 0, 0, 100, &ammunition_arrow}},
 //
 {"Waraxe", "Военный топор", {"IAX1HBB", "GHAMM01", res::WQSAX}, {QuickWeapon}, {ProficiencyWaraxe, FocusAxes}, {{1, 10}}},
 {"Bastard sword", "Полутораручный меч", {"ISWDBB1", "GSW1H01", res::WQSS1}, {QuickWeapon}, {ProficiencyBastardsword, FocusLongswords}, {{1, 10}}},
@@ -224,7 +224,7 @@ bool item::isthrown() const {
 	return type == Sling;
 }
 
-const dice& item::getattack() const {
+const attack_info& item::getattack() const {
 	return item_data[type].ai;
 }
 

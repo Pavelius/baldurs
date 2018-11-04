@@ -496,11 +496,11 @@ void creature::add(item it) {
 	}
 }
 
-const item creature::getwear(slot_s id) const {
+const item* creature::getwear(slot_s id) const {
 	switch(id) {
-	case QuickWeapon: return wears[QuickWeapon + active_weapon * 2];
-	case QuickOffhand: return wears[QuickOffhand + active_weapon * 2];
-	default: return wears[id];
+	case QuickWeapon: return wears + QuickWeapon + active_weapon * 2;
+	case QuickOffhand: return wears + QuickOffhand + active_weapon * 2;
+	default: return wears + id;
 	}
 }
 
@@ -727,16 +727,27 @@ void creature::attack(creature& enemy) {
 	if(reach < map::getrange(player_index, enemy_index))
 		return;
 	attack_info ai; get(ai, QuickWeapon, enemy);
-	if(ai.range) {
-		auto pa = new moveable(getposition(), enemy.getposition(), ai.weapon->getanthrown(), 40);
-	}
+	res::tokens thrown_res = res::NONE;
+	auto thrown_speed = 300;
+	if(ai.range && ai.weapon)
+		thrown_res = ai.weapon->getanthrown();
+	auto enemy_position = enemy.getposition(65);
 	if(!roll(ai)) {
-		render_attack(rand() % 3, enemy.getposition());
+		render_attack(rand() % 3, enemy_position);
+		if(thrown_res) {
+			wait(70);
+			auto pa = new moveable(getposition(85), enemy_position, thrown_res, thrown_speed);
+		}
 		wait();
 		return;
 	}
-	render_attack(rand() % 3, enemy.getposition());
-	wait(50);
+	render_attack(rand() % 3, enemy.getposition(65));
+	if(thrown_res) {
+		wait(70);
+		auto pa = new moveable(getposition(85), enemy.getposition(65), thrown_res, thrown_speed);
+		wait(pa);
+	} else
+		wait(50);
 	auto damage = ai.roll();
 	enemy.damage(damage);
 	enemy.render_hit(enemy.gethits() <= 0);
@@ -746,11 +757,14 @@ void creature::attack(creature& enemy) {
 
 void creature::get(attack_info& result, slot_s slot) const {
 	memset(&result, 0, sizeof(result));
-	auto& weapon = wears[slot];
-	if(weapon) {
-		static_cast<dice&>(result) = weapon.getattack();
-		result.weapon = (item*)&weapon;
-		if(weapon.isranged()) {
+	auto pitem = getwear(slot);
+	if(pitem) {
+		result = pitem->getattack();
+		if(*pitem)
+			result.weapon = const_cast<item*>(pitem);
+	}
+	if(result.weapon) {
+		if(result.weapon->isranged()) {
 			result.bonus += get(Dexterity);
 		} else {
 			result.b += get(Strenght);
@@ -948,6 +962,11 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	case Creature:
 		position = e.creature->getposition();
 		reach = e.reach;
+		if(e.method == &creature::attack) {
+			attack_info ai; get(ai, QuickWeapon, *e.creature);
+			if(ai.range)
+				reach = map::getrange(ai.range);
+		}
 		break;
 	case ItemGround:
 		position = e.itemground->getposition();

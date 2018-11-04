@@ -520,7 +520,7 @@ struct item {
 	item_s				getammunition() const;
 	static res::tokens	getanwear(int type);
 	res::tokens			getanthrown() const;
-	const dice&			getattack() const;
+	const struct attack_info& getattack() const;
 	int					getbonus() const;
 	int					getcost() const;
 	int					getcount() const;
@@ -769,7 +769,7 @@ struct actor : drawable {
 	virtual int			getspeed() const { return 9; }
 	const sprite*		getsprite(int& wi) const;
 	static const sprite* getsprite(res::tokens id, int wi);
-	virtual const item	getwear(slot_s id) const { return NoItem; }
+	virtual const item*	getwear(slot_s id) const { return 0; }
 	virtual int			getzorder() const override;
 	bool				hittest(point pt) const override;
 	virtual void		interacting(const targetreaction& e) {}
@@ -804,7 +804,8 @@ struct actor : drawable {
 	void				stop();
 	void				update() override;
 	void				update_portrait();
-	void				wait(char percent = 0, const moveable* pa = 0);
+	void				wait(char percent = 0);
+	static void			wait(const moveable* pa);
 private:
 	animate_s			action;
 	point				position, start, dest;
@@ -924,7 +925,7 @@ struct creature : actor {
 	variant_s			getstep() const;
 	int					getquick() const { return active_weapon; }
 	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
-	const item			getwear(slot_s id) const override;
+	const item*			getwear(slot_s id) const override;
 	static void			help();
 	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
 	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd);
