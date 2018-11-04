@@ -723,9 +723,6 @@ void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
 	auto reach = map::getrange(getreach());
-	player_index = getindex();
-	if(reach < map::getrange(player_index, enemy_index))
-		return;
 	attack_info ai; get(ai, QuickWeapon, enemy);
 	res::tokens thrown_res = res::NONE;
 	auto thrown_speed = 300;
