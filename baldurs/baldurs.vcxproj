@@ -181,6 +181,7 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="control_party.cpp" />
     <ClCompile Include="control_picker.cpp" />
+    <ClCompile Include="pack.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="portraits.cpp" />
     <ClCompile Include="region.cpp" />

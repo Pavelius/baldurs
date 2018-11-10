@@ -132,3 +132,10 @@ bool io::file::exist(const char* url) {
 bool io::file::makedir(const char* url) {
 	return CreateDirectoryA(url, 0) != 0;
 }
+
+unsigned io::file::getsize(const char* url) {
+	io::file file(url, StreamRead);
+	if(!file)
+		return 0;
+	return file.seek(0, SeekEnd);
+}

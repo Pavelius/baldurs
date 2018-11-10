@@ -76,6 +76,7 @@ struct file : stream {
 	static bool			exist(const char* url);
 	static char*		getdir(char* url, int size);
 	static char*		getmodule(char* url, int size);
+	static unsigned		getsize(const char* url);
 	static bool			makedir(const char* url);
 	int					read(void* result, int count) override;
 	static bool			remove(const char* url);
