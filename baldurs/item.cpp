@@ -213,7 +213,8 @@ bool creature::isallow(const item& it) const {
 }
 
 bool item::isbow() const {
-	return type == Longbow || type == Shortbow;
+	return item_data[type].ai.ammunition
+		&& item_data[type].ai.ammunition->type == Arrow;
 }
 
 bool item::isxbow() const {

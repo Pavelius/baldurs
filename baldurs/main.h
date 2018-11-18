@@ -497,6 +497,7 @@ struct moveable : drawable {
 	void				painting(point screen) const override;
 	void				set(const coloration& v) { colors = v; use_colors = true; }
 	void				update();
+	void				wait();
 private:
 	point				position, start, finish;
 	res::tokens			avatar;
@@ -805,7 +806,6 @@ struct actor : drawable {
 	void				update() override;
 	void				update_portrait();
 	void				wait(char percent = 0);
-	static void			wait(const moveable* pa);
 private:
 	animate_s			action;
 	point				position, start, dest;

@@ -51,5 +51,5 @@ void moveable::painting(point screen) const {
 		colors.upload(pallette);
 		draw::image(x, y, draw::gres(avatar), arrow_frame[orientation], arrow_flags[orientation], 0xFF, pallette);
 	} else
-		draw::image(x, y, avatar, arrow_frame[orientation], arrow_flags[orientation]);
+		draw::image(x, y, draw::gres(avatar), arrow_frame[orientation], arrow_flags[orientation]);
 }

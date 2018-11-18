@@ -541,13 +541,13 @@ animate_s actor::getattackanimate(int number) const {
 	auto w2 = getwear(QuickOffhand);
 	if(w2->is(QuickOffhand) && w2->is(QuickWeapon))
 		return animate_s(AnimateMeleeTwoWeapon + number);
-	else if(w2->isbow())
+	else if(w1->isbow())
 		return AnimateShootBow;
-	else if(w2->isxbow())
+	else if(w1->isxbow())
 		return AnimateShootXBow;
-	else if(w2->isthrown())
+	else if(w1->isthrown())
 		return AnimateShootSling;
-	else if(w2->istwohand())
+	else if(w1->istwohand())
 		return animate_s(AnimateMeleeTwoHanded + number);
 	return animate_s(AnimateMeleeOneHanded + number);
 }

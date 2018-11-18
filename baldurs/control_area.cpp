@@ -76,7 +76,7 @@ static void character_test() {
 	auto pos = player->getposition(85);
 	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 300);
 	pa->set(player->getcolors());
-	player->wait(pa);
+	pa->wait();
 }
 
 static void change_mode() {
@@ -582,10 +582,10 @@ void actor::wait(char percent) {
 	}
 }
 
-void actor::wait(const moveable* pa) {
+void moveable::wait() {
 	cursorset cur(res::NONE);
 	while(ismodal()) {
-		if(!pa || !(*pa))
+		if(!(*this))
 			break;
 		rect rcs = {0, 0, getwidth(), getheight()};
 		if(settings.panel == setting::PanelFull)

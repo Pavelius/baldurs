@@ -227,9 +227,15 @@ void creature::clear() {
 
 void creature::clear(variant_s value) {
 	switch(value) {
-	case Ability: memset(ability, 0, sizeof(ability)); break;
-	case Alignment: alignment = NoAlignment; break;
-	case Class: memset(classes, 0, sizeof(classes)); break;
+	case Ability:
+		memset(ability, 0, sizeof(ability));
+		break;
+	case Alignment:
+		alignment = NoAlignment;
+		break;
+	case Class:
+		memset(classes, 0, sizeof(classes));
+		break;
 	case Gender:
 		kind = Character;
 		gender = NoGender;
@@ -237,12 +243,16 @@ void creature::clear(variant_s value) {
 		portrait = 0;
 		initiative = 0;
 		break;
-	case Race: race = NoRace; break;
+	case Race:
+		race = NoRace;
+		break;
 	case Skill:
 		memset(skills, 0, sizeof(skills));
 		memset(feats, 0, sizeof(feats));
 		break;
-	case Apearance: clearcolors(); break;
+	case Apearance:
+		clearcolors();
+		break;
 	case Name:
 		name = 0;
 		break;
@@ -742,7 +752,7 @@ void creature::attack(creature& enemy) {
 	if(thrown_res) {
 		wait(70);
 		auto pa = new moveable(getposition(85), enemy.getposition(65), thrown_res, thrown_speed);
-		wait(pa);
+		pa->wait();
 	} else
 		wait(50);
 	auto damage = ai.roll();
