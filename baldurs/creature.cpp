@@ -739,26 +739,17 @@ void creature::attack(creature& enemy) {
 	if(ai.range && ai.weapon)
 		thrown_res = ai.weapon->getanthrown();
 	auto enemy_position = enemy.getposition(65);
-	if(!roll(ai)) {
-		render_attack(rand() % 3, enemy_position);
-		if(thrown_res) {
-			wait(70);
-			auto pa = new moveable(getposition(85), enemy_position, thrown_res, thrown_speed);
-		}
-		wait();
-		return;
-	}
-	render_attack(rand() % 3, enemy.getposition(65));
+	render_attack(rand() % 3, enemy_position);
+	wait(70);
 	if(thrown_res) {
-		wait(70);
-		auto pa = new moveable(getposition(85), enemy.getposition(65), thrown_res, thrown_speed);
+		auto pa = new moveable(getposition(85), enemy_position, thrown_res, thrown_speed);
 		pa->wait();
-	} else
-		wait(50);
+	}
+	if(!roll(ai))
+		return;
 	auto damage = ai.roll();
 	enemy.damage(damage);
 	enemy.render_hit(enemy.gethits() <= 0);
-	wait();
 	enemy.wait();
 }
 
