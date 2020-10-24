@@ -31,20 +31,10 @@ static int getcost(const char* ability, const char* modifier) {
 	return result;
 }
 
-const char* creature::getdescription(variant id) {
-	stringbuilder sb(description);
-	sb.add("###%1\n", getstr(id));
-	switch(id.type) {
-	case Race: getrule(sb, (race_s)id.value); break;
-	case Alignment: getrule(sb, (alignment_s)id.value); break;
-	case Feat: getrule(sb, (feat_s)id.value); break;
-	}
-	return description;
-}
-
 static void select_variant() {
 	current_variant = hot.param;
-	creature::getdescription(current_variant);
+	stringbuilder sb(description);
+	current_variant.addinfo(sb);
 }
 
 static void next() {
@@ -290,8 +280,11 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 			if(player.skills[id] >= value_maximum || points < value_cost)
 				flags = Disabled;
 			button(rc.x1 + 211, rc.y1 - 3, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
-			if(area(rc) == AreaHilitedPressed)
-				getdescription(id);
+			if(area(rc) == AreaHilitedPressed) {
+				variant iv = id;
+				stringbuilder sb(description);
+				iv.addinfo(sb);
+			}
 		}
 		scroll(creature& player, const aref<variant>& elements, const char* minimal) : player(player), minimal(minimal), elements(elements.data) {
 			maximum = elements.count;
@@ -363,8 +356,11 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 			if(!isallow || player.is(id) || points <= 0)
 				flags = Disabled;
 			button(rc.x1 + 211, rc.y1 - 3, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
-			if(area(rc) == AreaHilitedPressed)
-				getdescription(id);
+			if(area(rc) == AreaHilitedPressed) {
+				stringbuilder sb(description);
+				variant iv = id;
+				iv.addinfo(sb);
+			}
 		}
 		bool is(feat_s id) const {
 			return (minimal[id / 32] & (1 << (id % 32))) != 0;

@@ -172,6 +172,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="control_minimap.cpp" />
+    <ClCompile Include="manual.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="moveable.cpp" />
     <ClCompile Include="mslog.cpp" />

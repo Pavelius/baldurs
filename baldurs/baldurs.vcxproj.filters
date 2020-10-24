@@ -247,6 +247,9 @@
     <ClCompile Include="stringbuilder.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
+    <ClCompile Include="manual.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

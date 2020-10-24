@@ -1,37 +1,6 @@
 #include "main.h"
 
-struct varset {
-	variant_s			type;
-	union {
-		aref<spell_s>	spells;
-		aref<skill_s>	skills;
-	};
-	constexpr varset() : type(NoVariant), spells() {}
-	constexpr varset(const aref<spell_s>& v) : type(Spell), spells(v) {}
-	constexpr varset(const aref<skill_s>& v) : type(Skill), skills(v) {}
-};
-
-struct item_animation {
-	const char*		avatar;
-	const char*		ground;
-	res::tokens		wear;
-	res::tokens		thrown;
-};
-
 static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
-struct itemi {
-	const char*		id;
-	const char*		name;
-	item_animation	images;
-	slot_s			slots[2];
-	feat_s			feat[2];
-	attack_info		ai;
-	unsigned char	count;
-	int				weight;
-	int				cost; // Цена в золотых монетах
-	varset			power;
-};
-
 static item ammunition_arrow(Arrow);
 
 BSDATA(itemi) = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
@@ -88,18 +57,6 @@ BSDATA(itemi) = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
 {"Carved Stone", "Резной камень", {"IBSTONE", "GGEM01"}, {}, {}, {}, 25, 0, 15 * GP},
 };
 assert_enum(itemi, LastItem)
-
-void add_feat_item(stringbuilder& sb, feat_s id) {
-	auto p = sb.get();
-	for(auto& e : bsdata<itemi>()) {
-		if(e.feat[0] == id) {
-			sb.sep(0, p);
-			sb.add(e.name);
-		}
-	}
-	if(!sb.ispos(p))
-		sb.add(".");
-}
 
 void item::clear() {
 	memset(this, 0, sizeof(*this));

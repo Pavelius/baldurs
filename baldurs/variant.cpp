@@ -60,3 +60,14 @@ variant::variant(const void* v) : type(NoVariant), value(0) {
 void* variant::getpointer(variant_s t) const {
 	return (type == t) ? bsdata<varianti>::elements[t].source->ptr(value) : 0;
 }
+
+void variant::addinfo(stringbuilder& sb) const {
+	switch(type) {
+	case Alignment: getrule(sb, (alignment_s)value); break;
+	case Class: getrule(sb, (class_s)value); break;
+	case Feat: getrule(sb, (feat_s)value); break;
+	case Gender: getrule(sb, (gender_s)value); break;
+	case Spell: getrule(sb, (spell_s)value); break;
+	case Race: getrule(sb, (race_s)value); break;
+	}
+}

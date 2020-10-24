@@ -331,8 +331,8 @@ union variant {
 	constexpr explicit operator bool() const { return integer != 0; }
 	constexpr bool operator==(const variant& e) const { return integer == e.integer; }
 	constexpr bool operator!=(const variant& e) const { return integer != e.integer; }
+	void					addinfo(stringbuilder& sb) const;
 	void					clear() { integer = 0; }
-	void					getdescription(stringbuilder& sb) const;
 	void*					getpointer(variant_s t) const;
 	creature*				getcreature() const { return (creature*)getpointer(Creature); }
 	container*				getcontainer() const { return (container*)getpointer(Container); }
@@ -355,7 +355,7 @@ struct aset {
 	}
 	constexpr DT& operator[](unsigned i) { return data[i]; }
 };
-typedef aset<skill_s, LastSkill> skillset;
+typedef aset<skill_s, LastSkill> skilla;
 typedef aset<class_s, LastClass> classa;
 struct abilityi {
 	const char*				id;
@@ -364,6 +364,7 @@ struct abilityi {
 struct genderi {
 	const char*				id;
 	const char*				name;
+	const char*				text;
 };
 struct alignmenti {
 	const char*				id;
@@ -595,6 +596,22 @@ struct itemground : item, drawable {
 	virtual bool			hittest(point position) const override;
 	virtual void			painting(point position) const;
 };
+struct varset {
+	variant_s				type;
+	union {
+		aref<spell_s>		spells;
+		aref<skill_s>		skills;
+	};
+	constexpr varset() : type(NoVariant), spells() {}
+	constexpr varset(const aref<spell_s>& v) : type(Spell), spells(v) {}
+	constexpr varset(const aref<skill_s>& v) : type(Skill), skills(v) {}
+};
+struct item_animation {
+	const char*				avatar;
+	const char*				ground;
+	res::tokens				wear;
+	res::tokens				thrown;
+};
 struct dietyi {
 	const char*				id;
 	const char*				name;
@@ -645,7 +662,7 @@ struct racei {
 	const char*				id;
 	const char*				name;
 	char					abilities[6];
-	skillset				skills;
+	skilla				skills;
 	feat_s					feats[8];
 	char					quick_learn; // Human's ability additional skills nad feats at start of game
 	const char*				text;
@@ -687,12 +704,24 @@ struct attack_info : dice, roll_info {
 	attack_info() = default;
 	constexpr attack_info(const dice& d, char c = 0, char m = 0, int rg = 0, item* pam = 0) : dice(d), critical(c), multiplier(m), ac(0), range(rg), weapon(0), ammunition(pam) {}
 	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), range(0), weapon(0), ammunition(0) {};
-	char				critical;
-	char				multiplier;
-	char				ac;
-	int					range;
-	item*				weapon;
-	item*				ammunition;
+	char					critical;
+	char					multiplier;
+	char					ac;
+	int						range;
+	item*					weapon;
+	item*					ammunition;
+};
+struct itemi {
+	const char*				id;
+	const char*				name;
+	item_animation			images;
+	slot_s					slots[2];
+	feat_s					feat[2];
+	attack_info				ai;
+	unsigned char			count;
+	int						weight;
+	int						cost; // Цена в золотых монетах
+	varset					power;
 };
 struct entrance {
 	char				name[32];
@@ -883,7 +912,7 @@ struct monsteri {
 	classi				classes[3];
 	char				ability[Charisma + 1];
 	item_s				equipment[8];
-	skillset			skills;
+	skilla			skills;
 	cflags<feat_s>		feats;
 };
 class creature : public actor {
@@ -975,7 +1004,6 @@ public:
 	int							getcost(skill_s id) const { return isclass(id) ? 1 : 2; }
 	static creature*			getcreature(point position);
 	static creature*			getcreature(short unsigned index);
-	static const char*			getdescription(variant id);
 	void						getdescription(stringbuilder& sb) const;
 	diety_s						getdiety() const { return diety; }
 	int							getfeats() const;
@@ -1185,6 +1213,7 @@ BSLNK(feat_s, feati)
 BSLNK(gender_s, genderi)
 BSLNK(race_s, racei)
 BSLNK(save_s, savei)
+BSLNK(school_s, schooli)
 BSLNK(spell_s, spelli)
 BSLNK(skill_s, skilli)
 BSLNK(variant_s, varianti)

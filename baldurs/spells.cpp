@@ -44,39 +44,7 @@ BSDATA(spelli) = {{"No spell", "Нет Заклинания", "SPWI104C"},
 {"Sleep", "Сон", "SPWI116C", Enchantment, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Spook", "Бабай", "SPWI121C", Illusion, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Summon Monster I", "Призыв монстра I", "SPWI124C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}}, };
-assert_enum(spelli, LastSpell);
-
-//void get_spell_description(char* result, int rec) {
-//	szprint(result, "###%1\n", "",bsgets(rec, Name));
-//	const char* pb = bsgets(rec, Description);
-//	// School
-//	int shc = bsget(rec, SpellSchool);
-//	zcat(result, bsgets(shc, Name));
-//	for(int i = FirstSchoolSubtype; i <= LastSchoolSubtype; i++) {
-//		int val = bsget(rec, i);
-//		if(!val)
-//			continue;
-//		szprint(zend(result), " (%1)", "",bsgets(i, Name));
-//		break;
-//	}
-//	zcat(result, "\n");
-//	// Levels, like 'Wizard 1, Sorcerer 1'
-//	int k = 0;
-//	for(int i = FirstClass; i <= LastClass; i++) {
-//		int val = bsget(rec, i);
-//		if(!val)
-//			continue;
-//		if(k)
-//			zcat(result, ", "",");
-//		szprint(zend(result), "%1 %2i", "",bsgets(i, Name), val);
-//		k++;
-//	}
-//	// Description
-//	if(pb && pb[0]) {
-//		zcat(result, pb);
-//		zcat(result, "\n");
-//	}
-//}
+assert_enum(spelli, LastSpell)
 
 bool creature::is(spell_s id, class_s cls, int level) {
 	return bsdata<spelli>::elements[id].levels[cls] >= level;
