@@ -3,7 +3,7 @@
 using namespace draw;
 
 typedef adat<drawable*, 256>	drawablet;
-static target					current_target;
+static variant					current_target;
 static point					camera;
 static point					camera_size = {800, 600};
 static action_s					current_action = ActionGuard;
@@ -287,7 +287,7 @@ bool creature::isselected() const {
 	return current_selected.is((creature* const)this);
 }
 
-static target render_area(rect rc, const point origin) {
+static variant render_area(rect rc, const point origin) {
 	draw::state push;
 	draw::setclip(rc);
 	// Получим экран
@@ -393,7 +393,7 @@ static target render_area(rect rc, const point origin) {
 		return result;
 	if(hotspot.in(screen))
 		return hotspot;
-	return target();
+	return variant();
 }
 
 static void render_shifter(animation& e, cursorset& cur) {
@@ -441,22 +441,22 @@ static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
 	auto combat_mode = creature::iscombatmode();
 	auto player = creature::getactive();
 	targetreaction react = render_area(rc, origin);
-	switch(react.type) {
+	switch(react.target.type) {
 	case Container:
 	case ItemGround:
 		cur.set(res::CURSORS, 2, true);
 		react.method = &creature::getin;
 		break;
 	case Door:
-		cur.set(res::CURSORS, react.door->getcursor());
+		cur.set(res::CURSORS, react.target.getdoor()->getcursor());
 		react.method = &creature::toggle;
 		break;
 	case Creature:
-		if(player->isenemy(*react.creature)) {
+		if(player->isenemy(*react.target.getcreature())) {
 			react.method = &creature::attack;
 			react.reach = map::getrange(player->getreach());
 			cur.set(res::CURSORS, 12);
-		} else if(react.creature->isplayer()) {
+		} else if(react.target.getcreature()->isplayer()) {
 			if(!combat_mode) {
 				react.method = &creature::setactive;
 				react.reach = 0xFFFF;
@@ -464,14 +464,14 @@ static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
 		} else {
 			react.method = &creature::talk;
 			react.reach = 4;
-			cur.set(res::CURSORS, react.creature->getcursor());
+			cur.set(res::CURSORS, react.target.getcreature()->getcursor());
 		}
 		break;
 	case Region:
-		cur.set(res::CURSORS, react.region->getcursor());
+		cur.set(res::CURSORS, react.target.getregion()->getcursor());
 		break;
 	case Position:
-		if(map::isblock(map::getindex(react.position, 1))) {
+		if(map::isblock(map::getindex(react.target.getposition(), 1))) {
 			cur.set(res::CURSORS, 6);
 			react.clear();
 		} else
@@ -596,8 +596,8 @@ void moveable::wait() {
 	}
 }
 
-target creature::choose_target(int cursor, short unsigned start, short unsigned max_cost) {
-	target tg;
+variant creature::choose_target(int cursor, short unsigned start, short unsigned max_cost) {
+	variant tg;
 	cursorset cur;
 	animation shifter;
 	map::blockimpassable(0);
@@ -614,7 +614,7 @@ target creature::choose_target(int cursor, short unsigned start, short unsigned 
 		tg = render_area(rcs, camera);
 		switch(tg.type) {
 		case Position:
-			if(map::getcost(map::getindex(tg.position)) == Blocked)
+			if(map::getcost(map::getindex(tg.getposition())) == Blocked)
 				tg.clear();
 			break;
 		}
@@ -670,7 +670,7 @@ static void item_to_container() {
 	auto pi = (item*)hot.param;
 	switch(current_target.type) {
 	case Container:
-		current_target.container->add(*pi);
+		current_target.getcontainer()->add(*pi);
 		break;
 	default:
 		return;
@@ -679,7 +679,7 @@ static void item_to_container() {
 }
 
 static void render_container(rect& rcs, int frame, scrollitem& container, scrollitem& backpack) {
-	char temp[260];
+	char temp[260]; stringbuilder sb(temp);
 	int x = 0, y = 476;
 	image(x, y, res::GUICONT, 1, 0);
 	image(x + 59, y + 25, res::CONTAINER, frame, 0);
@@ -690,7 +690,8 @@ static void render_container(rect& rcs, int frame, scrollitem& container, scroll
 		backpack.update(player, 2);
 		backpack.view(player, x + 509, y + 22, 44, 43, {x + 602, y + 24, x + 614, y + 100}, item_to_container);
 		//button(x + 684, y + 28, cmpr(buttonparam, 52), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
-		//labelr(x + 661, y + 78, 70, 20, szprints(temp, zendof(temp), "%1i", player->getmoney()/SP)); // NORMAL
+		sb.add("%1i", player->getmoney() / SP);
+		labelr(x + 661, y + 78, 70, 20, temp); // NORMAL
 	}
 	rcs.y2 -= 107;
 }
@@ -701,21 +702,21 @@ static bool translate_mouse(const targetreaction& tg) {
 	auto result = false;
 	switch(hot.key) {
 	case MouseLeft:
-		switch(tg.type) {
+		switch(tg.target.type) {
 		case Region:
-			switch(tg.region->type) {
+			switch(tg.target.getregion()->type) {
 			case RegionInfo:
 				if(!hot.pressed) {
-					mslog(tg.region->name);
-					textblend(tg.region->launch, tg.region->name, 8000);
+					mslog(tg.target.getregion()->name);
+					textblend(tg.target.getregion()->launch, tg.target.getregion()->name, 8000);
 				}
 				break;
 			case RegionTravel:
 				if(!hot.pressed) {
-					auto destination = tg.region->getposition();
+					auto destination = tg.target.getregion()->getposition();
 					if(creature::getpartymaxdistance(destination) < 250) {
 						if(!combat_mode) {
-							creature::moveto(tg.region->move_to_area, tg.region->move_to_entrance);
+							creature::moveto(tg.target.getregion()->move_to_area, tg.target.getregion()->move_to_entrance);
 							result = true;
 						}
 					} else {
@@ -740,7 +741,7 @@ static bool translate_mouse(const targetreaction& tg) {
 			break;
 		case Position:
 			if(!hot.pressed) {
-				party_interact(tg.position);
+				party_interact(tg.target.getposition());
 				result = true;
 			}
 			break;
@@ -759,7 +760,7 @@ static void getin_container() {
 	scrollitem container(5, 2);
 	short unsigned current_index = Blocked;
 	if(current_target.type == ItemGround)
-		current_index = current_target.itemground->index;
+		current_index = current_target.getitemground()->index;
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
@@ -768,8 +769,8 @@ static void getin_container() {
 		auto container_frame = 10;
 		switch(current_target.type) {
 		case Container:
-			container.update(current_target.container, 5);
-			container_frame = current_target.container->getframe();
+			container.update(current_target.getcontainer(), 5);
+			container_frame = current_target.getcontainer()->getframe();
 			break;
 		case ItemGround:
 			container.update(current_index, 5);
@@ -788,7 +789,7 @@ static void getin_container() {
 	}
 }
 
-void creature::getin(const target& e) {
+void creature::getin(const variant& e) {
 	current_target = e;
 	setpage(getin_container);
 }

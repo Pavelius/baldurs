@@ -297,18 +297,21 @@ enum prerequisit_s : unsigned char {
 };
 enum variant_s : unsigned char {
 	NoVariant,
-	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name, Finish, Variant,
+	Ability, Alignment, Apearance, Class, Container, Creature,
+	Door, Gender, Feat, Item, ItemCont, ItemGround,
+	Position, Race, Region, Skill, Spell, Name, Finish, Variant,
 };
-enum target_s : unsigned char {
-	NoTarget, Creature, Container, Door, ItemCont, ItemGround, Position, Region,
-};
+class creature;
+struct container;
+struct door;
+struct itemground;
+struct region;
 union variant {
 	struct {
-		variant_s		type;
-		unsigned char	value;
+		variant_s			type;
+		unsigned short		value;
 	};
-	short unsigned		number;
-	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
+	int						integer;
 	constexpr variant() : type(NoVariant), value(0) {}
 	constexpr variant(variant_s type, unsigned char value) : type(type), value(value) {}
 	constexpr variant(ability_s v) : variant(Ability, v) {}
@@ -321,16 +324,29 @@ union variant {
 	constexpr variant(spell_s v) : variant(Spell, v) {}
 	constexpr variant(item_s v) : variant(Item, v) {}
 	constexpr variant(variant_s v) : variant(Variant, v) {}
-	constexpr variant(unsigned short v) : number(v) {}
-	operator unsigned short() { return number; }
+	constexpr variant(const point& v) : integer((Position << 24) | ((v.y & 0xFFF) << 12) | (v.x & 0xFFF)) {}
+	constexpr variant(int v) : integer(v) {}
+	variant(const void* v);
+	constexpr operator int() const { return integer; }
+	constexpr explicit operator bool() const { return integer != 0; }
+	constexpr bool operator==(const variant& e) const { return integer == e.integer; }
+	constexpr bool operator!=(const variant& e) const { return integer != e.integer; }
+	void					clear() { integer = 0; }
+	void*					getpointer(variant_s t) const;
+	creature*				getcreature() const { return (creature*)getpointer(Creature); }
+	container*				getcontainer() const { return (container*)getpointer(Container); }
+	door*					getdoor() const { return (door*)getpointer(Door); }
+	itemground*				getitemground() const { return (itemground*)getpointer(ItemGround); }
+	region*					getregion() const { return (region*)getpointer(Region); }
+	point					getposition() const { return {(short)(integer & 0xFFF), (short)((integer >> 12) & 0xFFF)}; }
 };
 template <class T, unsigned N, class DT = char>
 struct aset {
 	struct element {
-		T				key;
-		DT				value;
+		T					key;
+		DT					value;
 	};
-	DT					data[N + 1];
+	DT						data[N + 1];
 	constexpr aset() : data() {}
 	constexpr aset(const std::initializer_list<element>& source) {
 		for(auto& e : source)
@@ -340,10 +356,6 @@ struct aset {
 };
 typedef aset<skill_s, LastSkill> skillset;
 typedef aset<class_s, LastClass> classa;
-struct varianti {
-	const char*				id;
-	const char*				name;
-};
 struct abilityi {
 	const char*				id;
 	const char*				name;
@@ -362,67 +374,49 @@ struct animatei {
 	bool					disable_overlay;
 	bool					ready;
 };
-struct target {
-	target_s				type;
-	union {
-		class creature*		creature;
-		struct point		position;
-		struct container*	container;
-		struct door*		door;
-		struct region*		region;
-		struct itemground*	itemground;
-		struct itemcont*	itemcont;
-	};
-	target(struct drawable* value);
-	constexpr target() : type(NoTarget), creature(0) {}
-	constexpr target(class creature* value) : type(Creature), creature(value) {}
-	constexpr target(const point& value) : type(Position), position(value) {}
-	constexpr target(struct door* value) : type(Door), door(value) {}
-	constexpr target(struct region* value) : type(Region), region(value) {}
-	constexpr target(struct container* value) : type(Container), container(value) {}
-	constexpr target(struct itemground* value) : type(ItemGround), itemground(value) {}
-	constexpr target(struct itemcont* value) : type(ItemCont), itemcont(value) {}
-	explicit operator bool() const { return type != NoTarget; }
-	void				clear() { type = NoTarget; creature = 0; }
-};
 struct runable {
-	virtual void		execute() const = 0;
-	virtual int			getid() const { return 0; }
+	virtual void			execute() const = 0;
+	virtual int				getid() const { return 0; }
 };
 struct cmpr : runable {
 	constexpr cmpr(void(*proc)(), int param = 0) : proc(proc), param(param) {}
-	void				execute() const override { draw::execute(proc, param); }
-	int					getid() const override { return param; }
+	void					execute() const override { draw::execute(proc, param); }
+	int						getid() const override { return param; }
 private:
 	void(*proc)();
-	int					param;
+	int						param;
+};
+struct varianti {
+	const char*				id;
+	const char*				name;
+	array*					source;
 };
 struct drawable {
-	virtual int			getcursor() const { return 0; } // Get cursor index when over this drawable
-	virtual unsigned	getfps() const { return 20; }
-	virtual point		getposition() const = 0;
-	virtual rect		getrect() const = 0;
-	virtual int			getzorder() const { return 0; } // Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
-	virtual bool		hittest(point position) const { return false; }
-	virtual bool		isvisible() const { return true; }
-	virtual bool		isvisibleactive() const { return false; } // Drawable visible only when active.
-	virtual void		painting(point position) const = 0; // How to paint drawable.
-	virtual void		update() {}
+	virtual int				getcursor() const { return 0; } // Get cursor index when over this drawable
+	virtual unsigned		getfps() const { return 20; }
+	virtual point			getposition() const = 0;
+	virtual rect			getrect() const = 0;
+	virtual int				getzorder() const { return 0; } // Priority for z-order sortering (lesser was be most visible). If there is two drawable in same position.
+	virtual bool			hittest(point position) const { return false; }
+	virtual bool			isvisible() const { return true; }
+	virtual bool			isvisibleactive() const { return false; } // Drawable visible only when active.
+	virtual void			painting(point position) const = 0; // How to paint drawable.
+	virtual void			update() {}
 };
 struct scrolltext {
-	int					origin;
-	int					maximum;
-	int					increment;
-	res::tokens			bar;
-	const char*			cache_text;
-	int					cache_height;
-	int					cache_origin;
-	int					scroll_frame;
+	int						origin;
+	int						maximum;
+	int						increment;
+	res::tokens				bar;
+	const char*				cache_text;
+	int						cache_height;
+	int						cache_origin;
+	int						scroll_frame;
 	//
 	scrolltext();
-	void				cashing(const char* text, int width);
-	virtual void		prerender();
-	void				reset();
+	void					cashing(const char* text, int width);
+	virtual void			prerender();
+	void					reset();
 };
 struct scrolllist : scrolltext {
 	virtual void		row(rect rc, int n) = 0;
@@ -773,12 +767,12 @@ struct setting {
 	bool				show_search;
 	bool				show_path;
 };
-class creature;
-struct targetreaction : target {
-	void				(creature::*method)(const target& e);
+struct targetreaction {
+	variant				target;
+	void				(creature::*method)(const variant& e);
 	short unsigned		reach;
 	constexpr targetreaction() : target(), method(0), reach(0) {}
-	constexpr targetreaction(const target& e) : target(e), method(0), reach(0) {}
+	constexpr targetreaction(const variant& e) : target(e), method(0), reach(0) {}
 	void				clear();
 };
 struct treasure {
@@ -930,7 +924,7 @@ public:
 	void* operator new(unsigned size);
 	void operator delete (void* data);
 	void						attack(creature& enemy);
-	void						attack(const target& enemy);
+	void						attack(const variant& enemy);
 	void						add(item e);
 	void						add(stringbuilder& sb, variant v1) const;
 	void						add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
@@ -944,13 +938,13 @@ public:
 	void						blockimpassable() const override;
 	void						clear();
 	void						clear(variant_s value);
-	void						close(const target& e);
+	void						close(const variant& e);
 	void						choose_action();
 	bool						choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
 	bool						choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
 	bool						choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
 	void						choose_skills(const char* title, const aref<variant>& elements);
-	static target				choose_target(int cursor, short unsigned start, short unsigned max_cost);
+	static variant				choose_target(int cursor, short unsigned start, short unsigned max_cost);
 	void						create(monster_s type, reaction_s reaction);
 	static creature*			create(monster_s type, reaction_s reaction, point postition);
 	static void					create(monster_s type, reaction_s reaction, point postition, unsigned char orientation, int count);
@@ -985,7 +979,7 @@ public:
 	diety_s						getdiety() const { return diety; }
 	int							getfeats() const;
 	gender_s					getgender() const override { return gender; }
-	void						getin(const target& e);
+	void						getin(const variant& e);
 	int							getinitiative() const;
 	int							getinitiativeroll() const { return initiative; }
 	int							gethits() const override { return hits; }
@@ -1047,7 +1041,7 @@ public:
 	void						remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	void						remove(state_s id) { state &= ~(1 << id); }
 	bool						roll(roll_info& e) const;
-	void						open(const target& e);
+	void						open(const variant& e);
 	void						say(const char* format, ...) const;
 	aref<variant>				select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	static aref<creature*>		select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
@@ -1064,7 +1058,7 @@ public:
 	void						set(skill_s id, int value) { skills[id] = value; }
 	void						set(variant value);
 	void						setactive();
-	void						setactive(const target& e) { if(e.type == Creature) e.creature->setactive(); }
+	void						setactive(const variant& e) { if(e.type == Creature) e.getcreature()->setactive(); }
 	void						setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
 	static void					setmoney(int value);
 	void						setportrait(int value) { portrait = value; }
@@ -1073,8 +1067,8 @@ public:
 	void						sheet();
 	void						spellbook();
 	static void					spellinfo(spell_s id);
-	void						talk(const target& e) {}
-	void						toggle(const target& e);
+	void						talk(const variant& e) {}
+	void						toggle(const variant& e);
 	static void					moveto(const char* location, const char* entrance = 0);
 	static void					updategame();
 };

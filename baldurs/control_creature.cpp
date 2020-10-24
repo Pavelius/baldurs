@@ -66,7 +66,7 @@ static void button_minus() {
 static aref<variant> createlist(aref<variant> result, variant v1, variant v2) {
 	auto pb = result.begin();
 	auto pe = result.end();
-	for(auto i = v1; i.number <= v2.number; i.number++) {
+	for(auto i = v1; i.value <= v2.value; i.value++) {
 		if(pb < pe)
 			*pb++ = i;
 	}

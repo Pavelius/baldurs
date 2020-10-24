@@ -20,7 +20,7 @@ public:
 	virtual void		addidentifier(const char* identifier);
 	void				addicon(const char* id, int value);
 	void				addint(int value, int precision, const int radix);
-	void				addh(const char* format, ...) { addv(format, xva_start(format), "##", 0); }
+	void				addh(const char* format, ...) { addv(format, xva_start(format), "\n##", 0); }
 	void				addn(const char* format, ...) { addx('\n', format, xva_start(format)); }
 	void				addof(const char* s);
 	void				adds(const char* format, ...) { addx(' ', format, xva_start(format)); }

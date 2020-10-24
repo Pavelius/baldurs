@@ -308,8 +308,7 @@ struct stringbuilder::grammar {
 	unsigned		change_size;
 	constexpr grammar() : name(0), change(0), name_size(0), change_size(0) {}
 	grammar(const char* name, const char* change) :
-		name(name), change(change), name_size(zlen(name)), change_size(zlen(change)) {
-	}
+		name(name), change(change), name_size(zlen(name)), change_size(zlen(change)) {}
 	operator bool() const { return name != 0; }
 };
 

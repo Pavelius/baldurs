@@ -71,7 +71,7 @@ static scrolltext	description_control;
 static aref<variant> select_data(const aref<variant>& result, const variant v1, const variant v2, bool *test(variant) = 0) {
 	auto pb = result.data;
 	auto pe = pb + result.count;
-	for(auto e = v1; e.number <= v2.number; e.number++) {
+	for(auto e = v1; e.value <= v2.value; e.value++) {
 		if(test && !test(e))
 			continue;
 		if(pb < pe)

@@ -82,13 +82,8 @@ void archive_pack(const char* arc_name, const char* folder);
 void archive_unpack(const char* arc_name, const char* folder);
 
 int main(int argc, char* argv[]) {
+	auto s1 = sizeof(variant);
 	srand(clock());
-#ifdef _DEBUG
-	io::file::makedir("temp");
-	archive_pack("test.sav", "D:/projects/xface/test/art/pictures");
-	archive_unpack("test.sav", "temp");
-	util_main();
-#endif
 	draw::initialize();
 	if(!draw::pallette)
 		return -1;

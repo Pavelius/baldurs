@@ -55,7 +55,7 @@ void creature::operator delete (void* data) {
 }
 
 void targetreaction::clear() {
-	target::clear();
+	target.clear();
 	method = 0;
 }
 
@@ -260,7 +260,7 @@ void creature::clear(variant_s value) {
 }
 
 void creature::add(stringbuilder& sb, variant value) const {
-	if(!value.number)
+	if(!value)
 		return;
 	if(sb)
 		sb.add("\n");
@@ -524,7 +524,7 @@ aref<variant> creature::selecth(const aref<variant>& source, const variant v1, c
 			return result;
 		break;
 	}
-	for(auto e = v1; e.number <= v2.number; e.number++) {
+	for(auto e = v1; e.value <= v2.value; e.value++) {
 		switch(e.type) {
 		case Feat:
 			if(!is((feat_s)e.value))
@@ -554,7 +554,7 @@ aref<variant> creature::select(const aref<variant>& source, const variant v1, co
 	if(v1.type == Feat) {
 		auto character_level = getcharlevel();
 		auto base_attack = getbab();
-		for(auto e = v1; e.number <= v2.number; e.number++) {
+		for(auto e = v1; e.value <= v2.value; e.value++) {
 			if(is((feat_s)e.value))
 				continue;
 			if(!isallow((feat_s)e.value, ability, character_level, base_attack))
@@ -563,7 +563,7 @@ aref<variant> creature::select(const aref<variant>& source, const variant v1, co
 				*pb++ = e;
 		}
 	} else {
-		for(auto e = v1; e.number <= v2.number; e.number++) {
+		for(auto e = v1; e.value <= v2.value; e.value++) {
 			if(pb < pe)
 				*pb++ = e;
 		}
@@ -724,9 +724,9 @@ short unsigned creature::getindex() const {
 	return map::getindex(getposition(), getsize());
 }
 
-void creature::attack(const target& e) {
+void creature::attack(const variant& e) {
 	if(e.type == Creature)
-		attack(*e.creature);
+		attack(*e.getcreature());
 }
 
 void creature::attack(creature& enemy) {
@@ -920,13 +920,13 @@ void creature::blockimpassable() const {
 }
 
 void creature::interacting(const targetreaction& e) {
-	(this->*e.method)(e);
+	(this->*e.method)(e.target);
 }
 
-void creature::toggle(const target& e) {
+void creature::toggle(const variant& e) {
 	switch(e.type) {
 	case Door:
-		if(e.door->isopen())
+		if(e.getdoor()->isopen())
 			close(e);
 		else
 			open(e);
@@ -934,48 +934,48 @@ void creature::toggle(const target& e) {
 	}
 }
 
-void creature::open(const target& e) {
+void creature::open(const variant& e) {
 	if(e.type == Door)
-		e.door->setopened(true);
+		e.getdoor()->setopened(true);
 }
 
-void creature::close(const target& e) {
+void creature::close(const variant& e) {
 	if(e.type == Door)
-		e.door->setopened(false);
+		e.getdoor()->setopened(false);
 }
 
 void creature::interact(const targetreaction& e, short unsigned maximum_range, bool synchronized) {
 	point position;
 	short unsigned reach = 0;
-	switch(e.type) {
+	switch(e.target.type) {
 	case Door:
-		if(getmovedistance(e.door->points[0], map::getrange(getreach())))
-			position = e.door->points[0];
+		if(getmovedistance(e.target.getdoor()->points[0], map::getrange(getreach())))
+			position = e.target.getdoor()->points[0];
 		else
-			position = e.door->points[1];
+			position = e.target.getdoor()->points[1];
 		break;
 	case Container:
-		position = e.container->launch;
+		position = e.target.getcontainer()->launch;
 		break;
 	case Creature:
-		position = e.creature->getposition();
+		position = e.target.getcreature()->getposition();
 		reach = e.reach;
 		if(e.method == &creature::attack) {
-			attack_info ai; get(ai, QuickWeapon, *e.creature);
+			attack_info ai; get(ai, QuickWeapon, *e.target.getcreature());
 			if(ai.range)
 				reach = map::getrange(ai.range);
 		}
 		break;
 	case ItemGround:
-		position = e.itemground->getposition();
+		position = e.target.getitemground()->getposition();
 		break;
-	case Position:
-		position = e.position;
-		break;
+	//case Position:
+	//	position = e.position;
+	//	break;
 	case Region:
-		switch(e.region->type) {
+		switch(e.target.getregion()->type) {
 		case RegionTravel:
-			position = e.region->getposition();
+			position = e.target.getregion()->getposition();
 			break;
 		default:
 			return;
@@ -989,12 +989,12 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	auto index_new = map::getindex(position);
 	if(reach == 0xFFFF) {
 		if(e.method)
-			(this->*e.method)(e);
+			(this->*e.method)(e.target);
 	} else if(move(position, maximum_range, reach)) {
 		if(synchronized) {
 			wait();
 			if(e.method)
-				(this->*e.method)(e);
+				(this->*e.method)(e.target);
 		}
 		else
 			actor::set(e);

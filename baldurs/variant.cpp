@@ -1,16 +1,23 @@
 #include "main.h"
 
 BSDATA(varianti) = {{""},
-{"Ability", "Способности"},
-{"Alignment", "Мировозрение"},
+{"Ability", "Способности", &bsdata<abilityi>::source},
+{"Alignment", "Мировозрение", &bsdata<alignmenti>::source},
 {"Apearance", "Внешность"},
-{"Class", "Класс"},
-{"Gender", "Пол"},
-{"Feat", "Особенность"},
+{"Class", "Класс", &bsdata<classi>::source},
+{"Container", "Контейнер", &bsdata<container>::source},
+{"Creature", "Существо", &bsdata<creature>::source},
+{"Door", "Дверь", &bsdata<door>::source},
+{"Gender", "Пол", &bsdata<genderi>::source},
+{"Feat", "Особенность", &bsdata<feati>::source},
 {"Item", "Предмет"},
-{"Race", "Раса"},
-{"Skills", "Навыки"},
-{"Spells", "Заклинания"},
+{"ItemCont", "Предмет в контейнере", &bsdata<itemcont>::source},
+{"ItemGround", "Предмет на земле", &bsdata<itemground>::source},
+{"Position", "Позиция"},
+{"Race", "Раса", &bsdata<racei>::source},
+{"Region", "Регион", &bsdata<region>::source},
+{"Skills", "Навыки", &bsdata<skilli>::source},
+{"Spells", "Заклинания", &bsdata<spelli>::source},
 {"Name", "Имя"},
 {"Finish", "Закончить"},
 {"Variant", "Вариант"},
@@ -36,4 +43,20 @@ int compare_variant(const void* v1, const void* v2) {
 	auto s1 = getstr(*((variant*)v1));
 	auto s2 = getstr(*((variant*)v2));
 	return strcmp(s1, s2);
+}
+
+variant::variant(const void* v) : type(NoVariant), value(0) {
+	for(auto& e : bsdata<varianti>()) {
+		if(!e.source)
+			continue;
+		auto i = e.source->indexof(v);
+		if(i == -1)
+			continue;
+		type = (variant_s)(&e - bsdata<varianti>::elements);
+		value = i;
+	}
+}
+
+void* variant::getpointer(variant_s t) const {
+	return (type == t) ? bsdata<varianti>::elements[t].source->ptr(value) : 0;
 }

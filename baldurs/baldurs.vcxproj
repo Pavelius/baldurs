@@ -205,7 +205,6 @@
     <ClCompile Include="spells_index_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="target.cpp" />
     <ClCompile Include="treasure.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="resource_static.cpp" />
