@@ -1195,7 +1195,6 @@ template<class T> void			getrule(stringbuilder& sb, T value);
 template<class T> const char*	getstr(T e) { return bsdata<T>::elements[e].name; }
 extern creature					players[6];
 extern setting					settings;
-extern adat<point, 256 * 256>	verticles;
 
 inline int d100() { return rand() % 100; }
 
