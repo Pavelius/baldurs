@@ -1,7 +1,6 @@
 #include "main.h"
 
 BSDATAC(entrance, 128)
-BSDATAC(point, 1024 * 32)
 
 template<> void archive::set<entrance>(entrance& e) {
 	set(e.name);

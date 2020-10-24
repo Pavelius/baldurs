@@ -44,11 +44,15 @@ struct archive {
 		for(int i = 0; i < N; i++)
 			set(value[i]);
 	};
-	// Fixed data collection
+	// Extern array error
 	template<typename T, unsigned N> void set(adat<T, N>& value) {
+		static_assert("Error parsing");
+	}
+	// Fixed data collection
+	template<typename T> void set(array& value) {
 		set(value.count);
-		for(auto& e : value)
-			set(e);
+		for(unsigned i = 0; i < value.count; i++)
+			set(*((T*)value.ptr(i)));
 	}
 	// Custom aref collection
 	template<typename T> void set(aref<T>& value) {

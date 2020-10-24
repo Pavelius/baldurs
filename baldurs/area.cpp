@@ -12,7 +12,7 @@ static unsigned char	statemap[256 * 256];
 static unsigned char	lightmap[256 * 256];
 static unsigned short	tilemap[64 * 64];
 static color			lightpal[256];
-adat<point, 256 * 256>	verticles;
+BSDATAC(point, 256*256)
 
 static const unsigned char orientations_5b5[25] = {
 	6, 7, 8, 9, 10,
@@ -86,7 +86,7 @@ void map::clear() {
 	bsdata<itemground>::source.clear();
 	bsdata<itemcont>::source.clear();
 	bsdata<region>::source.clear();
-	verticles.clear();
+	bsdata<point>::source.clear();
 	bsdata<floattext>::source.clear();
 }
 
@@ -179,13 +179,13 @@ bool archive_ard(io::stream& file, bool writemode, char* sprites_resname) {
 	archive_bitmap(ar, lightmap, 8, 256, map::width, map::height, lightpal);
 	archive_bitmap(ar, statemap, 8, 256, map::width, map::height, 0);
 	// Îáúåêòû
-	//ar.set(verticles);
-	//ar.set(door_tiles_data);
-	//ar.set(region_data);
-	//ar.set(container_data);
-	//ar.set(door_data);
-	//ar.set(entrance_data);
-	//ar.set(animation_data);
+	ar.set<point>(bsdata<point>::source);
+	ar.set<door_tile>(bsdata<door_tile>::source);
+	ar.set<region>(bsdata<region>::source);
+	ar.set<container>(bsdata<container>::source);
+	ar.set<door>(bsdata<door>::source);
+	ar.set<entrance>(bsdata<entrance>::source);
+	ar.set<animation>(bsdata<animation>::source);
 	return true;
 }
 

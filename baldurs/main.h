@@ -312,7 +312,7 @@ union variant {
 		unsigned short		value;
 	};
 	int						integer;
-	constexpr variant() : type(NoVariant), value(0) {}
+	constexpr variant() : integer(0) {}
 	constexpr variant(variant_s type, unsigned char value) : type(type), value(value) {}
 	constexpr variant(ability_s v) : variant(Ability, v) {}
 	constexpr variant(alignment_s v) : variant(Alignment, v) {}
@@ -324,7 +324,7 @@ union variant {
 	constexpr variant(spell_s v) : variant(Spell, v) {}
 	constexpr variant(item_s v) : variant(Item, v) {}
 	constexpr variant(variant_s v) : variant(Variant, v) {}
-	constexpr variant(const point& v) : integer((Position << 24) | ((v.y & 0xFFF) << 12) | (v.x & 0xFFF)) {}
+	constexpr variant(const point& v) : integer(Position | ((v.y & 0xFFF) << 20) | ((v.x & 0xFFF) << 8)) {}
 	constexpr variant(int v) : integer(v) {}
 	variant(const void* v);
 	constexpr operator int() const { return integer; }
@@ -332,13 +332,14 @@ union variant {
 	constexpr bool operator==(const variant& e) const { return integer == e.integer; }
 	constexpr bool operator!=(const variant& e) const { return integer != e.integer; }
 	void					clear() { integer = 0; }
+	void					getdescription(stringbuilder& sb) const;
 	void*					getpointer(variant_s t) const;
 	creature*				getcreature() const { return (creature*)getpointer(Creature); }
 	container*				getcontainer() const { return (container*)getpointer(Container); }
 	door*					getdoor() const { return (door*)getpointer(Door); }
 	itemground*				getitemground() const { return (itemground*)getpointer(ItemGround); }
 	region*					getregion() const { return (region*)getpointer(Region); }
-	point					getposition() const { return {(short)(integer & 0xFFF), (short)((integer >> 12) & 0xFFF)}; }
+	point					getposition() const { return {(short)((integer >> 8) & 0xFFF), (short)((integer >> 20) & 0xFFF)}; }
 };
 template <class T, unsigned N, class DT = char>
 struct aset {
@@ -419,250 +420,250 @@ struct scrolltext {
 	void					reset();
 };
 struct scrolllist : scrolltext {
-	virtual void		row(rect rc, int n) = 0;
+	virtual void			row(rect rc, int n) = 0;
 };
 struct scrollitem : scrolllist {
-	struct item*		data[10];
-	int					maximum_items;
-	int					mx, my;
+	struct item*			data[10];
+	int						maximum_items;
+	int						mx, my;
 	scrollitem(int mx, int my) : maximum_items(0), mx(mx), my(my) {}
-	void				row(rect rc, int n) override {}
-	item*				get(int index) const;
-	int					getcount() const { return mx * my; }
-	void				update(creature* player, int item_in_line);
-	void				update(container* object, int item_in_line);
-	void				update(short unsigned index, int item_in_line);
-	void				view(creature* player, int x, int y, int dx, int dy, const rect& rcs, void(*item_proc)());
+	void					row(rect rc, int n) override {}
+	item*					get(int index) const;
+	int						getcount() const { return mx * my; }
+	void					update(creature* player, int item_in_line);
+	void					update(container* object, int item_in_line);
+	void					update(short unsigned index, int item_in_line);
+	void					view(creature* player, int x, int y, int dx, int dy, const rect& rcs, void(*item_proc)());
 };
 struct cursorset {
 	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
 	~cursorset();
-	static void			set(res::tokens rid = res::CURSORS, int frame = 267, bool single = false);
-	static void			setblock() { set(res::CURSORS, 6); }
-	static res::tokens	getres();
+	static void				set(res::tokens rid = res::CURSORS, int frame = 267, bool single = false);
+	static void				setblock() { set(res::CURSORS, 6); }
+	static res::tokens		getres();
 private:
-	res::tokens			rid;
-	int					frame;
-	bool				single;
+	res::tokens				rid;
+	int						frame;
+	bool					single;
 };
 struct coloration {
-	unsigned char		skin;
-	unsigned char		hair;
-	unsigned char		minor;
-	unsigned char		major;
-	unsigned char		metal;
-	unsigned char		leather;
-	unsigned char		armor;
+	unsigned char			skin;
+	unsigned char			hair;
+	unsigned char			minor;
+	unsigned char			major;
+	unsigned char			metal;
+	unsigned char			leather;
+	unsigned char			armor;
 	//
 	explicit operator bool() const { return skin == hair == minor == major == 0; }
 	constexpr coloration() : skin(0), hair(0), minor(0), major(0), armor(/*28*/MetalSteel), metal(MetalIron), leather(23) {}
-	void				set(short unsigned portrait);
-	void				upload(color* col) const;
+	void					set(short unsigned portrait);
+	void					upload(color* col) const;
 };
 struct door_tile {
-	short unsigned		index; // index = y*64 + x;
-	short unsigned		open; // new tile index
-	short unsigned		closed; // new tile index
+	short unsigned			index; // index = y*64 + x;
+	short unsigned			open; // new tile index
+	short unsigned			closed; // new tile index
 };
 struct hotkey {
 	void(*proc)();
-	unsigned			key;
-	const char*			name;
+	unsigned				key;
+	const char*				name;
 	explicit operator bool() const { return proc != 0; }
 };
 struct floattext : drawable {
-	const char*			text;
-	unsigned			stamp;
-	rect				box;
+	const char*				text;
+	unsigned				stamp;
+	rect					box;
 	constexpr floattext() : box(), text(0), stamp(0) {}
 	explicit operator bool() const { return text != 0; }
-	void				clear();
-	bool				isvisible() const override { return stamp && text; }
-	point				getposition() const override { return{(short)(box.x1 + box.width() / 2), (short)box.y2}; }
-	int					getzorder() const override { return 128; }
-	rect				getrect() const override { return{box.x1 - 4, box.y1 - 4, box.x2 + 4, box.y2 + 4}; }
-	void				painting(point offset) const override;
-	void				update() override;
+	void					clear();
+	bool					isvisible() const override { return stamp && text; }
+	point					getposition() const override { return{(short)(box.x1 + box.width() / 2), (short)box.y2}; }
+	int						getzorder() const override { return 128; }
+	rect					getrect() const override { return{box.x1 - 4, box.y1 - 4, box.x2 + 4, box.y2 + 4}; }
+	void					painting(point offset) const override;
+	void					update() override;
 };
 struct animation : drawable, point {
 	struct info {
-		const sprite*	source;
-		int				frame;
-		unsigned		flags;
-		unsigned char	transparent;
+		const sprite*		source;
+		int					frame;
+		unsigned			flags;
+		unsigned char		transparent;
 		explicit operator bool() const { return source != 0; }
 	};
-	unsigned			schedule;
-	char				rsname[9], rsname_pallette[9];
-	unsigned short		circle, frame, start_frame;
-	unsigned			flags;
-	unsigned short		height;
-	unsigned char		transparency;
-	unsigned char		chance_loop;
-	unsigned char		skip_cycles;
+	unsigned				schedule;
+	char					rsname[9], rsname_pallette[9];
+	unsigned short			circle, frame, start_frame;
+	unsigned				flags;
+	unsigned short			height;
+	unsigned char			transparency;
+	unsigned char			chance_loop;
+	unsigned char			skip_cycles;
 	constexpr animation() : point(), schedule(0), circle(0), frame(0), start_frame(0),
 		flags(0), height(0), transparency(0), chance_loop(0), skip_cycles(0),
 		rsname(), rsname_pallette() {
 	}
-	void				getinfo(info& e) const;
-	rect				getrect() const override;
-	point				getposition() const override { return *this; }
-	int					getzorder() const override { return -height - 256; }
-	bool				is(unsigned value) const { return (flags & value) != 0; }
-	virtual bool		isvisible() const override;
-	void				painting(point screen) const override;
+	void					getinfo(info& e) const;
+	rect					getrect() const override;
+	point					getposition() const override { return *this; }
+	int						getzorder() const override { return -height - 256; }
+	bool					is(unsigned value) const { return (flags & value) != 0; }
+	virtual bool			isvisible() const override;
+	void					painting(point screen) const override;
 };
 struct moveable : drawable {
 	moveable() = default;
 	moveable(point start, point finish, res::tokens id, unsigned feets_per_second = 30);
 	explicit operator bool() const { return avatar != res::NONE; }
 	void* operator new(unsigned size);
-	bool				isvisible() const override { return avatar != res::NONE; }
-	point				getposition() const override { return position; }
-	rect				getrect() const override { return {position.x - 16, position.y - 16, position.x + 16, position.y + 16}; }
-	void				painting(point screen) const override;
-	void				set(const coloration& v) { colors = v; use_colors = true; }
-	void				update();
-	void				wait();
+	bool					isvisible() const override { return avatar != res::NONE; }
+	point					getposition() const override { return position; }
+	rect					getrect() const override { return {position.x - 16, position.y - 16, position.x + 16, position.y + 16}; }
+	void					painting(point screen) const override;
+	void					set(const coloration& v) { colors = v; use_colors = true; }
+	void					update();
+	void					wait();
 private:
-	point				position, start, finish;
-	res::tokens			avatar;
-	char				orientation;
-	unsigned			time_start, time_finish;
-	coloration			colors;
-	bool				use_colors;
+	point					position, start, finish;
+	res::tokens				avatar;
+	char					orientation;
+	unsigned				time_start, time_finish;
+	coloration				colors;
+	bool					use_colors;
 };
 struct selectable : drawable {
-	virtual aref<point>	getpoints() const = 0;
-	point				getposition() const override;
-	bool				hittest(point hittest) const;
-	void				painting(point screen) const override;
+	virtual aref<point>		getpoints() const = 0;
+	point					getposition() const override;
+	bool					hittest(point hittest) const;
+	void					painting(point screen) const override;
 };
 struct item {
 	explicit operator bool() const { return type != NoItem; }
 	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(0), magic(Mundane), quality(0), stolen(0), damaged(0) {}
-	void				clear();
-	int					getac() const;
-	int					getarmorindex() const;
-	item_s				getammunition() const;
-	static res::tokens	getanwear(int type);
-	res::tokens			getanthrown() const;
+	void					clear();
+	int						getac() const;
+	int						getarmorindex() const;
+	item_s					getammunition() const;
+	static res::tokens		getanwear(int type);
+	res::tokens				getanthrown() const;
 	const struct attack_info& getattack() const;
-	int					getbonus() const;
-	int					getcost() const;
-	int					getcount() const;
-	feat_s				getfeat() const;
-	static const char*	getfname(int type);
-	static const char*	getfgname(int type);
-	int					getframe() const;
-	magic_s				getmagic() const { return magic; }
-	int					getportrait() const { return type * 2; }
-	int					getdragportrait() const { return type * 2 + 1; }
-	item_s				gettype() const { return type; }
-	bool				is(feat_s value) const;
-	bool				is(slot_s value) const;
-	bool				isbow() const;
-	bool				isranged() const;
-	bool				isreach() const;
-	bool				isthrown() const;
-	bool				istwohand() const;
-	bool				isxbow() const;
-	void				setcount(int value);
+	int						getbonus() const;
+	int						getcost() const;
+	int						getcount() const;
+	feat_s					getfeat() const;
+	static const char*		getfname(int type);
+	static const char*		getfgname(int type);
+	int						getframe() const;
+	magic_s					getmagic() const { return magic; }
+	int						getportrait() const { return type * 2; }
+	int						getdragportrait() const { return type * 2 + 1; }
+	item_s					gettype() const { return type; }
+	bool					is(feat_s value) const;
+	bool					is(slot_s value) const;
+	bool					isbow() const;
+	bool					isranged() const;
+	bool					isreach() const;
+	bool					isthrown() const;
+	bool					istwohand() const;
+	bool					isxbow() const;
+	void					setcount(int value);
 private:
-	item_s				type;
-	unsigned char		effect;
-	unsigned char		count;
+	item_s					type;
+	unsigned char			effect;
+	unsigned char			count;
 	struct {
-		magic_s			magic : 2;
-		unsigned char	quality : 2;
-		unsigned char	damaged : 2;
-		unsigned char	identified : 1;
-		unsigned char	stolen : 1;
+		magic_s				magic : 2;
+		unsigned char		quality : 2;
+		unsigned char		damaged : 2;
+		unsigned char		identified : 1;
+		unsigned char		stolen : 1;
 	};
 };
 struct itemdrag {
-	item*				source;
-	item*				target;
-	item				value;
-	slot_s				target_slot;
+	item*					source;
+	item*					target;
+	item					value;
+	slot_s					target_slot;
 };
 struct itemground : item, drawable {
-	short unsigned		index;
-	virtual point		getposition() const;
-	virtual rect		getrect() const override;
-	virtual int			getzorder() const override;
-	virtual bool		hittest(point position) const override;
-	virtual void		painting(point position) const;
+	short unsigned			index;
+	virtual point			getposition() const;
+	virtual rect			getrect() const override;
+	virtual int				getzorder() const override;
+	virtual bool			hittest(point position) const override;
+	virtual void			painting(point position) const;
 };
 struct dietyi {
-	const char*			id;
-	const char*			name;
+	const char*				id;
+	const char*				name;
 };
 struct feati {
-	const char*			id;
-	const char*			name;
-	char				ability[6];
-	feat_s				prerequisit[4];
-	char				base_attack;
-	char				character_level;
-	const char*			text;
-	const char*			benefit;
-	const char*			normal;
-	prerequisit_s		prerequisit_special;
+	const char*				id;
+	const char*				name;
+	char					ability[6];
+	feat_s					prerequisit[4];
+	char					base_attack;
+	char					character_level;
+	const char*				text;
+	const char*				benefit;
+	const char*				normal;
+	prerequisit_s			prerequisit_special;
 };
 struct spelli {
 	struct duration_info {
-		unsigned char	levels;
-		unsigned char	rounds;
+		unsigned char		levels;
+		unsigned char		rounds;
 	};
-	const char*			id;
-	const char*			name;
-	char				rsname[10];
-	school_s			school;
-	classa				levels;
-	duration_info		duration;
+	const char*				id;
+	const char*				name;
+	char					rsname[10];
+	school_s				school;
+	classa					levels;
+	duration_info			duration;
 };
 struct schooli {
-	const char*			id;
-	const char*			name;
+	const char*				id;
+	const char*				name;
 };
 struct portrait_info {
-	const char*			name;
-	unsigned char		skin;
-	unsigned char		hair;
-	unsigned char		major;
-	unsigned char		minor;
-	gender_s			gender;
-	race_s				races[4];
-	class_s				perks[8];
-	bool				is(gender_s id) const;
-	bool				is(race_s id) const;
-	bool				is(class_s id) const;
+	const char*				name;
+	unsigned char			skin;
+	unsigned char			hair;
+	unsigned char			major;
+	unsigned char			minor;
+	gender_s				gender;
+	race_s					races[4];
+	class_s					perks[8];
+	bool					is(gender_s id) const;
+	bool					is(race_s id) const;
+	bool					is(class_s id) const;
 	static aref<portrait_info> getelements();
 };
 struct racei {
-	const char*			id;
-	const char*			name;
-	char				abilities[6];
-	skillset			skills;
-	feat_s				feats[8];
-	char				quick_learn; // Human's ability additional skills nad feats at start of game
-	const char*			text;
+	const char*				id;
+	const char*				name;
+	char					abilities[6];
+	skillset				skills;
+	feat_s					feats[8];
+	char					quick_learn; // Human's ability additional skills nad feats at start of game
+	const char*				text;
 };
 struct classi {
 	struct slot_info {
-		char		minimal;
-		aref<char>	progress;
+		char				minimal;
+		aref<char>			progress;
 	};
-	const char*			id;
-	const char*			name;
-	char				hd;
-	char				skill_points;
-	slot_info*			spells;
-	ability_s			spell_ability;
-	aref<skill_s>		class_skills;
-	aref<feat_s>		weapon_proficiency;
-	aref<feat_s>		armor_proficiency;
+	const char*				id;
+	const char*				name;
+	char					hd;
+	char					skill_points;
+	slot_info*				spells;
+	ability_s				spell_ability;
+	aref<skill_s>			class_skills;
+	aref<feat_s>			weapon_proficiency;
+	aref<feat_s>			armor_proficiency;
 };
 struct skilli {
 	const char*			id;
@@ -879,7 +880,7 @@ struct monsteri {
 	sprite_type_s		sptype;
 	res::tokens			sprites[4];
 	alignment_s			alignment;
-	classi			classes[3];
+	classi				classes[3];
 	char				ability[Charisma + 1];
 	item_s				equipment[8];
 	skillset			skills;

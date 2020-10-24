@@ -81,8 +81,18 @@ static void test_character() {
 void archive_pack(const char* arc_name, const char* folder);
 void archive_unpack(const char* arc_name, const char* folder);
 
+static bool test_variant_position() {
+	point p1 = {1024, 3451};
+	variant v1 = p1;
+	if(v1.type != Position)
+		return false;
+	point p2 = v1.getposition();
+	return p1 == p2;
+}
+
 int main(int argc, char* argv[]) {
-	auto s1 = sizeof(variant);
+	if(!test_variant_position())
+		return -1;
 	srand(clock());
 	draw::initialize();
 	if(!draw::pallette)
