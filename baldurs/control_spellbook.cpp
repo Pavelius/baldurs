@@ -46,7 +46,7 @@ static struct scrollspell : scrolllist {
 	int			free;
 	void row(rect rc, int n) {
 		static int offset[8] = {1, 0, -1, -2, -1, -2, -3, -4};
-		auto id = data[n].spell;
+		auto id = (spell_s)data[n].value;
 		auto oy = offset[n - origin];
 		draw::image(rc.x1 + 2, rc.y1 + oy, gres(res::SPELLS), id, 0);
 		label(rc.x1 + 38, rc.y1 + oy - 4, rc.width() - 46, rc.height() - 2, getstr(data[n]), 0);
@@ -61,7 +61,7 @@ static struct scrollspell : scrolllist {
 
 void creature::spellbook() {
 	adat<preparation*> memorized;
-	char temp[260];
+	char temp[260]; stringbuilder sb(temp);
 	background(res::GUISPL);
 	draw::image(20, 79, gres(res::PORTL), getportrait(), 0);
 	label(22, 23, 206, 28, getname(), 2);
@@ -118,7 +118,7 @@ void creature::spellbook() {
 		auto pb = known.data;
 		auto pe = pb + sizeof(known.data) / sizeof(known.data[0]);
 		for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
-			if(bsdata<spelli>::elements[e].levels[current_power.clas] != current_level)
+			if(bsdata<spelli>::elements[e].levels[current_power.value] != current_level)
 				continue;
 			if(!isknown(e))
 				continue;
@@ -130,10 +130,11 @@ void creature::spellbook() {
 		// Запомненные заклинания
 		x = 254; y = 85; auto index = 0;
 		for(auto& e : powers) {
-			if(e && e.type == current_power && bsdata<spelli>::elements[e.id].levels[current_power.clas] == current_level) {
+			if(e && e.type == current_power && bsdata<spelli>::elements[e.id].levels[current_power.value] == current_level) {
 				auto id = e.id;
 				rect rc = {x, y, x + 79, y + 39};
-				//label(x, y, 29, 18, szprints(temp, zendof(temp), "%1i/%2i", e.count, e.count_maximum));
+				sb.clear(); sb.add("%1i/%2i", e.count, e.count_maximum);
+				label(x, y, 29, 18, temp);
 				draw::image(x + 37, y - 7, gres(res::SPELLS), id, 0);
 				if(area(rc) == AreaHilitedPressed) {
 					if(hot.key == MouseLeft)

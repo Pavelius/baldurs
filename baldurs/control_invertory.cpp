@@ -132,8 +132,7 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runab
 		}
 		auto count = pi->getcount();
 		if(count > 1) {
-			char temp[16] = "Update!!";
-			//szprints(temp, zendof(temp), "%1i", count);
+			char temp[16]; stringbuilder sb(temp); sb.add("%1i", count);
 			auto push_stroke = fore_stroke;
 			fore_stroke = colors::black;
 			text(x + 32 - textw(temp), y + 20, temp, -1, TextStroke);

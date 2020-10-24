@@ -148,16 +148,13 @@
     <ClCompile Include="converter.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="crt.cpp" />
-    <ClCompile Include="crt_parse.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="diety.cpp" />
     <ClCompile Include="door.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="draw_input.cpp" />
     <ClCompile Include="draw_text.cpp" />
-    <ClCompile Include="draw_textf.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="draw_textf.cpp" />
     <ClCompile Include="entrance.cpp" />
     <ClCompile Include="feats.cpp" />
     <ClCompile Include="feature.cpp" />
@@ -199,7 +196,7 @@
     <ClCompile Include="sprite_util.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="stringcreator.cpp" />
+    <ClCompile Include="stringbuilder.cpp" />
     <ClCompile Include="surface_serial.cpp" />
     <ClCompile Include="szdup.cpp" />
     <ClCompile Include="main_util.cpp">
@@ -228,9 +225,7 @@
     <ClInclude Include="crt.h" />
     <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
-    <ClInclude Include="initializer_list.h" />
     <ClInclude Include="io.h" />
-    <ClInclude Include="iterator.h" />
     <ClInclude Include="main.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -240,7 +235,7 @@
     <ClInclude Include="rects.h" />
     <ClInclude Include="resources.h" />
     <ClInclude Include="screenshoot.h" />
-    <ClInclude Include="stringcreator.h" />
+    <ClInclude Include="stringbuilder.h" />
     <ClInclude Include="win.h" />
   </ItemGroup>
   <ItemGroup>

@@ -145,7 +145,7 @@ static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0
 
 static void add_required(stringbuilder& sb, feat_s id) {
 	auto& ei = bsdata<feati>::elements[id];
-	auto p = sb.getpos();
+	auto p = sb.get();
 	auto h = "\n\n[Требует:] ";
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i+1)) {
 		if(!ei.ability[i])

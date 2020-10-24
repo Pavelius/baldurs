@@ -90,7 +90,7 @@ BSDATA(itemi) = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
 assert_enum(itemi, LastItem)
 
 void add_feat_item(stringbuilder& sb, feat_s id) {
-	auto p = sb.getpos();
+	auto p = sb.get();
 	for(auto& e : bsdata<itemi>()) {
 		if(e.feat[0] == id) {
 			sb.sep(0, p);

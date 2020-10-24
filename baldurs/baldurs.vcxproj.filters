@@ -22,9 +22,6 @@
     <ClCompile Include="point.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
-    <ClCompile Include="stringcreator.cpp">
-      <Filter>Библиотека\Классы</Filter>
-    </ClCompile>
     <ClCompile Include="crt.cpp">
       <Filter>Библиотека\Ядро</Filter>
     </ClCompile>
@@ -96,9 +93,6 @@
     </ClCompile>
     <ClCompile Include="converter.cpp">
       <Filter>Библиотека\Классы</Filter>
-    </ClCompile>
-    <ClCompile Include="crt_parse.cpp">
-      <Filter>Библиотека\Ядро</Filter>
     </ClCompile>
     <ClCompile Include="surface_serial.cpp">
       <Filter>Библиотека\Графика</Filter>
@@ -253,6 +247,9 @@
     <ClCompile Include="pack.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="stringbuilder.cpp">
+      <Filter>Библиотека\Классы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -279,13 +276,7 @@
     <ClInclude Include="rects.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
-    <ClInclude Include="stringcreator.h">
-      <Filter>Библиотека\Классы</Filter>
-    </ClInclude>
     <ClInclude Include="crt.h">
-      <Filter>Библиотека\Ядро</Filter>
-    </ClInclude>
-    <ClInclude Include="initializer_list.h">
       <Filter>Библиотека\Ядро</Filter>
     </ClInclude>
     <ClInclude Include="io.h">
@@ -303,14 +294,14 @@
     <ClInclude Include="converter.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
-    <ClInclude Include="iterator.h">
-      <Filter>Библиотека\Ядро</Filter>
-    </ClInclude>
     <ClInclude Include="archive.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
     <ClInclude Include="bstream.h">
       <Filter>Инструменты</Filter>
+    </ClInclude>
+    <ClInclude Include="stringbuilder.h">
+      <Filter>Библиотека\Классы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

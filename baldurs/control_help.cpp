@@ -86,16 +86,14 @@ void creature::help() {
 	cursorset cur;
 	variant elements[256];
 	listbox elements_list;
-	char temp[8192];
-	stringcreator sc;
-	stringbuilder sb(sc, temp);
+	char temp[8192]; stringbuilder sb(temp);
 	auto list_height = texth() + 2;
 	variant last_variant;
 	while(ismodal()) {
 		background(res::GUIHELP);
 		label(300, 26, 200, 24, "Справка", 2);
 		view({72, 70, 72 + 98, 70 + 276}, {0}, list_height, topic_list);
-		switch(topic_list.get().var) {
+		switch(topic_list.get().type) {
 		case Feat: elements_list.set(select_data(elements, Alertness, ProficiencyWaraxe)); break;
 		case Skill: elements_list.set(select_data(elements, FirstSkill, LastSkill)); break;
 		case Spell: elements_list.set(select_data(elements, FirstSpell, LastSpell)); break;

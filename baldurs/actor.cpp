@@ -143,17 +143,17 @@ const sprite* actor::getsprite(res::tokens id, int wi) {
 }
 
 void actor::say(const char* format, ...) const {
-	char temp[4096];
-	//szprints(temp, zendof(temp), "[%1]: ", getname());
-	//szprintvs(zend(temp), zendof(temp), format, xva_start(format));
+	char temp[4096]; stringbuilder sb(temp);
+	sb.add("[%1]: ", getname());
+	sb.addv(format, xva_start(format));
 	mslogv(temp);
 }
 
 void actor::act(int player, const char* format, ...) {
-	char temp[4096];
-	//szprints(temp, zendof(temp), "%1 ", getname());
-	//szprintvs(zend(temp), zendof(temp), format, xva_start(format));
-	//szprints(zend(temp), zendof(temp), ".");
+	char temp[4096]; stringbuilder sb(temp);
+	sb.add("%1 ", getname());
+	sb.addv(format, xva_start(format));
+	sb.add(".");
 	mslogv(temp);
 }
 

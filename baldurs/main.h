@@ -7,7 +7,7 @@
 #include "map.h"
 #include "resources.h"
 #include "screenshoot.h"
-#include "stringcreator.h"
+#include "stringbuilder.h"
 
 #ifdef _DEBUG
 #define msdbg(text, ...) draw::mslog(text, __VA_ARGS__)
@@ -299,6 +299,31 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name, Finish, Variant,
 };
+enum target_s : unsigned char {
+	NoTarget, Creature, Container, Door, ItemCont, ItemGround, Position, Region,
+};
+union variant {
+	struct {
+		variant_s		type;
+		unsigned char	value;
+	};
+	short unsigned		number;
+	constexpr bool operator==(const variant& e) const { return type == e.type && value == e.value; }
+	constexpr variant() : type(NoVariant), value(0) {}
+	constexpr variant(variant_s type, unsigned char value) : type(type), value(value) {}
+	constexpr variant(ability_s v) : variant(Ability, v) {}
+	constexpr variant(alignment_s v) : variant(Alignment, v) {}
+	constexpr variant(class_s v) : variant(Class, v) {}
+	constexpr variant(gender_s v) : variant(Gender, v) {}
+	constexpr variant(feat_s v) : variant(Feat, v) {}
+	constexpr variant(race_s v) : variant(Race, v) {}
+	constexpr variant(skill_s v) : variant(Skill, v) {}
+	constexpr variant(spell_s v) : variant(Spell, v) {}
+	constexpr variant(item_s v) : variant(Item, v) {}
+	constexpr variant(variant_s v) : variant(Variant, v) {}
+	constexpr variant(unsigned short v) : number(v) {}
+	operator unsigned short() { return number; }
+};
 template <class T, unsigned N, class DT = char>
 struct aset {
 	struct element {
@@ -315,39 +340,9 @@ struct aset {
 };
 typedef aset<skill_s, LastSkill> skillset;
 typedef aset<class_s, LastClass> classa;
-struct variant {
-	variant_s			type;
-	union {
-		ability_s		ability;
-		alignment_s		alignment;
-		class_s			clas;
-		feat_s			feat;
-		gender_s		gender;
-		race_s			race;
-		skill_s			skill;
-		spell_s			spell;
-		item_s			item;
-		variant_s		var;
-		unsigned char	number;
-	};
-	constexpr variant() : type(NoVariant), number(0) {}
-	constexpr variant(unsigned short integer) : type((variant_s)(integer >> 8)), number(integer & 0xFF) {}
-	constexpr variant(variant_s t, unsigned char v) : type(t), number(v) {}
-	constexpr variant(ability_s value) : type(Ability), ability(value) {}
-	constexpr variant(alignment_s value) : type(Alignment), alignment(value) {}
-	constexpr variant(class_s value) : type(Class), clas(value) {}
-	constexpr variant(gender_s value) : type(Gender), gender(value) {}
-	constexpr variant(feat_s value) : type(Feat), feat(value) {}
-	constexpr variant(race_s value) : type(Race), race(value) {}
-	constexpr variant(skill_s value) : type(Skill), skill(value) {}
-	constexpr variant(spell_s value) : type(Spell), spell(value) {}
-	constexpr variant(item_s value) : type(Item), item(value) {}
-	constexpr variant(variant_s value) : type(Variant), var(value) {}
-	bool operator==(const variant& e) const { return type == e.type && number == e.number; }
-	operator unsigned short() { return (type << 8) + number; }
-};
-enum target_s : unsigned char {
-	NoTarget, Creature, Container, Door, ItemCont, ItemGround, Position, Region,
+struct varianti {
+	const char*				id;
+	const char*				name;
 };
 struct abilityi {
 	const char*				id;
@@ -1133,7 +1128,7 @@ int								gethour(unsigned value);
 const sprite*					getminimap();
 unsigned char					getorientation(point s, point d);
 color*							getpallette();
-const char*						getpassedtime(char* result, const char* result_maximum, unsigned value);
+void							getpassedtime(stringbuilder& sb, unsigned value);
 point							getposition(short unsigned index, int size);
 inline int						getrange(int feets) { return (feets / 5) * 2; }
 color							getshadow(point position);
@@ -1186,9 +1181,7 @@ template<> void archive::set<door>(door& e);
 template<> void archive::set<entrance>(entrance& e);
 template<> void archive::set<region>(region& e);
 template<> void archive::set<animation>(animation& e);
-
 template<> const char* getstr<variant>(variant e);
-template<> const char* getstr<variant_s>(variant_s e);
 
 BSLNK(ability_s, abilityi)
 BSLNK(alignment_s, alignmenti)
@@ -1199,3 +1192,4 @@ BSLNK(race_s, racei)
 BSLNK(save_s, savei)
 BSLNK(spell_s, spelli)
 BSLNK(skill_s, skilli)
+BSLNK(variant_s, varianti)

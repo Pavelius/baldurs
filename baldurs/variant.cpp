@@ -1,10 +1,5 @@
 #include "main.h"
 
-struct varianti {
-	const char*		id;
-	const char*		name;
-};
-
 BSDATA(varianti) = {{""},
 {"Ability", "Способности"},
 {"Alignment", "Мировозрение"},
@@ -24,15 +19,15 @@ assert_enum(varianti, Variant)
 
 template<> const char* getstr<variant>(variant id) {
 	switch(id.type) {
-	case Alignment: return getstr(id.alignment);
-	case Ability: return getstr(id.ability);
-	case Class: return getstr(id.clas);
-	case Gender: return getstr(id.gender);
-	case Race: return getstr(id.race);
-	case Skill: return getstr(id.skill);
-	case Spell: return getstr(id.spell);
-	case Feat: return getstr(id.feat);
-	case Variant: return getstr(id.var);
+	case Alignment: return getstr((alignment_s)id.value);
+	case Ability: return getstr((ability_s)id.value);
+	case Class: return getstr((class_s)id.value);
+	case Gender: return getstr((gender_s)id.value);
+	case Race: return getstr((race_s)id.value);
+	case Skill: return getstr((skill_s)id.value);
+	case Spell: return getstr((spell_s)id.value);
+	case Feat: return getstr((feat_s)id.value);
+	case Variant: return getstr((variant_s)id.value);
 	default: return "Нет варианта";
 	}
 }

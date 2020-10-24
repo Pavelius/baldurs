@@ -177,19 +177,19 @@ class_s	creature::getclass() const {
 
 bool creature::isallow(variant id) const {
 	switch(id.type) {
-	case Alignment: return isallow(id.alignment);
-	case Feat: return isallow(id.feat);
+	case Alignment: return isallow((alignment_s)id.value);
+	case Feat: return isallow((feat_s)id.value);
 	default: return true;
 	}
 }
 
-void creature::set(variant value) {
-	switch(value.type) {
-	case Alignment: set(value.alignment); break;
-	case Class: classes[value.number] = 1; break;
-	case Gender: set(value.gender); break;
-	case Race: set(value.race); break;
-	case Spell: setknown(value.spell); break;
+void creature::set(variant id) {
+	switch(id.type) {
+	case Alignment: set((alignment_s)id.value); break;
+	case Class: classes[id.value] = 1; break;
+	case Gender: set((gender_s)id.value); break;
+	case Race: set((race_s)id.value); break;
+	case Spell: setknown((spell_s)id.value); break;
 	}
 }
 
@@ -278,8 +278,8 @@ void creature::add(stringbuilder& sb, const aref<variant>& elements, const char*
 	for(auto e : elements) {
 		sb.addn(getstr(e));
 		switch(e.type) {
-		case Skill: sb.add(" %+1i (%2i)", get(e.skill), skills[e.skill]); break;
-		case Ability: sb.add(": %1i", ability[e.ability]); break;
+		case Skill: sb.add(" %+1i (%2i)", get((skill_s)e.value), skills[e.value]); break;
+		case Ability: sb.add(": %1i", ability[e.value]); break;
 		}
 	}
 }
@@ -454,11 +454,11 @@ int	creature::getspellslots(variant value, int spell_level) const {
 	auto result = 0;
 	switch(value.type) {
 	case Class:
-		if(bsdata<classi>::elements[value.clas].spells) {
+		if(bsdata<classi>::elements[value.value].spells) {
 			auto si = spell_level - 1;
-			const auto& c = bsdata<classi>::elements[value.clas];
+			const auto& c = bsdata<classi>::elements[value.value];
 			const auto& e = c.spells[si];
-			auto m = classes[value.clas] - e.minimal;
+			auto m = classes[value.value] - e.minimal;
 			if(m < 0)
 				return 0;
 			if(m >= (int)e.progress.count)
@@ -527,15 +527,15 @@ aref<variant> creature::selecth(const aref<variant>& source, const variant v1, c
 	for(auto e = v1; e.number <= v2.number; e.number++) {
 		switch(e.type) {
 		case Feat:
-			if(!is(e.feat))
+			if(!is((feat_s)e.value))
 				continue;
 			break;
 		case Skill:
-			if(!skills[e.skill])
+			if(!skills[e.value])
 				continue;
 			break;
 		case Ability:
-			if(ability[e.ability] == 0)
+			if(ability[e.value] == 0)
 				continue;
 			break;
 		}
@@ -555,9 +555,9 @@ aref<variant> creature::select(const aref<variant>& source, const variant v1, co
 		auto character_level = getcharlevel();
 		auto base_attack = getbab();
 		for(auto e = v1; e.number <= v2.number; e.number++) {
-			if(is(e.feat))
+			if(is((feat_s)e.value))
 				continue;
-			if(!isallow(e.feat, ability, character_level, base_attack))
+			if(!isallow((feat_s)e.value, ability, character_level, base_attack))
 				continue;
 			if(pb < pe)
 				*pb++ = e;

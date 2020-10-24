@@ -32,10 +32,8 @@ static void levelup() {}
 
 void creature::sheet() {
 	static const creature* cashe_player;
-	char temp[8192];
+	char temp[8192]; stringbuilder sb(temp);
 	variant elements[128];
-	stringcreator sc;
-	stringbuilder sb(sc, temp);
 	// Чтобы корректно отображался текст, кэшируем когда меняется игрок
 	if(cashe_player != this) {
 		cashe_player = this;
@@ -49,12 +47,12 @@ void creature::sheet() {
 		auto y = 78 + 39 * i;
 		auto value = get(i);
 		label(253, y, 45, 30, ability_short_name[i], 2);
-		//label(304, y, 32, 30, szprints(temp, zendof(temp), "%1i", getr(i)));
-		//label(345, y, 32, 30, szprints(temp, zendof(temp), "%+1i", value), 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
+		sb.clear(); sb.add("%1i", getr(i)); label(304, y, 32, 30, temp);
+		sb.clear(); sb.add("%+1i", value); label(345, y, 32, 30, temp, 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
 	}
-	//label(463, 381, 32, 30, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
-	//label(585, 378, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
-	//label(585, 399, 54, 16, szprints(temp, zendof(temp), "%1i", gethitsmax()), 3);
+	sb.clear(); sb.add("%1i", getac(false)); label(463, 381, 32, 30, temp, 3);
+	sb.clear(); sb.add("%1i", gethits()); label(585, 378, 54, 16, temp, 3);
+	sb.clear(); sb.add("%1i", gethitsmax()); label(585, 399, 54, 16, temp, 3);
 	switcher(430, 22, InfoCharacter);
 	switcher(512, 22, InfoWeapons);
 	switcher(594, 22, InfoSkills);

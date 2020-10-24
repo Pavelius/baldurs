@@ -34,7 +34,7 @@ static void known_some_spells(creature& player, feature_info& f, bool interactiv
 
 	} else {
 		for(auto i = 0; i < 4; i++) {
-			auto e = random_spell(player, f.type.clas, f.level);
+			auto e = random_spell(player, (class_s)f.type.value, f.level);
 			if(e)
 				player.setknown(e);
 		}
@@ -42,13 +42,13 @@ static void known_some_spells(creature& player, feature_info& f, bool interactiv
 }
 
 static void known_all_spells(creature& player, feature_info& f, bool interactive) {
-	set_spells(player, f.type.clas, 1 + f.level / 2);
+	set_spells(player, (class_s)f.type.value, 1 + f.level / 2);
 }
 
 static void equipment(creature& player, feature_info& f, bool interactive) {
 	for(auto e : f.elements) {
 		switch(e.type) {
-		case Item: player.add(e.item); break;
+		case Item: player.add((item_s)f.type.value); break;
 		}
 	}
 }

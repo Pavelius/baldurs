@@ -114,3 +114,42 @@ char* loadt(const char* url, int* size) {
 		*size = s1;
 	return (char*)p;
 }
+
+char* szurlc(char* result) {
+	char* p = result;
+	while(*p) {
+		if(*p == '\\')
+			*p = '/';
+		p++;
+	}
+	return result;
+}
+
+char* szurl(char* p, const char* path, const char* name, const char* ext, const char* suffix) {
+	if(!p)
+		return 0;
+	*p = 0;
+	if(path && path[0]) {
+		zcpy(p, path);
+		zcat(p, "/");
+	}
+	if(name)
+		zcat(p, name);
+	if(suffix)
+		zcat(p, suffix);
+	if(ext && szext(p) == 0) {
+		zcat(p, ".");
+		zcat(p, ext);
+	}
+	return szurlc(p);
+}
+
+const char* szext(const char* path) {
+	for(const char* r = zend((char*)path); r > path; r--) {
+		if(*r == '.')
+			return r + 1;
+		else if(*r == '\\' || *r == '/')
+			return 0;
+	}
+	return 0;
+}

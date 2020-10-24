@@ -32,13 +32,12 @@ static int getcost(const char* ability, const char* modifier) {
 }
 
 const char* creature::getdescription(variant id) {
-	stringcreator dr;
-	stringbuilder sb(dr, description);
+	stringbuilder sb(description);
 	sb.add("###%1\n", getstr(id));
 	switch(id.type) {
-	case Race: getrule(sb, id.race); break;
-	case Alignment: getrule(sb, id.alignment); break;
-	case Feat: getrule(sb, id.feat); break;
+	case Race: getrule(sb, (race_s)id.value); break;
+	case Alignment: getrule(sb, (alignment_s)id.value); break;
+	case Feat: getrule(sb, (feat_s)id.value); break;
 	}
 	return description;
 }
@@ -254,15 +253,15 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 	if(!interactive) {
 		zshuffle(elements.data, elements.count);
 		for(auto v : elements) {
-			if(!isclass(v.skill))
+			if(!isclass((skill_s)v.value))
 				continue;
-			auto value = points_per_skill - skills[v.skill];
+			auto value = points_per_skill - skills[(skill_s)v.value];
 			if(value <= 0)
 				continue;
 			if(value > points)
 				value = points;
 			points -= value;
-			skills[v.skill] += value;
+			skills[(skill_s)v.value] += value;
 			if(points <= 0)
 				break;
 		}
@@ -274,14 +273,14 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 		creature&			player;
 		char				points_per_skill, points;
 		void row(rect rc, int i) override {
-			char temp[260];
-			auto id = elements[i].skill;
+			auto id = (skill_s)elements[i].value;
 			int value = player.get(id);
 			int value_cost = player.getcost(id);
 			int value_maximum = points_per_skill / value_cost;
 			int dy = rc.height() - 8;
 			labell(rc.x1, rc.y1, 160, dy, getstr(id), 0, (value_cost > 1) ? 5 : 0);
-			//szprints(temp, zendof(temp), "%+1i", player.get(id));
+			char temp[260]; stringbuilder sb(temp);
+			sb.add("%+1i", player.get(id));
 			label(rc.x1 + 180, rc.y1, 20, dy, temp);
 			unsigned flags = 0;
 			if(player.skills[id] <= minimal[id])
@@ -317,12 +316,12 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 		domodal();
 		switch(hot.key) {
 		case Plus:
-			skills[table.elements[hot.param].skill]++;
-			table.points -= getcost(table.elements[hot.param].skill);
+			skills[table.elements[hot.param].value]++;
+			table.points -= getcost((skill_s)table.elements[hot.param].value);
 			break;
 		case Minus:
-			skills[table.elements[hot.param].skill]--;
-			table.points += getcost(table.elements[hot.param].skill);
+			skills[table.elements[hot.param].value]--;
+			table.points += getcost((skill_s)table.elements[hot.param].value);
 			break;
 		}
 	}
@@ -339,7 +338,7 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 			//	continue;
 			if(!isallow(v))
 				continue;
-			set(v.feat);
+			set((feat_s)v.value);
 			if(--points <= 0)
 				break;
 		}
@@ -351,7 +350,7 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 		creature&			player;
 		char				points;
 		void row(rect rc, int i) override {
-			auto id = elements[i].feat;
+			auto id = (feat_s)elements[i].value;
 			int value = player.get(id);
 			int dy = rc.height() - 8;
 			auto isallow = player.isallow(id);
@@ -393,11 +392,11 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 		domodal();
 		switch(hot.key) {
 		case Plus:
-			set(table.elements[hot.param].feat);
+			set((feat_s)table.elements[hot.param].value);
 			table.points--;
 			break;
 		case Minus:
-			remove(table.elements[hot.param].feat);
+			remove((feat_s)table.elements[hot.param].value);
 			table.points++;
 			break;
 		}
@@ -406,7 +405,7 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 }
 
 static void choose_ability(creature& player, const char* title, const char* step_title) {
-	char temp[32];
+	char temp[32]; stringbuilder sb(temp);
 	char ability[6] = {10, 10, 10, 10, 10, 10};
 	const auto cost_maximum = 25;
 	while(ismodal()) {
@@ -419,9 +418,9 @@ static void choose_ability(creature& player, const char* title, const char* step
 		for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 			label(276, 155 + i * dy, 120, 28, getstr(i));
 			auto value = ability[i] + bsdata<racei>::elements[player.getrace()].abilities[i];
-			sznum(temp, value);
+			sb.clear(); sb.add("%1i", value);
 			label(414, 155 + i * dy, 33, 28, temp);
-			//szprints(temp, zendof(temp), "%+1i", value / 2 - 5);
+			sb.clear(); sb.add("%+1i", value / 2 - 5);
 			label(454, 155 + i * dy, 33, 28, temp, 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
 			char modifiers[6];
 			memset(modifiers, 0, sizeof(modifiers)); modifiers[i] = 1;
@@ -494,8 +493,7 @@ static const char* choose_name(const char* title) {
 }
 
 static variant_s choose_step(creature& player, const char* title, const char* step_title, variant_s current) {
-	stringcreator sc;
-	stringbuilder sb(sc, description);
+	stringbuilder sb(description);
 	player.getdescription(sb);
 	while(ismodal()) {
 		background(res::GUICGB, 0);
@@ -542,9 +540,9 @@ void creature::generate(const char* title) {
 			case Gender:
 				var = choose_gender(*this, title, "Выбор пола");
 				if(var) {
-					auto portrait = choose_portrait(title, "Выбор портрета", var.gender);
+					auto portrait = choose_portrait(title, "Выбор портрета", (gender_s)var.value);
 					if(portrait != -1) {
-						set(var.gender);
+						set((gender_s)var.value);
 						setportrait(portrait);
 					}
 				}

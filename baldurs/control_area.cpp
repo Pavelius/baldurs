@@ -368,9 +368,7 @@ static target render_area(rect rc, const point origin) {
 			p->painting(origin);
 	}
 #ifdef _DEBUG
-	char temp[1024]; temp[0] = 0;
-	stringcreator sc;
-	stringbuilder sb(sc, temp);
+	char temp[1024]; stringbuilder sb(temp);
 	auto map_index = map::getindex(hotspot);
 	sb.add("Mouse (%3i, %4i), Map (%1i, %2i), Search (%5i, %6i), index=%7i, ",
 		hotspot.x, hotspot.y,

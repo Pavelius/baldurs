@@ -39,15 +39,13 @@ int map::gethour(unsigned value) {
 	return (value / 60) % 24;
 }
 
-const char* map::getpassedtime(char* result, const char* result_maximum, unsigned value) {
-	result[0] = 0;
-	int h = gethour(value);
-	int d = getday(value);
-	//if(d)
-	//	szprints(szsep(result), result_maximum, "%1i %2", d, (d == 1) ? "day" : "days");
-	//if(h)
-	//	szprints(szsep(result), result_maximum, "%1i %2", h, (h == 1) ? "hour" : "hours");
-	return result;
+void map::getpassedtime(stringbuilder& sb, unsigned value) {
+	auto h = gethour(value);
+	auto d = getday(value);
+	if(d)
+		sb.add("%1i %2", d, (d == 1) ? "day" : "days");
+	if(h)
+		sb.add("%1i %2", h, (h == 1) ? "hour" : "hours");
 }
 
 unsigned char* map::ptr(const char* name) {
