@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<moveable>	moveable_data;
+BSDATAC(moveable, 128)
 static unsigned	arrow_flags[16] = {0, 0, 0, 0, 0,
 ImageMirrorV, ImageMirrorV, ImageMirrorV, ImageMirrorV,
 ImageMirrorV | ImageMirrorH, ImageMirrorV | ImageMirrorH, ImageMirrorV | ImageMirrorH, ImageMirrorV | ImageMirrorH,
@@ -20,11 +20,11 @@ moveable::moveable(point start, point finish, res::tokens id, unsigned feets_per
 }
 
 void* moveable::operator new(unsigned size) {
-	for(auto& e : moveable_data) {
+	for(auto& e : bsdata<moveable>()) {
 		if(!e)
 			return &e;
 	}
-	return moveable_data.add();
+	return bsdata<moveable>::add();
 }
 
 void moveable::update() {

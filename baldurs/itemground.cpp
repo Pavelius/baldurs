@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-adat<itemground, 2048> itemground_data;
+BSDATAC(itemground, 2048)
 
 rect itemground::getrect() const {
 	auto pt = getposition();

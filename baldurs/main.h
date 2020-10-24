@@ -934,82 +934,81 @@ public:
 	explicit operator bool() const { return ability[0] != 0; }
 	void* operator new(unsigned size);
 	void operator delete (void* data);
-	void				attack(creature& enemy);
-	void				attack(const target& enemy);
-	void				add(item e);
-	void				add(stringbuilder& sb, variant v1) const;
-	void				add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
-	void				add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
-	void				addinfo(stringbuilder& sb) const;
-	static void			adventure_combat();
-	static void			adventure();
-	void				apply(race_s id, bool add_ability);
-	void				apply(class_s id);
-	void				apply(variant type, char level, bool interactive);
-	void				blockimpassable() const override;
-	void				clear();
-	void				clear(variant_s value);
-	void				close(const target& e);
-	void				choose_action();
-	bool				choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
-	bool				choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
-	bool				choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
-	void				choose_skills(const char* title, const aref<variant>& elements);
-	static target		choose_target(int cursor, short unsigned start, short unsigned max_cost);
-	void				create(monster_s type, reaction_s reaction);
-	static creature*	create(monster_s type, reaction_s reaction, point postition);
-	static void			create(monster_s type, reaction_s reaction, point postition, unsigned char orientation, int count);
-	void				create(class_s type, race_s race, gender_s gender, reaction_s reaction);
-	static void			create_party();
-	void				damage(int count);
-	bool				equip(const item e);
-	void				generate(const char* title);
-	int					get(ability_s id) const;
-	int					get(save_s id) const;
-	int					get(skill_s id) const;
-	int					get(class_s id) const { return classes[id]; }
-	int					get(feat_s id) const { return is(id) ? 1 : 0; }
-	int					get(spell_s id) const;
-	item*				get(slot_s id) { return wears + id; }
-	void				get(attack_info& result, slot_s slot) const;
-	void				get(attack_info& result, slot_s slot, const creature& enemy) const;
-	static ability_s	getability(save_s id);
-	int					getac(bool flatfooted) const;
-	static creature*	getactive();
-	int					getbab() const;
-	creature*			getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const;
-	int					getbodyheight() const;
-	int					getcasterlevel() const;
-	int					getcharlevel() const;
-	class_s				getclass() const override;
-	int					getcost(skill_s id) const { return isclass(id) ? 1 : 2; }
-	static creature*	getcreature(point position);
-	static creature*	getcreature(short unsigned index);
-	static creature*	getcreature(aref<creature> source, short unsigned index);
-	static const char*	getdescription(variant id);
-	void				getdescription(stringbuilder& sb) const;
-	diety_s				getdiety() const { return diety; }
-	int					getfeats() const;
-	gender_s			getgender() const override { return gender; }
-	void				getin(const target& e);
-	int					getinitiative() const;
-	int					getinitiativeroll() const { return initiative; }
-	int					gethits() const override { return hits; }
-	int					gethitsmax() const;
-	monster_s			getkind() const override { return kind; }
-	int					getlevel() const;
-	short unsigned		getindex() const;
-	const char*			getname() const override { return name; }
-	int					getmaxcarry() const;
-	static int			getmoney();
-	int					getmovement() const;
-	const item&			getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
-	static int			getpartymaxdistance(point position);
-	int					getpoints(class_s id) const;
-	int					getportrait() const override { return portrait; }
-	int					getprepared(variant type) const;
-	int					getprepared(spell_s id, variant type) const;
-	int					getr(ability_s id) const { return ability[id]; }
+	void						attack(creature& enemy);
+	void						attack(const target& enemy);
+	void						add(item e);
+	void						add(stringbuilder& sb, variant v1) const;
+	void						add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
+	void						add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
+	void						addinfo(stringbuilder& sb) const;
+	static void					adventure_combat();
+	static void					adventure();
+	void						apply(race_s id, bool add_ability);
+	void						apply(class_s id);
+	void						apply(variant type, char level, bool interactive);
+	void						blockimpassable() const override;
+	void						clear();
+	void						clear(variant_s value);
+	void						close(const target& e);
+	void						choose_action();
+	bool						choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
+	bool						choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
+	bool						choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
+	void						choose_skills(const char* title, const aref<variant>& elements);
+	static target				choose_target(int cursor, short unsigned start, short unsigned max_cost);
+	void						create(monster_s type, reaction_s reaction);
+	static creature*			create(monster_s type, reaction_s reaction, point postition);
+	static void					create(monster_s type, reaction_s reaction, point postition, unsigned char orientation, int count);
+	void						create(class_s type, race_s race, gender_s gender, reaction_s reaction);
+	static void					create_party();
+	void						damage(int count);
+	bool						equip(const item e);
+	void						generate(const char* title);
+	int							get(ability_s id) const;
+	int							get(save_s id) const;
+	int							get(skill_s id) const;
+	int							get(class_s id) const { return classes[id]; }
+	int							get(feat_s id) const { return is(id) ? 1 : 0; }
+	int							get(spell_s id) const;
+	item*						get(slot_s id) { return wears + id; }
+	void						get(attack_info& result, slot_s slot) const;
+	void						get(attack_info& result, slot_s slot, const creature& enemy) const;
+	static ability_s			getability(save_s id);
+	int							getac(bool flatfooted) const;
+	static creature*			getactive();
+	int							getbab() const;
+	creature*					getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const;
+	int							getbodyheight() const;
+	int							getcasterlevel() const;
+	int							getcharlevel() const;
+	class_s						getclass() const override;
+	int							getcost(skill_s id) const { return isclass(id) ? 1 : 2; }
+	static creature*			getcreature(point position);
+	static creature*			getcreature(short unsigned index);
+	static const char*			getdescription(variant id);
+	void						getdescription(stringbuilder& sb) const;
+	diety_s						getdiety() const { return diety; }
+	int							getfeats() const;
+	gender_s					getgender() const override { return gender; }
+	void						getin(const target& e);
+	int							getinitiative() const;
+	int							getinitiativeroll() const { return initiative; }
+	int							gethits() const override { return hits; }
+	int							gethitsmax() const;
+	monster_s					getkind() const override { return kind; }
+	int							getlevel() const;
+	short unsigned				getindex() const;
+	const char*					getname() const override { return name; }
+	int							getmaxcarry() const;
+	static int					getmoney();
+	int							getmovement() const;
+	const item&					getoffhand() const { return wears[QuickOffhand + active_weapon * 2]; }
+	static int					getpartymaxdistance(point position);
+	int							getpoints(class_s id) const;
+	int							getportrait() const override { return portrait; }
+	int							getprepared(variant type) const;
+	int							getprepared(spell_s id, variant type) const;
+	int							getr(ability_s id) const { return ability[id]; }
 	race_s						getrace() const override { return race; }
 	short unsigned				getreach() const;
 	int							getskillpoints() const;
@@ -1175,6 +1174,7 @@ void							view(rect rc, rect rcs, const char* text, scrolltext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
 template<class T> void			getrule(stringbuilder& sb, T value);
+template<class T> const char*	getstr(T e) { return bsdata<T>::elements[e].name; }
 extern creature					players[6];
 extern setting					settings;
 extern adat<point, 256 * 256>	verticles;
@@ -1186,3 +1186,16 @@ template<> void archive::set<door>(door& e);
 template<> void archive::set<entrance>(entrance& e);
 template<> void archive::set<region>(region& e);
 template<> void archive::set<animation>(animation& e);
+
+template<> const char* getstr<variant>(variant e);
+template<> const char* getstr<variant_s>(variant_s e);
+
+BSLNK(ability_s, abilityi)
+BSLNK(alignment_s, alignmenti)
+BSLNK(class_s, classi)
+BSLNK(feat_s, feati)
+BSLNK(gender_s, genderi)
+BSLNK(race_s, racei)
+BSLNK(save_s, savei)
+BSLNK(spell_s, spelli)
+BSLNK(skill_s, skilli)

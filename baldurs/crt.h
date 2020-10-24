@@ -65,7 +65,6 @@ const codepages						code = CP1251;
 //
 bool								equal(const char* s1, const char* s2);
 int									getdigitscount(unsigned number); // Get digits count of number. For example if number=100, result be 3.
-template<class T> const char*		getstr(T e); // Template to return string of small class
 bool								ischa(unsigned u); // is alphabetical character?
 inline bool							isnum(unsigned u) { return u >= '0' && u <= '9'; } // is numeric character?
 int									isqrt(const int x); // Return aquare root of 'x'

@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<floattext, 32> floattext_data;
+BSDATAC(floattext, 32)
 
 void floattext::clear() {
 	text = 0;
@@ -25,17 +25,17 @@ void floattext::update() {
 }
 
 static floattext* find(point pt, const char* text) {
-	for(auto& e : floattext_data) {
+	for(auto& e : bsdata<floattext>()) {
 		if(!e.text)
 			continue;
 		if(strcmp(e.text, text)==0)
 			return &e;
 	}
-	for(auto& e : floattext_data) {
+	for(auto& e : bsdata<floattext>()) {
 		if(!e)
 			return &e;
 	}
-	return floattext_data.add();
+	return bsdata<floattext>::add();
 }
 
 void draw::textblend(point pos, const char* text, unsigned duration) {

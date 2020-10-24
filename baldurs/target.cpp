@@ -16,7 +16,7 @@ target::target(struct drawable* value) {
 	} else if((bsdata<class creature>::source.indexof(value) != -1)
 		|| value >= players && value <= (players + sizeof(players) / sizeof(players[0]))) {
 		type = Creature;
-		creature = static_cast<struct creature*>(value);
+		creature = static_cast<class creature*>(value);
 	} else {
 		type = NoTarget;
 		creature = 0;

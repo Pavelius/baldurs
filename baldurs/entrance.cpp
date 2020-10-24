@@ -1,6 +1,7 @@
 #include "main.h"
 
-adat<entrance> entrance_data;
+BSDATAC(entrance, 128)
+BSDATAC(point, 1024 * 32)
 
 template<> void archive::set<entrance>(entrance& e) {
 	set(e.name);
@@ -11,7 +12,7 @@ template<> void archive::set<entrance>(entrance& e) {
 point map::getentrance(const char* name, unsigned char* orient) {
 	if(orient)
 		*orient = 0;
-	for(auto& e : entrance_data) {
+	for(auto& e : bsdata<entrance>()) {
 		if(!e.name[0])
 			break;
 		if(strcmp(e.name, name) == 0) {
@@ -20,17 +21,17 @@ point map::getentrance(const char* name, unsigned char* orient) {
 			return e.position;
 		}
 	}
-	if(name[0] == 0 && entrance_data[0].name[0])
-		return entrance_data[0].position;
+	if(name[0] == 0 && bsdata<entrance>::elements[0].name[0])
+		return bsdata<entrance>::elements[0].position;
 	return {0, 0};
 }
 
 entrance* map::find(const char* id) {
-	if(!entrance_data)
+	if(!bsdata<entrance>::source.getcount())
 		return 0;
-	if(!id || id[0]==0)
-		return entrance_data.data;
-	for(auto& e : entrance_data) {
+	if(!id || id[0] == 0)
+		return bsdata<entrance>::elements;
+	for(auto& e : bsdata<entrance>()) {
 		if(strcmp(e.name, id) == 0)
 			return &e;
 	}
