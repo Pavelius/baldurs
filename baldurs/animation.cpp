@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-adat<animation> animation_data;
+BSDATAC(animation, 128)
 
 enum animation_flag_s {
 	AnimationEnabled = 1,

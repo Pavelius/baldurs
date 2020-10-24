@@ -139,7 +139,6 @@
     <ClCompile Include="control_area.cpp" />
     <ClCompile Include="control_creature.cpp" />
     <ClCompile Include="class.cpp" />
-    <ClCompile Include="collection.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="coloration.cpp" />
     <ClCompile Include="container.cpp" />
@@ -156,7 +155,9 @@
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="draw_input.cpp" />
     <ClCompile Include="draw_text.cpp" />
-    <ClCompile Include="draw_textf.cpp" />
+    <ClCompile Include="draw_textf.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="entrance.cpp" />
     <ClCompile Include="feats.cpp" />
     <ClCompile Include="feature.cpp" />
@@ -222,7 +223,6 @@
   <ItemGroup>
     <ClInclude Include="archive.h" />
     <ClInclude Include="bstream.h" />
-    <ClInclude Include="collection.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="converter.h" />
     <ClInclude Include="crt.h" />

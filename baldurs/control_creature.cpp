@@ -281,7 +281,7 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 			int value_maximum = points_per_skill / value_cost;
 			int dy = rc.height() - 8;
 			labell(rc.x1, rc.y1, 160, dy, getstr(id), 0, (value_cost > 1) ? 5 : 0);
-			szprints(temp, zendof(temp), "%+1i", player.get(id));
+			//szprints(temp, zendof(temp), "%+1i", player.get(id));
 			label(rc.x1 + 180, rc.y1, 20, dy, temp);
 			unsigned flags = 0;
 			if(player.skills[id] <= minimal[id])
@@ -418,10 +418,10 @@ static void choose_ability(creature& player, const char* title, const char* step
 		const int dy = 36;
 		for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 			label(276, 155 + i * dy, 120, 28, getstr(i));
-			auto value = ability[i] + race_data[player.getrace()].abilities[i];
+			auto value = ability[i] + bsdata<racei>::elements[player.getrace()].abilities[i];
 			sznum(temp, value);
 			label(414, 155 + i * dy, 33, 28, temp);
-			szprints(temp, zendof(temp), "%+1i", value / 2 - 5);
+			//szprints(temp, zendof(temp), "%+1i", value / 2 - 5);
 			label(454, 155 + i * dy, 33, 28, temp, 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
 			char modifiers[6];
 			memset(modifiers, 0, sizeof(modifiers)); modifiers[i] = 1;
@@ -450,7 +450,7 @@ static void choose_ability(creature& player, const char* title, const char* step
 	}
 	if(getresult()) {
 		for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-			player.set(i, ability[i] + race_data[player.getrace()].abilities[i]);
+			player.set(i, ability[i] + bsdata<racei>::elements[player.getrace()].abilities[i]);
 	}
 }
 

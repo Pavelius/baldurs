@@ -19,7 +19,7 @@ struct item_animation {
 };
 
 static_assert(sizeof(item) == 4, "Struct 'item_t' can be only 'int' sized");
-struct item_info {
+struct itemi {
 	const char*		id;
 	const char*		name;
 	item_animation	images;
@@ -34,7 +34,7 @@ struct item_info {
 
 static item ammunition_arrow(Arrow);
 
-static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
+BSDATA(itemi) = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"}},
 {"Club", "Дубина", {"ICLUBB1", "GBLUN01", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyClub, FocusMaces}, {{1, 6}}},
 {"Hammer", "Молот", {"IHAMMB1", "GHAMM01", res::WQSWH}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6}}},
 {"Mace", "Булава", {"IMACEB1", "GBLUN06", res::WQSMC}, {QuickWeapon, QuickOffhand}, {ProficiencyMace, FocusMaces}, {{1, 6, 1}}},
@@ -87,12 +87,11 @@ static item_info item_data[] = {{"No item", "Нет предмета", {"IHANDGF", "GGEM01"
 {"Blue quarz", "Голубой кварц", {"IMISC33", "GGEM01"}, {}, {}, {}, 25, 0, 4 * GP},
 {"Carved Stone", "Резной камень", {"IBSTONE", "GGEM01"}, {}, {}, {}, 25, 0, 15 * GP},
 };
-assert_enum(item, LastItem);
-getstr_enum(item);
+assert_enum(itemi, LastItem)
 
 void add_feat_item(stringbuilder& sb, feat_s id) {
 	auto p = sb.getpos();
-	for(auto& e : item_data) {
+	for(auto& e : bsdata<itemi>()) {
 		if(e.feat[0] == id) {
 			sb.sep(0, p);
 			sb.add(e.name);
@@ -116,7 +115,7 @@ int	item::getbonus() const {
 }
 
 bool item::is(slot_s value) const {
-	for(auto s : item_data[type].slots) {
+	for(auto s : bsdata<itemi>::elements[type].slots) {
 		if(s == value)
 			return true;
 	}
@@ -124,7 +123,7 @@ bool item::is(slot_s value) const {
 }
 
 bool item::isranged() const {
-	return item_data[type].ai.range != 0;
+	return bsdata<itemi>::elements[type].ai.range != 0;
 }
 
 bool item::istwohand() const {
@@ -151,12 +150,12 @@ bool item::isreach() const {
 }
 
 bool item::is(feat_s value) const {
-	return item_data[type].feat[0] == value
-		|| item_data[type].feat[1] == value;
+	return bsdata<itemi>::elements[type].feat[0] == value
+		|| bsdata<itemi>::elements[type].feat[1] == value;
 }
 
 int	item::getac() const {
-	auto r = item_data[type].ai.ac;
+	auto r = bsdata<itemi>::elements[type].ai.ac;
 	if(r)
 		r += getbonus();
 	return r;
@@ -167,31 +166,31 @@ int item::getframe() const {
 }
 
 feat_s item::getfeat() const {
-	return item_data[type].feat[0];
+	return bsdata<itemi>::elements[type].feat[0];
 }
 
 const char* item::getfname(int type) {
-	return item_data[type].images.avatar;
+	return bsdata<itemi>::elements[type].images.avatar;
 }
 
 const char* item::getfgname(int type) {
-	return item_data[type].images.ground;
+	return bsdata<itemi>::elements[type].images.ground;
 }
 
 res::tokens item::getanwear(int type) {
-	return item_data[type].images.wear;
+	return bsdata<itemi>::elements[type].images.wear;
 }
 
 res::tokens item::getanthrown() const {
-	return item_data[type].images.thrown;
+	return bsdata<itemi>::elements[type].images.thrown;
 }
 
 item_s item::getammunition() const {
-	return item_data[type].ai.ammunition ? item_data[type].ai.ammunition->type : NoItem;
+	return bsdata<itemi>::elements[type].ai.ammunition ? bsdata<itemi>::elements[type].ai.ammunition->type : NoItem;
 }
 
 int item::getarmorindex() const {
-	switch(item_data[type].feat[0]) {
+	switch(bsdata<itemi>::elements[type].feat[0]) {
 	case ArmorProfeciencyLight: return 1;
 	case ArmorProfeciencyMedium: return 2;
 	case ArmorProfeciencyHeavy: return 3;
@@ -200,7 +199,7 @@ int item::getarmorindex() const {
 }
 
 bool creature::isallow(const item& it) const {
-	const auto& ei = item_data[it.gettype()];
+	const auto& ei = bsdata<itemi>::elements[it.gettype()];
 	if(!ei.feat[0])
 		return true;
 	for(auto e : ei.feat) {
@@ -213,8 +212,8 @@ bool creature::isallow(const item& it) const {
 }
 
 bool item::isbow() const {
-	return item_data[type].ai.ammunition
-		&& item_data[type].ai.ammunition->type == Arrow;
+	return bsdata<itemi>::elements[type].ai.ammunition
+		&& bsdata<itemi>::elements[type].ai.ammunition->type == Arrow;
 }
 
 bool item::isxbow() const {
@@ -226,26 +225,26 @@ bool item::isthrown() const {
 }
 
 const attack_info& item::getattack() const {
-	return item_data[type].ai;
+	return bsdata<itemi>::elements[type].ai;
 }
 
 int	item::getcount() const {
-	if(item_data[type].count)
+	if(bsdata<itemi>::elements[type].count)
 		return count + 1;
 	else
 		return 1;
 }
 
 int	item::getcost() const {
-	return item_data[type].cost;
+	return bsdata<itemi>::elements[type].cost;
 }
 
 void item::setcount(int value) {
 	if(value <= 0)
 		clear();
-	else if(item_data[type].count) {
-		if(value > item_data[type].count)
-			value = item_data[type].count;
+	else if(bsdata<itemi>::elements[type].count) {
+		if(value > bsdata<itemi>::elements[type].count)
+			value = bsdata<itemi>::elements[type].count;
 		count = value - 1;
 	}
 }

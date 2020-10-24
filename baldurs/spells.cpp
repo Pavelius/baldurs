@@ -1,6 +1,6 @@
 #include "main.h"
 
-spell_info spell_data[] = {{"No spell", "Нет Заклинания", "SPWI104C"},
+BSDATA(spelli) = {{"No spell", "Нет Заклинания", "SPWI104C"},
 //
 {"Armor of Faith", "Доспех веры", "SPPR115C", Abjuration, {{Cleric, 1}}},
 {"Bane", "Погибель", "SPPR111C", Enchantment, {{Cleric, 1}}},
@@ -44,8 +44,7 @@ spell_info spell_data[] = {{"No spell", "Нет Заклинания", "SPWI104C"},
 {"Sleep", "Сон", "SPWI116C", Enchantment, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Spook", "Бабай", "SPWI121C", Illusion, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Summon Monster I", "Призыв монстра I", "SPWI124C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}}, };
-assert_enum(spell, LastSpell);
-getstr_enum(spell);
+assert_enum(spelli, LastSpell);
 
 //void get_spell_description(char* result, int rec) {
 //	szprint(result, "###%1\n", "",bsgets(rec, Name));
@@ -80,5 +79,5 @@ getstr_enum(spell);
 //}
 
 bool creature::is(spell_s id, class_s cls, int level) {
-	return spell_data[id].levels[cls] >= level;
+	return bsdata<spelli>::elements[id].levels[cls] >= level;
 }

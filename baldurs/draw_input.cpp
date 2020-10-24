@@ -88,9 +88,9 @@ void update_timestamp() {
 	timestamp = clock();
 	for(auto& e : players)
 		e.update();
-	for(auto& e : creature_data)
+	for(auto& e : bsdata<creature>())
 		e.update();
-	for(auto& e : moveable_data)
+	for(auto& e : bsdata<moveable>())
 		e.update();
 }
 

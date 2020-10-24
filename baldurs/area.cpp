@@ -43,10 +43,10 @@ const char* map::getpassedtime(char* result, const char* result_maximum, unsigne
 	result[0] = 0;
 	int h = gethour(value);
 	int d = getday(value);
-	if(d)
-		szprints(szsep(result), result_maximum, "%1i %2", d, (d == 1) ? "day" : "days");
-	if(h)
-		szprints(szsep(result), result_maximum, "%1i %2", h, (h == 1) ? "hour" : "hours");
+	//if(d)
+	//	szprints(szsep(result), result_maximum, "%1i %2", d, (d == 1) ? "day" : "days");
+	//if(h)
+	//	szprints(szsep(result), result_maximum, "%1i %2", h, (h == 1) ? "hour" : "hours");
 	return result;
 }
 
@@ -79,17 +79,17 @@ void map::clear() {
 	memset(statemap, 0, sizeof(statemap));
 	memset(lightmap, 0, sizeof(lightmap));
 	memset(lightpal, 0, sizeof(lightpal));
-	animation_data.clear();
-	container_data.clear();
-	creature_data.clear();
-	door_data.clear();
-	door_tiles_data.clear();
-	entrance_data.clear();
-	itemground_data.clear();
-	itemcont_data.clear();
-	region_data.clear();
+	bsdata<animation>::source.clear();
+	bsdata<container>::source.clear();
+	bsdata<creature>::source.clear();
+	bsdata<door>::source.clear();
+	bsdata<door_tile>::source.clear();
+	bsdata<entrance>::source.clear();
+	bsdata<itemground>::source.clear();
+	bsdata<itemcont>::source.clear();
+	bsdata<region>::source.clear();
 	verticles.clear();
-	floattext_data.clear();
+	bsdata<floattext>::source.clear();
 }
 
 void map::settile(short unsigned index, short unsigned tile) {
@@ -166,7 +166,7 @@ static bool load_mmp_file(const char* name) {
 }
 
 bool archive_ard(io::stream& file, bool writemode, char* sprites_resname) {
-	archive::dataset references[] = {{verticles}, {door_tiles_data}};
+	array* references[] = {bsdata<point>::source_ptr, bsdata<door_tile>::source_ptr};
 	archive ar(file, writemode, references);
 	if(!ar.signature("ARD"))
 		return false;
@@ -181,13 +181,13 @@ bool archive_ard(io::stream& file, bool writemode, char* sprites_resname) {
 	archive_bitmap(ar, lightmap, 8, 256, map::width, map::height, lightpal);
 	archive_bitmap(ar, statemap, 8, 256, map::width, map::height, 0);
 	// Îáúåêòû
-	ar.set(verticles);
-	ar.set(door_tiles_data);
-	ar.set(region_data);
-	ar.set(container_data);
-	ar.set(door_data);
-	ar.set(entrance_data);
-	ar.set(animation_data);
+	//ar.set(verticles);
+	//ar.set(door_tiles_data);
+	//ar.set(region_data);
+	//ar.set(container_data);
+	//ar.set(door_data);
+	//ar.set(entrance_data);
+	//ar.set(animation_data);
 	return true;
 }
 
@@ -261,7 +261,7 @@ point map::getfree(point position, int size) {
 }
 
 void map::drop(short unsigned index, item it) {
-	auto p = itemground_data.add();
+	auto p = bsdata<itemground>::add();
 	if(!p)
 		return;
 	*((item*)p) = it;

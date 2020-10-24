@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<region, 256> region_data;
+BSDATAC(region, 256)
 
 int region::getcursor() const {
 	switch(type) {

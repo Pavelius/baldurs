@@ -1,9 +1,6 @@
 #include "main.h"
 
-static struct diety_info {
-	const char*	id;
-	const char*	name;
-} diety_data[] = {{"No diety"},
+BSDATA(dietyi) = {{"No diety"},
 // Gods
 {"Bane", "Бейн"},
 {"Chauntea", "Шаунти"},
@@ -24,5 +21,4 @@ static struct diety_info {
 {"Tyr", "Тир"},
 {"Umberly", "Умбрелла"},
 };
-assert_enum(diety, GodUmberly);
-getstr_enum(diety);
+assert_enum(dietyi, GodUmberly)

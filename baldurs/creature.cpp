@@ -1,7 +1,7 @@
 #include "main.h"
 
+BSDATAC(creature, 256)
 creature				players[6];
-adat<creature, 256>		creature_data;
 static int				party_money;
 
 static char	good_save[] = {2,
@@ -43,11 +43,11 @@ static short carrying_capacity[][3] = {{1, 2, 3},
 };
 
 void* creature::operator new(unsigned size) {
-	for(auto& e : creature_data) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			return &e;
 	}
-	return creature_data.add();
+	return bsdata<creature>::add();
 }
 
 void creature::operator delete (void* data) {
@@ -80,10 +80,10 @@ int	creature::getlevel() const {
 int	creature::getcasterlevel() const {
 	auto result = 0;
 	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
-		if(!class_data[e].spells)
+		if(!bsdata<classi>::elements[e].spells)
 			continue;
-		if(classes[e] >= class_data[e].spells[0].minimal)
-			result += classes[e] - class_data[e].spells[0].minimal + 1;
+		if(classes[e] >= bsdata<classi>::elements[e].spells[0].minimal)
+			result += classes[e] - bsdata<classi>::elements[e].spells[0].minimal + 1;
 	}
 	return result;
 }
@@ -125,25 +125,25 @@ int creature::getbab() const {
 
 void creature::apply(race_s id, bool add_ability) {
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-		ability[i] += race_data[id].abilities[i];
+		ability[i] += bsdata<racei>::elements[id].abilities[i];
 }
 
 void creature::apply(class_s id) {
-	for(auto e : class_data[id].weapon_proficiency)
+	for(auto e : bsdata<classi>::elements[id].weapon_proficiency)
 		set(e);
-	for(auto e : class_data[id].armor_proficiency)
+	for(auto e : bsdata<classi>::elements[id].armor_proficiency)
 		set(e);
 	if(getcharlevel() == 1)
-		hits_rolled = class_data[id].hd;
+		hits_rolled = bsdata<classi>::elements[id].hd;
 	else
-		hits_rolled += xrand(1, class_data[id].hd);
+		hits_rolled += xrand(1, bsdata<classi>::elements[id].hd);
 }
 
 int creature::get(skill_s id) const {
 	auto r = skills[id];
-	r += get(skill_data[id].ability);
-	r += race_data[race].skills[id];
-	for(auto e : skill_data[id].synergy) {
+	r += get(bsdata<skilli>::elements[id].ability);
+	r += bsdata<racei>::elements[race].skills[id];
+	for(auto e : bsdata<skilli>::elements[id].synergy) {
 		if(e && skills[e] >= 5)
 			r += 2;
 	}
@@ -341,7 +341,7 @@ bool creature::isclass(skill_s id) const {
 	for(auto i = Commoner; i <= Wizard; i = (class_s)(i + 1)) {
 		if(!classes[i])
 			continue;
-		for(auto s : class_data[i].class_skills) {
+		for(auto s : bsdata<classi>::elements[i].class_skills) {
 			if(s == id)
 				return true;
 		}
@@ -354,8 +354,8 @@ int	creature::gethitsmax() const {
 }
 
 int	creature::getpoints(class_s id) const {
-	auto result = class_data[id].skill_points;
-	result += race_data[race].quick_learn;
+	auto result = bsdata<classi>::elements[id].skill_points;
+	result += bsdata<racei>::elements[race].quick_learn;
 	result += get(Intellegence);
 	if(result <= 0)
 		result = 0;
@@ -390,11 +390,11 @@ void creature::moveto(const char* location, const char* entrance) {
 }
 
 void creature::updategame() {
-	for(auto& e : floattext_data) {
+	for(auto& e : bsdata<floattext>()) {
 		if(e)
 			e.update();
 	}
-	for(auto& e : creature_data) {
+	for(auto& e : bsdata<creature>()) {
 		if(e)
 			e.update();
 	}
@@ -454,9 +454,9 @@ int	creature::getspellslots(variant value, int spell_level) const {
 	auto result = 0;
 	switch(value.type) {
 	case Class:
-		if(class_data[value.clas].spells) {
+		if(bsdata<classi>::elements[value.clas].spells) {
 			auto si = spell_level - 1;
-			const auto& c = class_data[value.clas];
+			const auto& c = bsdata<classi>::elements[value.clas];
 			const auto& e = c.spells[si];
 			auto m = classes[value.clas] - e.minimal;
 			if(m < 0)
@@ -583,7 +583,7 @@ bool creature::choose_skills(const char* title, const aref<variant>& elements, b
 	apply(race, 1, interactive);
 	apply(type, 1, interactive);
 	auto feat_points = 1;
-	feat_points += race_data[race].quick_learn;
+	feat_points += bsdata<racei>::elements[race].quick_learn;
 	if(!choose_feats(title, "Выбор особенностей",
 		select(elements, FirstFeat, ProficiencyWaraxe, !interactive), feats, feat_points, interactive))
 		return false;
@@ -630,7 +630,7 @@ void creature::create(class_s type, race_s race, gender_s gender, reaction_s rea
 }
 
 creature* creature::create(monster_s type, reaction_s reaction, point postition) {
-	auto p = creature_data.add();
+	auto p = bsdata<creature>::add();
 	p->create(type, reaction);
 	p->stop();
 	p->setposition(map::getfree(postition, p->getsize()));
@@ -661,14 +661,14 @@ creature* creature::getcreature(point position) {
 }
 
 creature* creature::getcreature(short unsigned index) {
-	auto result = getcreature(players, index);
-	if(!result)
-		result = getcreature(creature_data, index);
-	return result;
-}
-
-creature* creature::getcreature(aref<creature> collection, short unsigned index) {
-	for(auto& e : collection) {
+	for(auto& e : players) {
+		if(!e)
+			continue;
+		auto i = map::getindex(e.getposition(), e.getsize());
+		if(index == i)
+			return &e;
+	}
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		auto i = map::getindex(e.getposition(), e.getsize());
@@ -839,7 +839,7 @@ void creature::makecombat() {
 			continue;
 		elements.add(&e);
 	}
-	for(auto& e : creature_data) {
+	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
 		elements.add(&e);
@@ -913,7 +913,7 @@ void creature::blockimpassable() const {
 		if(e)
 			map::setcost(e.getindex(), Blocked);
 	}
-	for(auto& e : creature_data) {
+	for(auto& e : bsdata<creature>()) {
 		if(e)
 			map::setcost(e.getindex(), Blocked);
 	}

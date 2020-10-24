@@ -25,9 +25,6 @@
     <ClCompile Include="stringcreator.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
-    <ClCompile Include="collection.cpp">
-      <Filter>Библиотека\Ядро</Filter>
-    </ClCompile>
     <ClCompile Include="crt.cpp">
       <Filter>Библиотека\Ядро</Filter>
     </ClCompile>
@@ -284,9 +281,6 @@
     </ClInclude>
     <ClInclude Include="stringcreator.h">
       <Filter>Библиотека\Классы</Filter>
-    </ClInclude>
-    <ClInclude Include="collection.h">
-      <Filter>Библиотека\Ядро</Filter>
     </ClInclude>
     <ClInclude Include="crt.h">
       <Filter>Библиотека\Ядро</Filter>

@@ -124,7 +124,7 @@ const char* psstr(const char* p, char* r, char end_symbol) {
 		case '\r':
 			// Перевод строки в конце
 			while(*p == '\n' || *p == '\r')
-				p = szskipcr(p);
+				p = skipcr(p);
 			break;
 		default:
 			// Любой символ, который будет экранирован ( \', \", \\)

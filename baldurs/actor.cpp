@@ -13,11 +13,7 @@ enum animate_s : unsigned char {
 	AnimateShootBow, AnimateShootSling, AnimateShootXBow,
 	AnimateCastBig, AnimateCastBigRelease, AnimateCast, AnimateCastRelease, AnimateCastThird, AnimateCastThirdRelease, AnimateCastFour, AnimateCastFourRelease
 };
-static struct animate_info {
-	const char*		name;
-	bool			disable_overlay;
-	bool			ready;
-} animate_data[] = {{"AnimateMove"},
+BSDATA(animatei) = {{"AnimateMove"},
 {"AnimateStand", false, true}, {"AnimateStandRelax", false, true}, {"AnimateStandLook", false, true},
 {"AnimateCombatStance", false, true}, {"AnimateCombatStanceTwoHanded", false, true},
 {"AnimateGetHit"}, {"AnimateGetHitAndDrop"},
@@ -36,8 +32,7 @@ static struct animate_info {
 {"AnimateCastFour", true},
 {"AnimateCastFourRelease", true},
 };
-assert_enum(animate, AnimateCastFourRelease);
-getstr_enum(animate)
+assert_enum(animatei, AnimateCastFourRelease)
 
 static short unsigned actions_mid1[AnimateCastFourRelease + 1] = {9, 1, 0, 0, 1, 1, 2, 3, 4, 5,
 10, 11, 11, 10, 11, 11, 10, 11, 11, 10, 11, 11,
@@ -149,16 +144,16 @@ const sprite* actor::getsprite(res::tokens id, int wi) {
 
 void actor::say(const char* format, ...) const {
 	char temp[4096];
-	szprints(temp, zendof(temp), "[%1]: ", getname());
-	szprintvs(zend(temp), zendof(temp), format, xva_start(format));
+	//szprints(temp, zendof(temp), "[%1]: ", getname());
+	//szprintvs(zend(temp), zendof(temp), format, xva_start(format));
 	mslogv(temp);
 }
 
 void actor::act(int player, const char* format, ...) {
 	char temp[4096];
-	szprints(temp, zendof(temp), "%1 ", getname());
-	szprintvs(zend(temp), zendof(temp), format, xva_start(format));
-	szprints(zend(temp), zendof(temp), ".");
+	//szprints(temp, zendof(temp), "%1 ", getname());
+	//szprintvs(zend(temp), zendof(temp), format, xva_start(format));
+	//szprints(zend(temp), zendof(temp), ".");
 	mslogv(temp);
 }
 
@@ -179,11 +174,13 @@ int	actor::getzorder() const {
 
 const sprite* actor::getsprite(int& wi) const {
 	auto kind = getkind();
-	switch(monster_data[kind].sptype) {
+	auto& ei = bsdata<monsteri>::elements[kind];
+	switch(ei.sptype) {
 	case CID1:
-		return draw::gres(getanimation(getrace(), getgender(), getclass(), getwear(Body)->getarmorindex(), wi));
+		return draw::gres(
+			getanimation(getrace(), getgender(), getclass(), getwear(Body)->getarmorindex(), wi));
 	case MID1:
-		return draw::gres(monster_data[kind].sprites[0]);
+		return draw::gres(ei.sprites[0]);
 	default:
 		return 0;
 	}
@@ -191,7 +188,8 @@ const sprite* actor::getsprite(int& wi) const {
 
 int actor::getflags() const {
 	auto kind = getkind();
-	switch(monster_data[kind].sptype) {
+	auto& ei = bsdata<monsteri>::elements[kind];
+	switch(ei.sptype) {
 	case CID1:
 		if(orientation >= 9)
 			return ImageMirrorH;
@@ -203,7 +201,8 @@ int actor::getflags() const {
 
 int actor::getcicle() const {
 	auto kind = getkind();
-	switch(monster_data[kind].sptype) {
+	auto& ei = bsdata<monsteri>::elements[kind];
+	switch(ei.sptype) {
 	case CID1:
 		if(orientation >= 9)
 			return action * 9 + ((9 - 1) * 2 - orientation);
@@ -398,16 +397,17 @@ void actor::painting(point screen) const {
 	int x = position.x - screen.x;
 	int y = position.y - screen.y;
 	int cicle_index = getcicle();
-	int cicle_flags = getflags();
+		int cicle_flags = getflags();
 	colors.upload(pallette);
 	if(isselected())
 		marker(x, y, getsize(), colors::green, false, true);
 	int wi;
 	const sprite* sprites[4] = {getsprite(wi)};
 	auto kind = getkind();
-	switch(monster_data[kind].sptype) {
+	auto& ei = bsdata<monsteri>::elements[kind];
+	switch(ei.sptype) {
 	case CID1:
-		if(!animate_data[action].disable_overlay) {
+		if(!bsdata<animatei>::elements[action].disable_overlay) {
 			sprites[1] = getsprite(item::getanwear(getwear(Head)->gettype()), wi);
 			sprites[2] = getsprite(item::getanwear(getwear(QuickWeapon)->gettype()), wi);
 			sprites[3] = getsprite(item::getanwear(getwear(QuickOffhand)->gettype()), wi);
@@ -415,8 +415,8 @@ void actor::painting(point screen) const {
 		break;
 	case MID1:
 		memcpy(pallette, sprites[0]->offs(sprites[0]->get(0).pallette), sizeof(pallette));
-		for(auto i = 1; i < sizeof(monster_data[kind].sprites) / sizeof(monster_data[kind].sprites[0]); i++)
-			sprites[i] = draw::gres(monster_data[kind].sprites[i]);
+		for(auto i = 1; i < sizeof(ei.sprites) / sizeof(ei.sprites[0]); i++)
+			sprites[i] = draw::gres(ei.sprites[i]);
 		break;
 	}
 	auto shadow = map::getshadow(position);
@@ -563,7 +563,7 @@ void actor::render_hit(bool fatal) {
 }
 
 bool actor::isready() const {
-	return animate_data[action].ready;
+	return bsdata<animatei>::elements[action].ready;
 }
 
 point actor::getposition(int percent) const {

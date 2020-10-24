@@ -1,6 +1,6 @@
 #include "main.h"
 
-school_info school_data[] = {{"NoSchool"},
+BSDATA(schooli) = {{"NoSchool"},
 {"Abjuration", "Оберегание"},
 {"Conjuration", "Вызов"},
 {"Divination", "Предсказание"},
@@ -10,5 +10,4 @@ school_info school_data[] = {{"NoSchool"},
 {"Necromancy", "Некромантия"},
 {"Transmutation", "Преобразование"},
 };
-assert_enum(school, Transmutation);
-getstr_enum(school);
+assert_enum(schooli, Transmutation)

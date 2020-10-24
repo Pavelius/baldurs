@@ -132,7 +132,8 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runab
 		}
 		auto count = pi->getcount();
 		if(count > 1) {
-			char temp[16]; szprints(temp, zendof(temp), "%1i", count);
+			char temp[16] = "Update!!";
+			//szprints(temp, zendof(temp), "%1i", count);
 			auto push_stroke = fore_stroke;
 			fore_stroke = colors::black;
 			text(x + 32 - textw(temp), y + 20, temp, -1, TextStroke);
@@ -177,11 +178,11 @@ void creature::invertory(itemdrag* pd) {
 		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd);
 	}
 	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
-	label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
-	label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
-	label(710, 372, 54, 16, szprints(temp, zendof(temp), "%1i", gethitsmax()), 3);
+	//label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
+	//label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
+	//label(710, 372, 54, 16, szprints(temp, zendof(temp), "%1i", gethitsmax()), 3);
 	labelr(704, 141, 70, 20, sznum(temp, getmoney()/SP), 0, MetalSilver);
-	label(341, 281, 117, 14, szprints(temp, zendof(temp), "%1i / %2i lbs", 143, 223), 0, MetalGold);
+	//label(341, 281, 117, 14, szprints(temp, zendof(temp), "%1i / %2i lbs", 143, 223), 0, MetalGold);
 	// Wears items
 	icon(255, 22, Body, pd);
 	icon(319, 22, Rear, pd);

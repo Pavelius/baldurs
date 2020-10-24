@@ -1,6 +1,6 @@
 #include "main.h"
 
-adat<container>		container_data;
+BSDATAC(container, 128)
 
 void container::add(item value) const {
 	auto p = new itemcont(value);

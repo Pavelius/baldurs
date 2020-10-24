@@ -316,25 +316,25 @@ static target render_area(rect rc, const point origin) {
 	}
 	// Получим объекты
 	drawablet drawables;
-	for(auto& e : door_data)
+	for(auto& e : bsdata<door>())
 		add(screen, drawables, e);
-	for(auto& e : region_data)
+	for(auto& e : bsdata<region>())
 		add(screen, drawables, e);
-	for(auto& e : container_data)
+	for(auto& e : bsdata<container>())
 		add(screen, drawables, e);
-	for(auto& e : creature_data)
+	for(auto& e : bsdata<creature>())
 		add(screen, drawables, e);
 	for(auto& e : players)
 		add(screen, drawables, e);
-	for(auto& e : animation_data)
+	for(auto& e : bsdata<animation>())
 		add(screen, drawables, e);
-	for(auto& e : moveable_data)
+	for(auto& e : bsdata<moveable>())
 		add(screen, drawables, e);
-	for(auto& e : itemground_data) {
+	for(auto& e : bsdata<itemground>()) {
 		if(e)
 			add(screen, drawables, e);
 	}
-	for(auto& e : floattext_data) {
+	for(auto& e : bsdata<floattext>()) {
 		if(e)
 			add(screen, drawables, e);
 	}
@@ -378,7 +378,7 @@ static target render_area(rect rc, const point origin) {
 		map::getx(map_index), map::gety(map_index), map_index);
 	sb.add("Drawables=%1i", drawables.count);
 	if(result) {
-		if(region_data.indexof(static_cast<region*>(result)) != -1) {
+		if(bsdata<region>::source.indexof(static_cast<region*>(result)) != -1) {
 			auto p = static_cast<region*>(result);
 			if(p->type == RegionTravel)
 				sb.addn("Region lead to %1, %2", p->move_to_area, p->move_to_entrance);
@@ -648,7 +648,7 @@ static void checkcombat(unsigned& counter) {
 	for(auto& e : players) {
 		if(!e.isready())
 			continue;
-		for(auto& m : creature_data) {
+		for(auto& m : bsdata<creature>()) {
 			if(!m.isready())
 				continue;
 			if(m.isenemy(e)) {
@@ -692,7 +692,7 @@ static void render_container(rect& rcs, int frame, scrollitem& container, scroll
 		backpack.update(player, 2);
 		backpack.view(player, x + 509, y + 22, 44, 43, {x + 602, y + 24, x + 614, y + 100}, item_to_container);
 		//button(x + 684, y + 28, cmpr(buttonparam, 52), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
-		labelr(x + 661, y + 78, 70, 20, szprints(temp, zendof(temp), "%1i", player->getmoney()/SP)); // NORMAL
+		//labelr(x + 661, y + 78, 70, 20, szprints(temp, zendof(temp), "%1i", player->getmoney()/SP)); // NORMAL
 	}
 	rcs.y2 -= 107;
 }

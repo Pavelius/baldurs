@@ -1,4 +1,3 @@
-#include "collection.h"
 #include "crt.h"
 #include "draw.h"
 #include "io.h"
@@ -6,7 +5,7 @@
 
 using namespace draw;
 
-static arem<res::element> source;
+static vector<res::element> source;
 
 static res::element* find(const char* name, const char* folder) {
 	for(auto& e : source) {

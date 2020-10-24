@@ -33,8 +33,8 @@ void archive::setpointer(void** value) {
 	if(writemode) {
 		pid = -1;
 		auto j = 0;
-		for(auto& e : pointers) {
-			auto i = e.indexof(*value);
+		for(auto p : pointers) {
+			auto i = p->indexof(*value);
 			if(i != -1) {
 				pid = (j << 24) | i;
 				break;
@@ -48,7 +48,7 @@ void archive::setpointer(void** value) {
 		if(pid != -1) {
 			auto bi = pid >> 24;
 			auto ii = pid & 0xFFFFFF;
-			*value = pointers[bi].get(ii);
+			*value = pointers[bi]->ptr(ii);
 		}
 	}
 }

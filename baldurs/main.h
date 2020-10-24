@@ -1,5 +1,4 @@
 ﻿#include "archive.h"
-#include "collection.h"
 #include "converter.h"
 #include "crt.h"
 #include "dice.h"
@@ -292,11 +291,30 @@ enum tile_s : unsigned char {
 	ObstacleImpassableGrey, WoorRed, Wall, WaterYellow,
 	WaterImpassable, RoofImpassable, WorldExit, GrassHardMove,
 };
+enum prerequisit_s : unsigned char {
+	NoPrerequisit,
+	ProfecienceWithWeapon, ThreeOrMoreNaturalAttack,
+};
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Gender, Feat, Item, Race, Skill, Spell, Name, Finish, Variant,
 };
-typedef aset<char, LastSkill + 1, skill_s> skillset;
+template <class T, unsigned N, class DT = char>
+struct aset {
+	struct element {
+		T				key;
+		DT				value;
+	};
+	DT					data[N + 1];
+	constexpr aset() : data() {}
+	constexpr aset(const std::initializer_list<element>& source) {
+		for(auto& e : source)
+			data[e.key] = e.value;
+	}
+	constexpr DT& operator[](unsigned i) { return data[i]; }
+};
+typedef aset<skill_s, LastSkill> skillset;
+typedef aset<class_s, LastClass> classa;
 struct variant {
 	variant_s			type;
 	union {
@@ -331,10 +349,28 @@ struct variant {
 enum target_s : unsigned char {
 	NoTarget, Creature, Container, Door, ItemCont, ItemGround, Position, Region,
 };
+struct abilityi {
+	const char*				id;
+	const char*				name;
+};
+struct genderi {
+	const char*				id;
+	const char*				name;
+};
+struct alignmenti {
+	const char*				id;
+	const char*				name;
+	const char*				text;
+};
+struct animatei {
+	const char*				name;
+	bool					disable_overlay;
+	bool					ready;
+};
 struct target {
-	target_s			type;
+	target_s				type;
 	union {
-		struct creature*	creature;
+		class creature*		creature;
 		struct point		position;
 		struct container*	container;
 		struct door*		door;
@@ -344,7 +380,7 @@ struct target {
 	};
 	target(struct drawable* value);
 	constexpr target() : type(NoTarget), creature(0) {}
-	constexpr target(struct creature* value) : type(Creature), creature(value) {}
+	constexpr target(class creature* value) : type(Creature), creature(value) {}
 	constexpr target(const point& value) : type(Position), position(value) {}
 	constexpr target(struct door* value) : type(Door), door(value) {}
 	constexpr target(struct region* value) : type(Region), region(value) {}
@@ -477,11 +513,12 @@ struct animation : drawable, point {
 	unsigned char		skip_cycles;
 	constexpr animation() : point(), schedule(0), circle(0), frame(0), start_frame(0),
 		flags(0), height(0), transparency(0), chance_loop(0), skip_cycles(0),
-		rsname(), rsname_pallette() {}
+		rsname(), rsname_pallette() {
+	}
 	void				getinfo(info& e) const;
 	rect				getrect() const override;
 	point				getposition() const override { return *this; }
-	int					getzorder() const override { return -height-256; }
+	int					getzorder() const override { return -height - 256; }
 	bool				is(unsigned value) const { return (flags & value) != 0; }
 	virtual bool		isvisible() const override;
 	void				painting(point screen) const override;
@@ -568,7 +605,23 @@ struct itemground : item, drawable {
 	virtual bool		hittest(point position) const override;
 	virtual void		painting(point position) const;
 };
-struct spell_info {
+struct dietyi {
+	const char*			id;
+	const char*			name;
+};
+struct feati {
+	const char*			id;
+	const char*			name;
+	char				ability[6];
+	feat_s				prerequisit[4];
+	char				base_attack;
+	char				character_level;
+	const char*			text;
+	const char*			benefit;
+	const char*			normal;
+	prerequisit_s		prerequisit_special;
+};
+struct spelli {
 	struct duration_info {
 		unsigned char	levels;
 		unsigned char	rounds;
@@ -577,10 +630,10 @@ struct spell_info {
 	const char*			name;
 	char				rsname[10];
 	school_s			school;
-	aset<char, LastClass+1, class_s> levels;
+	classa				levels;
 	duration_info		duration;
 };
-struct school_info {
+struct schooli {
 	const char*			id;
 	const char*			name;
 };
@@ -598,7 +651,7 @@ struct portrait_info {
 	bool				is(class_s id) const;
 	static aref<portrait_info> getelements();
 };
-struct race_info {
+struct racei {
 	const char*			id;
 	const char*			name;
 	char				abilities[6];
@@ -607,7 +660,7 @@ struct race_info {
 	char				quick_learn; // Human's ability additional skills nad feats at start of game
 	const char*			text;
 };
-struct class_info {
+struct classi {
 	struct slot_info {
 		char		minimal;
 		aref<char>	progress;
@@ -622,11 +675,17 @@ struct class_info {
 	aref<feat_s>		weapon_proficiency;
 	aref<feat_s>		armor_proficiency;
 };
-struct skill_info {
+struct skilli {
 	const char*			id;
 	const char*			name;
 	ability_s			ability;
 	skill_s				synergy[3];
+};
+struct savei {
+	const char*			id;
+	const char*			name;
+	ability_s			ability;
+	cflags<class_s>		classes;
 };
 struct roll_info {
 	char				bonus, rolled, result, dc;
@@ -662,7 +721,7 @@ struct region : selectable {
 	rect				getrect() const override { return box; }
 	int					getcursor() const override;
 	aref<point>			getpoints() const override { return points; }
-	virtual bool		isvisible() const { return type!=RegionTriger; }
+	virtual bool		isvisible() const { return type != RegionTriger; }
 	void				painting(point screen) const {}
 };
 struct container : selectable {
@@ -719,7 +778,7 @@ struct setting {
 	bool				show_search;
 	bool				show_path;
 };
-struct creature;
+class creature;
 struct targetreaction : target {
 	void				(creature::*method)(const target& e);
 	short unsigned		reach;
@@ -736,7 +795,22 @@ struct treasure {
 private:
 	void				place(item_s it, int count, int min, int max);
 };
-struct actor : drawable {
+class actor : public drawable {
+	animate_s			action;
+	point				position, start, dest;
+	unsigned char		orientation; // What sight direction object have.
+	unsigned short		frame;
+	unsigned			duration; // This time stamp indicator when change frame
+	int					range;
+	map::node*			path;
+	coloration			colors;
+	targetreaction		action_target;
+	//
+	void				clearpath();
+	animate_s			getattackanimate(int number) const;
+	bool				isready() const;
+	void				set(animate_s value);
+public:
 	void				act(int player, const char* format, ...);
 	virtual void		blockimpassable() const {}
 	void				choose_apearance(const char* title, const char* step_title);
@@ -778,7 +852,7 @@ struct actor : drawable {
 	virtual bool		isblock(point value) const { return false; }
 	virtual bool		isselected() const { return false; }
 	virtual bool		isstunned() const { return false; }
-	bool				isvisible() const { return position.x!=0 || position.y != 0; }
+	bool				isvisible() const { return position.x != 0 || position.y != 0; }
 	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
 	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
 	bool				move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0);
@@ -806,24 +880,9 @@ struct actor : drawable {
 	void				update() override;
 	void				update_portrait();
 	void				wait(char percent = 0);
-private:
-	animate_s			action;
-	point				position, start, dest;
-	unsigned char		orientation; // What sight direction object have.
-	unsigned short		frame;
-	unsigned			duration; // This time stamp indicator when change frame
-	int					range;
-	map::node*			path;
-	coloration			colors;
-	targetreaction		action_target;
-	//
-	void				clearpath();
-	animate_s			getattackanimate(int number) const;
-	bool				isready() const;
-	void				set(animate_s value);
 };
-struct monster_info {
-	struct class_info {
+struct monsteri {
+	struct classi {
 		class_s			type;
 		unsigned char	level;
 	};
@@ -831,13 +890,47 @@ struct monster_info {
 	sprite_type_s		sptype;
 	res::tokens			sprites[4];
 	alignment_s			alignment;
-	class_info			classes[3];
-	char				ability[Charisma+1];
+	classi			classes[3];
+	char				ability[Charisma + 1];
 	item_s				equipment[8];
 	skillset			skills;
 	cflags<feat_s>		feats;
 };
-struct creature : actor {
+class creature : public actor {
+	struct preparation {
+		spell_s					id;
+		variant					type;
+		unsigned char			count;
+		unsigned char			count_maximum;
+		explicit operator bool() const { return count_maximum != 0; }
+	};
+	monster_s					kind;
+	gender_s					gender;
+	race_s						race;
+	alignment_s					alignment;
+	diety_s						diety;
+	reaction_s					reaction;
+	const char*					name;
+	unsigned char				ability[Charisma + 1];
+	char						classes[LastClass + 1];
+	char						skills[LastSkill + 1];
+	unsigned					feats[LastFeat / 32 + 1];
+	unsigned					state;
+	short						hits, hits_rolled;
+	unsigned					spells_known[LastSpell / 32 + 1];
+	item						wears[LastQuickItem + 1];
+	char						initiative;
+	unsigned char				active_weapon;
+	unsigned short				portrait;
+	unsigned char				sorcerers_used_powers[9];
+	adat<preparation, 24>		powers;
+	unsigned					experience;
+	//
+	preparation*				add(spell_s id, variant type);
+	void						random_name();
+	static const char*			random_name(gender_s gender, race_s race);
+	void						update_levels();
+public:
 	explicit operator bool() const { return ability[0] != 0; }
 	void* operator new(unsigned size);
 	void operator delete (void* data);
@@ -917,227 +1010,176 @@ struct creature : actor {
 	int					getprepared(variant type) const;
 	int					getprepared(spell_s id, variant type) const;
 	int					getr(ability_s id) const { return ability[id]; }
-	race_s				getrace() const override { return race; }
-	short unsigned		getreach() const;
-	int					getskillpoints() const;
-	int					getspellslots(variant type, int spell_level) const;
-	const sprite*		getsprite(int& wi) const;
-	variant_s			getstep() const;
-	int					getquick() const { return active_weapon; }
-	const item&			getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
-	const item*			getwear(slot_s id) const override;
-	static void			help();
-	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
-	void				icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd);
-	void				icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
-	void				iconqw(int x, int y, int n, itemdrag* pd);
-	void				interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
-	void				interacting(const targetreaction& e) override;
-	bool				is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
-	static bool			is(spell_s id, class_s cls, int level);
-	bool				is(state_s id) const override { return (state&(1 << id))!=0; }
-	bool				isallow(feat_s id) const;
-	static bool			isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack);
-	bool				isallow(const item& it) const;
-	bool				isallow(variant id) const;
-	bool				isblock(point value) const override;
-	bool				isclass(skill_s id) const;
-	static bool			iscombatmode();
-	bool				isenemy(const creature& opponent) const;
-	bool				isranged() const { return wears[active_weapon].isranged(); }
-	bool				isselected() const override;
-	static bool			isgood(class_s id, save_s value);
-	bool				isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32)))!=0; }
-	bool				isplayer() const;
-	bool				isready() const { return ability[0]>0 && hits > 0; }
-	void				invertory();
-	void				invertory(itemdrag* pd);
-	static void			journal();
-	static void			makecombat();
-	static void			minimap();
-	static void			moveto(aref<creature> players, point pt, formation_s formation);
-	static void			options();
-	void				remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
-	void				remove(state_s id) { state &= ~(1 << id); }
-	bool				roll(roll_info& e) const;
-	void				open(const target& e);
-	void				say(const char* format, ...) const;
-	aref<variant>		select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
-	static aref<creature*> select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
-	static void			select_all();
-	aref<variant>		selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
-	void				set(ability_s id, int value) { ability[id] = value; }
-	void				set(alignment_s value) { alignment = value; }
-	void				set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }
-	void				set(state_s id) override { state |= 1 << id; }
-	void				set(gender_s value) override { gender = value; }
-	void				set(coloration& value) const;
-	void				set(reaction_s value) { reaction = value; }
-	void				set(race_s value) { race = value; }
-	void				set(skill_s id, int value) { skills[id] = value; }
-	void				set(variant value);
-	void				setactive();
-	void				setactive(const target& e) { if(e.type==Creature) e.creature->setactive(); }
-	void				setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
-	static void			setmoney(int value);
-	void				setportrait(int value) { portrait = value; }
-	void				setprepared(spell_s id, variant type, int count);
-	void				setquick(int value) { active_weapon = value; }
-	void				sheet();
-	void				spellbook();
-	static void			spellinfo(spell_s id);
-	void				talk(const target& e) {}
-	void				toggle(const target& e);
-	static void			moveto(const char* location, const char* entrance = 0);
-	static void			updategame();
-private:
-	struct preparation {
-		spell_s			id;
-		variant			type;
-		unsigned char	count;
-		unsigned char	count_maximum;
-		explicit operator bool() const { return count_maximum != 0; }
-	};
-	monster_s			kind;
-	gender_s			gender;
-	race_s				race;
-	alignment_s			alignment;
-	diety_s				diety;
-	reaction_s			reaction;
-	const char*			name;
-	unsigned char		ability[Charisma + 1];
-	char				classes[LastClass + 1];
-	char				skills[LastSkill + 1];
-	unsigned			feats[LastFeat / 32 + 1];
-	unsigned			state;
-	short				hits, hits_rolled;
-	unsigned			spells_known[LastSpell / 32 + 1];
-	item				wears[LastQuickItem + 1];
-	char				initiative;
-	unsigned char		active_weapon;
-	unsigned short		portrait;
-	unsigned char		sorcerers_used_powers[9];
-	adat<preparation, 24> powers;
-	unsigned			experience;
-	//
-	preparation*		add(spell_s id, variant type);
-	void				random_name();
-	static const char*	random_name(gender_s gender, race_s race);
-	void				update_levels();
+	race_s						getrace() const override { return race; }
+	short unsigned				getreach() const;
+	int							getskillpoints() const;
+	int							getspellslots(variant type, int spell_level) const;
+	const sprite*				getsprite(int& wi) const;
+	variant_s					getstep() const;
+	int							getquick() const { return active_weapon; }
+	const item&					getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
+	const item*					getwear(slot_s id) const override;
+	static void					help();
+	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
+	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd);
+	void						icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
+	void						iconqw(int x, int y, int n, itemdrag* pd);
+	void						interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
+	void						interacting(const targetreaction& e) override;
+	bool						is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
+	static bool					is(spell_s id, class_s cls, int level);
+	bool						is(state_s id) const override { return (state&(1 << id)) != 0; }
+	bool						isallow(feat_s id) const;
+	static bool					isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack);
+	bool						isallow(const item& it) const;
+	bool						isallow(variant id) const;
+	bool						isblock(point value) const override;
+	bool						isclass(skill_s id) const;
+	static bool					iscombatmode();
+	bool						isenemy(const creature& opponent) const;
+	bool						isranged() const { return wears[active_weapon].isranged(); }
+	bool						isselected() const override;
+	static bool					isgood(class_s id, save_s value);
+	bool						isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32))) != 0; }
+	bool						isplayer() const;
+	bool						isready() const { return ability[0] > 0 && hits > 0; }
+	void						invertory();
+	void						invertory(itemdrag* pd);
+	static void					journal();
+	static void					makecombat();
+	static void					minimap();
+	static void					moveto(aref<creature> players, point pt, formation_s formation);
+	static void					options();
+	void						remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
+	void						remove(state_s id) { state &= ~(1 << id); }
+	bool						roll(roll_info& e) const;
+	void						open(const target& e);
+	void						say(const char* format, ...) const;
+	aref<variant>				select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
+	static aref<creature*>		select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
+	static void					select_all();
+	aref<variant>				selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
+	void						set(ability_s id, int value) { ability[id] = value; }
+	void						set(alignment_s value) { alignment = value; }
+	void						set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }
+	void						set(state_s id) override { state |= 1 << id; }
+	void						set(gender_s value) override { gender = value; }
+	void						set(coloration& value) const;
+	void						set(reaction_s value) { reaction = value; }
+	void						set(race_s value) { race = value; }
+	void						set(skill_s id, int value) { skills[id] = value; }
+	void						set(variant value);
+	void						setactive();
+	void						setactive(const target& e) { if(e.type == Creature) e.creature->setactive(); }
+	void						setknown(spell_s id) { spells_known[id / 32] |= (1 << (id % 32)); }
+	static void					setmoney(int value);
+	void						setportrait(int value) { portrait = value; }
+	void						setprepared(spell_s id, variant type, int count);
+	void						setquick(int value) { active_weapon = value; }
+	void						sheet();
+	void						spellbook();
+	static void					spellinfo(spell_s id);
+	void						talk(const target& e) {}
+	void						toggle(const target& e);
+	static void					moveto(const char* location, const char* entrance = 0);
+	static void					updategame();
 };
 struct worldmap {
 	struct link {
-		geography_s		side;
-		unsigned char	index;
-		const char*		entry;
-		unsigned		time;
-		unsigned char	encounter_chance;
-		unsigned		flags;
+		geography_s				side;
+		unsigned char			index;
+		const char*				entry;
+		unsigned				time;
+		unsigned char			encounter_chance;
+		unsigned				flags;
 	};
 	struct area {
-		const char*		id;
-		const char*		name;
-		point			position;
-		short unsigned	avatar;
-		short unsigned	flags;
-		link			links[16];
-		bool			is(area_flag_s value) const { return (flags&value) != 0; }
-		void			set(area_flag_s value) { flags |= value; }
+		const char*				id;
+		const char*				name;
+		point					position;
+		short unsigned			avatar;
+		short unsigned			flags;
+		link					links[16];
+		bool					is(area_flag_s value) const { return (flags&value) != 0; }
+		void					set(area_flag_s value) { flags |= value; }
 	};
-	const char*			background;
-	const char*			name;
-	const char*			icons;
-	aref<area>			areas;
-	static area*		getarea();
-	static area*		getarea(const char* id);
-	static worldmap*	getworld(area* p);
-	static worldmap*	getworld() { return getworld(getarea()); }
-	static worldmap*	getworld(const char* id) { return getworld(getarea(id)); }
-	link*				find(const area* start, const area* dest) const;
-	bool				isneighboard(const area* start, const area* dest) const { return find(start, dest) != 0; }
-	static void			set(area* value);
+	const char*					background;
+	const char*					name;
+	const char*					icons;
+	aref<area>					areas;
+	static area*				getarea();
+	static area*				getarea(const char* id);
+	static worldmap*			getworld(area* p);
+	static worldmap*			getworld() { return getworld(getarea()); }
+	static worldmap*			getworld(const char* id) { return getworld(getarea(id)); }
+	link*						find(const area* start, const area* dest) const;
+	bool						isneighboard(const area* start, const area* dest) const { return find(start, dest) != 0; }
+	static void					set(area* value);
 };
-struct geography_info {
-	const char*			id;
-	const char*			name;
+struct geographyi {
+	const char*					id;
+	const char*					name;
 };
 namespace map {
-void					clear();
-void					drop(short unsigned index, item it);
-entrance*				find(const char* id);
-const sprite*			getareasprite();
-int						getday(unsigned value);
-point					getentrance(const char* name, unsigned char* orient = 0);
-point					getfree(point position, int size);
-unsigned short			getindex(point position);
-unsigned short			getindex(point position, int size);
-int						gethour(unsigned value);
-const sprite*			getminimap();
-unsigned char			getorientation(point s, point d);
-color*					getpallette();
-const char*				getpassedtime(char* result, const char* result_maximum, unsigned value);
-point					getposition(short unsigned index, int size);
-inline int				getrange(int feets) { return (feets / 5) * 2; }
-color					getshadow(point position);
-unsigned char			getstate(short unsigned index);
-int						gettile(short unsigned index);
-bool					isblock(unsigned short index, int size);
-bool					load(const char* name);
-unsigned char*			ptr(const char* name);
-void					settile(short unsigned index, short unsigned tile);
+void							clear();
+void							drop(short unsigned index, item it);
+entrance*						find(const char* id);
+const sprite*					getareasprite();
+int								getday(unsigned value);
+point							getentrance(const char* name, unsigned char* orient = 0);
+point							getfree(point position, int size);
+unsigned short					getindex(point position);
+unsigned short					getindex(point position, int size);
+int								gethour(unsigned value);
+const sprite*					getminimap();
+unsigned char					getorientation(point s, point d);
+color*							getpallette();
+const char*						getpassedtime(char* result, const char* result_maximum, unsigned value);
+point							getposition(short unsigned index, int size);
+inline int						getrange(int feets) { return (feets / 5) * 2; }
+color							getshadow(point position);
+unsigned char					getstate(short unsigned index);
+int								gettile(short unsigned index);
+bool							isblock(unsigned short index, int size);
+bool							load(const char* name);
+unsigned char*					ptr(const char* name);
+void							settile(short unsigned index, short unsigned tile);
 }
 namespace draw {
-inline void				background(res::tokens token, int id = 0) { image(0, 0, gres(token), id, 0); }
-int						button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
-int						button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
-bool					dlgask(const char* text);
-int						dlgcho(const char* text, const char* a1, const char* a2);
-void					dlgmsg(const char* text);
-int						field(rect rc, char* result, unsigned maximum);
-unsigned				getframe();
-unsigned				getframe(int fps);
-inline void				image(int x, int y, res::tokens token, int id, int flags = 0, unsigned char alpha = 0xFF) { draw::image(x, y, gres(token), id, flags, alpha); }
-bool					inside(point t, point* points, int count);
-bool					isnext(void(*proc)());
-int						label(int x, int y, int width, int height, const char* name, int header = 0, int color = 0, bool border = false);
-int						labell(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
-int						labelr(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
-void					menumodal(bool use_keys = true, itemdrag* pd = 0);
-void					mslog(const char* format, ...);
-void					mslogv(const char* temp);
-void					mspaint(const rect& rc, const rect& rcs);
-extern surface			pallette;
-void					picker(int x, int y, unsigned char index, int type, const runable& cmd);
-void					set(color * dest, unsigned char index, int start = 4, int count = 12);
-void					textblend(point pos, const char* text, unsigned duration);
-void					translate(hotkey* keys);
-void					view(rect rc, rect rcs, int pixels_per_line, scrolllist& e);
-void					view(rect rc, rect rcs, const char* text, scrolltext& e);
+inline void						background(res::tokens token, int id = 0) { image(0, 0, gres(token), id, 0); }
+int								button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
+int								button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
+bool							dlgask(const char* text);
+int								dlgcho(const char* text, const char* a1, const char* a2);
+void							dlgmsg(const char* text);
+int								field(rect rc, char* result, unsigned maximum);
+unsigned						getframe();
+unsigned						getframe(int fps);
+inline void						image(int x, int y, res::tokens token, int id, int flags = 0, unsigned char alpha = 0xFF) { draw::image(x, y, gres(token), id, flags, alpha); }
+bool							inside(point t, point* points, int count);
+bool							isnext(void(*proc)());
+int								label(int x, int y, int width, int height, const char* name, int header = 0, int color = 0, bool border = false);
+int								labell(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
+int								labelr(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
+void							menumodal(bool use_keys = true, itemdrag* pd = 0);
+void							mslog(const char* format, ...);
+void							mslogv(const char* temp);
+void							mspaint(const rect& rc, const rect& rcs);
+extern surface					pallette;
+void							picker(int x, int y, unsigned char index, int type, const runable& cmd);
+void							set(color * dest, unsigned char index, int start = 4, int count = 12);
+void							textblend(point pos, const char* text, unsigned duration);
+void							translate(hotkey* keys);
+void							view(rect rc, rect rcs, int pixels_per_line, scrolllist& e);
+void							view(rect rc, rect rcs, const char* text, scrolltext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
 template<class T> void			getrule(stringbuilder& sb, T value);
-extern adat<animation>			animation_data;
-extern class_info				class_data[];
-extern adat<creature, 256>		creature_data;
-extern adat<container>			container_data;
-extern adat<door, 256>			door_data;
-extern adat<itemcont, 2048>		itemcont_data;
-extern adat<itemground, 2048>	itemground_data;
-extern adat<door_tile, 1024>	door_tiles_data;
-extern adat<entrance>			entrance_data;
-extern adat<floattext, 32>		floattext_data;
-extern monster_info				monster_data[];
-extern adat<moveable>			moveable_data;
 extern creature					players[6];
-extern portrait_info			portrait_data[];
-extern race_info				race_data[];
-extern adat<region, 256>		region_data;
 extern setting					settings;
-extern school_info				school_data[];
-extern skill_info				skill_data[];
-extern spell_info				spell_data[];
 extern adat<point, 256 * 256>	verticles;
-extern geography_info			geography_data[];
+
+inline int d100() { return rand() % 100; }
 
 template<> void archive::set<container>(container& e);
 template<> void archive::set<door>(door& e);

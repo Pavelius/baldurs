@@ -14,14 +14,14 @@ int dice::roll() const {
 	return roll(c, d) + b;
 }
 
-char* dice::print(char* result, const char* result_maximum) const {
-	szprints(result, result_maximum, "%1id%2i", c, d);
-	if(b != 0)
-		szprints(zend(result), result_maximum, "%+1i", b);
-	return result;
-}
-
-char* dice::range(char* result, const char* result_maximum) const {
-	szprints(result, result_maximum, "%1i-%2i", c + b, c*d + b);
-	return result;
-}
+//char* dice::print(char* result, const char* result_maximum) const {
+//	szprints(result, result_maximum, "%1id%2i", c, d);
+//	if(b != 0)
+//		szprints(zend(result), result_maximum, "%+1i", b);
+//	return result;
+//}
+//
+//char* dice::range(char* result, const char* result_maximum) const {
+//	szprints(result, result_maximum, "%1i-%2i", c + b, c*d + b);
+//	return result;
+//}

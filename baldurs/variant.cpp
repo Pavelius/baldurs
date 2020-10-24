@@ -1,9 +1,11 @@
 #include "main.h"
 
-static struct variant_info {
+struct varianti {
 	const char*		id;
 	const char*		name;
-} variant_data[] = {{""},
+};
+
+BSDATA(varianti) = {{""},
 {"Ability", "Способности"},
 {"Alignment", "Мировозрение"},
 {"Apearance", "Внешность"},
@@ -18,8 +20,7 @@ static struct variant_info {
 {"Finish", "Закончить"},
 {"Variant", "Вариант"},
 };
-assert_enum(variant, Variant);
-getstr_enum(variant);
+assert_enum(varianti, Variant)
 
 template<> const char* getstr<variant>(variant id) {
 	switch(id.type) {

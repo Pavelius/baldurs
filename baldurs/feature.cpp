@@ -11,7 +11,7 @@ struct feature_info {
 
 static void set_spells(creature& player, class_s type, char level) {
 	for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
-		if(spell_data[e].levels[type] == level)
+		if(bsdata<spelli>::elements[e].levels[type] == level)
 			player.set(e);
 	}
 }
@@ -21,7 +21,7 @@ static spell_s random_spell(creature& player, class_s type, char level) {
 	for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
 		if(player.isknown(e))
 			continue;
-		if(spell_data[e].levels[type] == level)
+		if(bsdata<spelli>::elements[e].levels[type] == level)
 			elements.add(e);
 	}
 	if(!elements)

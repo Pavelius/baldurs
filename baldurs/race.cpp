@@ -1,6 +1,6 @@
 #include "main.h"
 
-race_info race_data[] = {{"No Race", "Нет расы", {{}}},
+BSDATA(racei) = {{"No Race", "Нет расы", {{}}},
 {"Dwarf", "Карлик", {0, 0, 2, 0, 0, -2}, {{Appraise, 2}, {CraftWeapon, 2}, {CraftArmor, 2}}, {Infravision, HateGoblinoids, Stability, SaveBonusVsPoison, SaveBonusVsSpell, Stonecunning}, 0, "Карлики известны за свое мастерство в военном искусстве, их способностям противостоять физическим и магическим повреждениям, их знаниям секретов земли, и их способности потреблять большое количество эля. Их таинственные королевства, расположенные внутри гор, известны за свои удивительные сокровища, которые дварфы создают ради того чтобы дать их в дар, или произвести торговлю."},
 {"Elf", "Эльф", {0, 2, -2, 0, 0, 0}, {{Listen, 2}, {Spot, 2}, {Search, 2}}, {ImmunityToSleepSpell, SaveBonusVsEnchantment, Infravision, ProficiencyLongbow, ProficiencyLongsword, ProficiencyShortbow, ProficiencyShortsword, FindSecretDoors}, 0, "Эльфы широко распространенны в землях людей, но всегда чувствуют себя как **в гостях**. Они известны за свои: поэзию, танцы, песни, знания и магическое искусство. Эльфам нравятся вещи природной и простой красоты. Когда опасность угрожает их лесным жилищам, они, раскрывают свои военные искусства, демонстрируя умелое обращение с мечами, луками и владением военных стратегий."},
 {"Gnome", "Гном", {-2, 0, 2, 0, 0, 0}, {{Listen, 2}, {CraftAlchemy, 2}}, {Infravision}, 0, "Гномы всюду желанны и популярны как, техники, алхимики и изобретатели. Вопреки столь большого спроса на их навыки, они предпочитают находиться среди своей расы, живя в комфортабельных норах, под покатыми, лесистыми холмами, где водится огромное количество животных, но идея поохотится на них, очень плохая идея."},
@@ -9,19 +9,18 @@ race_info race_data[] = {{"No Race", "Нет расы", {{}}},
 {"Halfling", "Хоббит", {-2, 2, 0, 0, 0, 0}, {{Climb, 2}, {Jump, 2}, {MoveSilently, 2}, {Listen, 2}}, {Lucky, SaveBonusVsFear, PreciseThrower}, 0, "Халфлинги - умные, одарённые существа, обожающие жизнь. Отдельные халфлинги и целые семьи, находят место существования повсюду где только можно. Очень часто они путешествуют, но другие халфлинги реагируют на них с подозрением и непониманием. В зависимости от клана, халфлинги могут быть надежными, трудолюбивыми (если живут кланом) горожанами, или же быть ворами, ожидая возможности своровать что-то по ценнее и раствориться во мраке ночи. Но вопреки всеми, халфлинги искусные и находчивые, выживающие в любых условиях."},
 {"Human", "Человек", {}, {}, {}, 1, "Большинство людей – предки первопроходцев, захватчиков, путешественников, беглецов, и других людей находящихся в постоянном движении. Результат, земли людей - это смесь разнообразных физических, культурных, религиозных и политических сил. Крепкие или изящные, светло- или темнокожие, веселые или строгие, примитивные или цивилизованные, праведные или нечестивые, все это гамма разнообразных людей."},
 };
-assert_enum(race, Human);
-getstr_enum(race);
+assert_enum(racei, Human)
 
 void add_feat(stringbuilder& sb, feat_s id);
 
 static void add_ability(stringbuilder& sb, race_s id) {
 	auto count = 0;
 	for(auto i = Strenght; i <= Charisma; i=(ability_s)(i+1)) {
-		if(race_data[id].abilities[i] == 0)
+		if(bsdata<racei>::elements[id].abilities[i] == 0)
 			continue;
 		if(count == 0)
 			sb.addh(getstr(Ability));
-		sb.addn("%1 %+2i", getstr(i), race_data[id].abilities[i]);
+		sb.addn("%1 %+2i", getstr(i), bsdata<racei>::elements[id].abilities[i]);
 		count++;
 	}
 }
@@ -29,24 +28,24 @@ static void add_ability(stringbuilder& sb, race_s id) {
 static void add_skills(stringbuilder& sb, race_s id) {
 	auto count = 0;
 	for(auto i = FirstSkill; i <= LastSkill; i = (skill_s)(i + 1)) {
-		if(race_data[id].skills[i] == 0)
+		if(bsdata<racei>::elements[id].skills[i] == 0)
 			continue;
 		if(count == 0)
 			sb.addh(getstr(Skill));
-		sb.addn("%1 %+2i", getstr(i), race_data[id].skills[i]);
+		sb.addn("%1 %+2i", getstr(i), bsdata<racei>::elements[id].skills[i]);
 		count++;
 	}
 }
 
 static void add_feats(stringbuilder& sb, race_s id) {
-	for(auto i : race_data[id].feats) {
+	for(auto i : bsdata<racei>::elements[id].feats) {
 		if(i)
 			add_feat(sb, i);
 	}
 }
 
 template<> void getrule<race_s>(stringbuilder& sb, race_s id) {
-	sb.add(race_data[id].text);
+	sb.add(bsdata<racei>::elements[id].text);
 	add_ability(sb, id);
 	add_skills(sb, id);
 	add_feats(sb, id);

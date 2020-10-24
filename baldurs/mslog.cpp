@@ -26,8 +26,8 @@ void draw::mslogv(const char* temp) {
 }
 
 void draw::mslog(const char* format, ...) {
-	char temp[4096];
-	szprintvs(temp, zendof(temp), format, xva_start(format));
+	char temp[4096] = "Update log!!";
+	//szprintvs(temp, zendof(temp), format, xva_start(format));
 	mslogv(temp);
 }
 

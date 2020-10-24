@@ -111,7 +111,7 @@ void treasure::generate(int level) {
 
 void treasure::place(item_s it, int count, int min, int max) {
 	adat<container*, 2048> source;
-	for(auto& e : container_data)
+	for(auto& e : bsdata<container>())
 		source.add(&e);
 	zshuffle(source.data, source.count);
 	auto index = 0;

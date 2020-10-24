@@ -70,9 +70,9 @@ void creature::spellbook() {
 	label(253, 391, 187, 19, "Доступные слоты заклинаний");
 	power_class.clear();
 	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
-		if(!class_data[e].spells)
+		if(!bsdata<classi>::elements[e].spells)
 			continue;
-		if(classes[e] >= class_data[e].spells[0].minimal)
+		if(classes[e] >= bsdata<classi>::elements[e].spells[0].minimal)
 			power_class.add(e);
 	}
 	// Корректировка списка классов
@@ -106,7 +106,7 @@ void creature::spellbook() {
 		auto slots_maximum = getspellslots(current_power, current_level), slots_used = getprepared(current_power);
 		known.free = slots_maximum - slots_used;
 		// Надпись доступные слоты
-		label(449, 390, 32, 20, szprints(temp, zendof(temp), "%1i", known.free));
+		//label(449, 390, 32, 20, szprints(temp, zendof(temp), "%1i", known.free));
 		// Уровни заклинаний
 		x = 740; y = 62;
 		for(int i = 1; i <= 9; i++) {
@@ -118,7 +118,7 @@ void creature::spellbook() {
 		auto pb = known.data;
 		auto pe = pb + sizeof(known.data) / sizeof(known.data[0]);
 		for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
-			if(spell_data[e].levels[current_power.clas] != current_level)
+			if(bsdata<spelli>::elements[e].levels[current_power.clas] != current_level)
 				continue;
 			if(!isknown(e))
 				continue;
@@ -130,10 +130,10 @@ void creature::spellbook() {
 		// Запомненные заклинания
 		x = 254; y = 85; auto index = 0;
 		for(auto& e : powers) {
-			if(e && e.type == current_power && spell_data[e.id].levels[current_power.clas] == current_level) {
+			if(e && e.type == current_power && bsdata<spelli>::elements[e.id].levels[current_power.clas] == current_level) {
 				auto id = e.id;
 				rect rc = {x, y, x + 79, y + 39};
-				label(x, y, 29, 18, szprints(temp, zendof(temp), "%1i/%2i", e.count, e.count_maximum));
+				//label(x, y, 29, 18, szprints(temp, zendof(temp), "%1i/%2i", e.count, e.count_maximum));
 				draw::image(x + 37, y - 7, gres(res::SPELLS), id, 0);
 				if(area(rc) == AreaHilitedPressed) {
 					if(hot.key == MouseLeft)

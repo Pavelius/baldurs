@@ -1,7 +1,7 @@
 #include "main.h"
 
-adat<door, 256>				door_data;
-adat<door_tile, 1024>		door_tiles_data;
+BSDATAC(door, 256)
+BSDATAC(door_tile, 1024)
 
 void door::clear() {
 	opened = false;

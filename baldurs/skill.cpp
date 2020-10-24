@@ -1,6 +1,6 @@
 #include "main.h"
 
-skill_info skill_data[] = {{"No skill", "Нет навыка"},
+BSDATA(skilli) = {{"No skill", "Нет навыка"},
 {"Appraise", "Оценка", Intellegence, {CraftArmor, CraftWeapon, CraftDevice}},
 {"Balance", "Балансирование", Dexterity},
 {"Bluff", "Обман", Charisma},
@@ -45,5 +45,4 @@ skill_info skill_data[] = {{"No skill", "Нет навыка"},
 {"Use magic device", "Использовать волшебные устройства", Charisma, {DecipherScript, Spellcraft}},
 {"Use rope", "Использовать веревку", Dexterity, {EscapeArtist}},
 };
-assert_enum(skill, LastSkill);
-getstr_enum(skill);
+assert_enum(skilli, LastSkill)

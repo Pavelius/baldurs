@@ -3,23 +3,7 @@
 static const char* levels_rome[6] = {"I", "II", "III", "IV", "V", "VI"};
 static const char* levels_naming[6] = {"1st", "2nd", "3rd", "4th", "5th", "6th"};
 
-enum prerequisit_s : unsigned char {
-	NoPrerequisit,
-	ProfecienceWithWeapon, ThreeOrMoreNaturalAttack,
-};
-
-struct feat_info {
-	const char*		id;
-	const char*		name;
-	char			ability[6];
-	feat_s			prerequisit[4];
-	char			base_attack;
-	char			character_level;
-	const char*		text;
-	const char*		benefit;
-	const char*		normal;
-	prerequisit_s	prerequisit_special;
-} feat_data[] = {{"None"},
+BSDATA(feati) = {{"None"},
 {"Alertness", "Бдительность"},
 {"Armor Profeciency (Light)", "Ношение легкой брони"},
 {"Armor Profeciency (Medium)", "Ношение средней брони", {}, {ArmorProfeciencyLight}},
@@ -107,78 +91,81 @@ struct feat_info {
 {"Stability", "Устойчивость", {}, {}, 0, 0, "+4 к защите от попыток сделать подсечку или обросить под натичком назад."},
 {"Stonecunning", "Обработка камня", {}, {}, 0, 0, "+2 к Поиску при попытке обнаружить ловушки в подземелье. Делают это аналогично ворам."},
 };
-assert_enum(feat, LastFeat);
-getstr_enum(feat);
+assert_enum(feati, LastFeat)
 
 void add_feat_item(stringbuilder& sb, feat_s id);
 
 bool creature::isallow(feat_s id) const {
+	auto& ei = bsdata<feati>::elements[id];
 	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e+1)) {
-		auto value = feat_data[id].ability[e];
+		auto value = ei.ability[e];
 		if(value && getr(e) < value)
 			return false;
 	}
-	for(auto e : feat_data[id].prerequisit) {
+	for(auto e : ei.prerequisit) {
 		if(e && !is(e))
 			return false;
 	}
-	if(feat_data[id].base_attack && getbab() < feat_data[id].base_attack)
+	if(ei.base_attack && getbab() < ei.base_attack)
 		return false;
-	if(feat_data[id].character_level && getcharlevel() < feat_data[id].character_level)
+	if(ei.character_level && getcharlevel() < ei.character_level)
 		return false;
-	if(feat_data[id].prerequisit_special)
+	if(ei.prerequisit_special)
 		return false;
 	return true;
 }
 
 bool creature::isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack) {
+	auto& ei = bsdata<feati>::elements[id];
 	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e + 1)) {
-		auto value = feat_data[id].ability[e];
+		auto value = ei.ability[e];
 		if(value && ability[e] < value)
 			return false;
 	}
-	if(feat_data[id].base_attack && base_attack < feat_data[id].base_attack)
+	if(ei.base_attack && base_attack < ei.base_attack)
 		return false;
-	if(feat_data[id].character_level && character_level < feat_data[id].character_level)
+	if(ei.character_level && character_level < ei.character_level)
 		return false;
 	return true;
 }
 
 static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0) {
+	auto& ei = bsdata<feati>::elements[id];
 	if(id >= ProficiencyAxe && id <= ProficiencyWaraxe) {
 		if(prefix)
 			sb.add(prefix);
 		sb.add("Вы умеете использовать такое оружие как ");
 		add_feat_item(sb, id);
-	} else if(feat_data[id].text && feat_data[id].text[0]) {
+	} else if(ei.text && ei.text[0]) {
 		if(prefix)
 			sb.add(prefix);
-		sb.add(feat_data[id].text);
+		sb.add(ei.text);
 	}
 }
 
 static void add_required(stringbuilder& sb, feat_s id) {
+	auto& ei = bsdata<feati>::elements[id];
 	auto p = sb.getpos();
 	auto h = "\n\n[Требует:] ";
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i+1)) {
-		if(!feat_data[id].ability[i])
+		if(!ei.ability[i])
 			continue;
 		sb.sep(h, p);
-		sb.add("%1 %2i", getstr(i), feat_data[id].ability[i]);
+		sb.add("%1 %2i", getstr(i), ei.ability[i]);
 	}
-	for(auto e : feat_data[id].prerequisit) {
+	for(auto e : ei.prerequisit) {
 		if(!e)
 			break;
 		sb.sep(h, p);
 		sb.add(getstr(e));
 	}
-	if(feat_data[id].base_attack) {
+	if(ei.base_attack) {
 		sb.sep(h, p);
-		sb.add("базовая атака %+1i", feat_data[id].base_attack);
+		sb.add("базовая атака %+1i", ei.base_attack);
 	}
-	if(feat_data[id].character_level) {
+	if(ei.character_level) {
 		sb.sep(h, p);
-		sb.add("уровень персонажа %+1i+", feat_data[id].character_level);
+		sb.add("уровень персонажа %+1i+", ei.character_level);
 	}
 	if(!sb.ispos(p))
 		sb.add(".");
@@ -194,8 +181,8 @@ static void add_header(stringbuilder& sb, const char* header, const char* text) 
 
 template<> void getrule<feat_s>(stringbuilder& sb, feat_s id) {
 	add_description(sb, id);
-	add_header(sb, "Преемущество", feat_data[id].benefit);
-	add_header(sb, "Обычно", feat_data[id].normal);
+	add_header(sb, "Преемущество", bsdata<feati>::elements[id].benefit);
+	add_header(sb, "Обычно", bsdata<feati>::elements[id].normal);
 	add_required(sb, id);
 }
 
@@ -203,79 +190,3 @@ void add_feat(stringbuilder& sb, feat_s id) {
 	sb.add("\n\n[**%1**]", getstr(id));
 	add_description(sb, id, ": ");
 }
-
-//void get_race_description(char* result, int id) {
-//	char* p;
-//	szprint(result, "###%1\n", bsgets(id, Name));
-//	const char* pb = races[id - FirstRace].benefit;
-//	// Descritpion
-//	if(pb) {
-//		zcat(result, pb);
-//		zcat(result, "\n");
-//	}
-//	// Abilities
-//	p = zend(result);
-//	for(int i = FirstAbility; i <= LastAbility; i++) {
-//		int v = get_race_modifier(id, i);
-//		if(v)
-//			szprint(strnew(p, "[Abilities]:\n"), " %1 %+2i\n", bsgets(i, Name), v);
-//	}
-//	szprint(zend(p), "[Base speed]: %1i ft.\n", get_base_speed(id));
-//	// Proficiency
-//	p = zend(result);
-//	for(int i = ProfeciencyArmor; i <= ProficiencyUnarmed; i++) {
-//		int v = get_race(id, i);
-//		if(v)
-//			szprint(strnew(p, "[Proficiency]:\n"), " %1\n", bsgets(i, Name), v);
-//	}
-//	// Racial bonus
-//	p = zend(result);
-//	for(int i = FirstSkill; i <= LastSkill; i++) {
-//		int v = get_race(id, i);
-//		if(v)
-//			szprint(strnew(p, "[Racial bonus]:\n"), " %1 %+2i\n", bsgets(i, Name), v);
-//	}
-//	// Best class
-//	if(true) {
-//		int v = get_race(id, BestClass);
-//		if(v) {
-//			if(v == Class)
-//				szprint(zend(p), "[Favored class]: Any\n", bsgets(v, Name));
-//			else
-//				szprint(zend(p), "[Favored class]: %1\n", bsgets(v, Name));
-//		}
-//	}
-//}
-
-//void get_skill_description(char* result, int id) {
-//	szprint(result, "###%1\n", bsgets(id, Name));
-//	const char* pb = get_benefit(skills, id);
-//	const char* ps = get_special(skills, id);
-//	szprint(zend(result), "[Key Ability]: ");
-//	int count = 0;
-//	int ka = get_skill_ability(id);
-//	if(ka) {
-//		count++;
-//		szprint(zend(result), "%1", bsgets(ka, Name));
-//	}
-//	if(is_skill(id, ArmorCheckPenalty)) {
-//		if(count++)
-//			zcat(result, "; ");
-//		zcat(result, "Armor check penalty");
-//	}
-//	if(is_skill(id, TrainedOnly)) {
-//		if(count++)
-//			zcat(result, "; ");
-//		zcat(result, "Trained only");
-//	}
-//	zcat(result, "\n");
-//	if(pb && pb[0]) {
-//		zcat(result, pb);
-//		zcat(result, "\n");
-//	}
-//	if(ps && ps[0]) {
-//		zcat(result, "[Special]: ");
-//		zcat(result, ps);
-//		zcat(result, "\n");
-//	}
-//}

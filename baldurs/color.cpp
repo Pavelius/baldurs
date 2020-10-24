@@ -10,10 +10,10 @@ color colors::red = color::create(255, 0, 0);
 color colors::yellow = color::create(255, 244, 32);
 color colors::white = color::create(255, 255, 255);
 
-char* color::getname(char* result, const char* result_maximum) const {
-	szprints(result, result_maximum, "%1i, %2i, %3i", r, g, b);
-	return result;
-}
+//char* color::getname(char* result, const char* result_maximum) const {
+//	//szprints(result, result_maximum, "%1i, %2i, %3i", r, g, b);
+//	return result;
+//}
 
 color color::create(unsigned char r, unsigned char g, unsigned char b) {
 	return{b, g, r};

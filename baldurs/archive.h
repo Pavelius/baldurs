@@ -1,4 +1,3 @@
-#include "collection.h"
 #include "crt.h"
 #include "io.h"
 
@@ -6,26 +5,12 @@
 
 // Fast and simple driver for streaming binary data
 struct archive {
-
-	struct dataset {
-		void*		data;
-		template<class T, unsigned N> constexpr dataset(T(&data)[N]) : data(&data), size(sizeof(T)), count(current_count), current_count(N), maximum_count(N) {}
-		template<class T, unsigned N> constexpr dataset(adat<T, N>& data) : data(&data.data), size(sizeof(T)), count(data.count), current_count(0), maximum_count(N) {}
-		void*		get(int index) const { return (char*)data + index * size; }
-		int			indexof(void* p) const { if(((char*)p) >= ((char*)data) && ((char*)p) < ((char*)data + size * maximum_count)) return ((char*)p - (char*)data) / size; return -1; }
-	private:
-		unsigned	size;
-		unsigned	maximum_count;
-		unsigned	current_count;
-		unsigned&	count;
-	};
+	typedef aref<array*> pointera;
 	io::stream&		source;
 	bool			writemode;
-	aref<dataset>	pointers;
-
+	pointera		pointers;
 	archive(io::stream& source, bool writemode) : source(source), writemode(writemode), pointers() {}
-	archive(io::stream& source, bool writemode, const aref<dataset>& pointers) : source(source), writemode(writemode), pointers(pointers) {}
-
+	archive(io::stream& source, bool writemode, const pointera& pointers) : source(source), writemode(writemode), pointers(pointers) {}
 	void			set(void* value, unsigned size);
 	void			setpointer(void** value);
 	bool			signature(const char* id);

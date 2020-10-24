@@ -148,27 +148,27 @@ char* stringcreator::printv(char* result, const char* result_maximum, const char
 	}
 }
 
-void stringcreator::prints(char* result, const char* result_maximum, const char* src, ...) {
-	printv(result, result_maximum, src, xva_start(src));
-}
-
-void stringbuilder::add(const char* format, ...) {
-	p = driver.printv(p, result_maximum, format, xva_start(format));
-}
-
-void stringbuilder::addn(const char* format, ...) {
-	if(p != result)
-		p = driver.printv(p, result_maximum, "\n", 0);
-	p = driver.printv(p, result_maximum, format, xva_start(format));
-}
-
-void stringbuilder::addh(const char* format, ...) {
-	if(p != result)
-		p = driver.printv(p, result_maximum, "\n\n", 0);
-	p = driver.printv(p, result_maximum, "**[", 0);
-	p = driver.printv(p, result_maximum, format, xva_start(format));
-	p = driver.printv(p, result_maximum, "]**", 0);
-}
+//void stringcreator::prints(char* result, const char* result_maximum, const char* src, ...) {
+//	printv(result, result_maximum, src, xva_start(src));
+//}
+//
+//void stringbuilder::add(const char* format, ...) {
+//	p = driver.printv(p, result_maximum, format, xva_start(format));
+//}
+//
+//void stringbuilder::addn(const char* format, ...) {
+//	if(p != result)
+//		p = driver.printv(p, result_maximum, "\n", 0);
+//	p = driver.printv(p, result_maximum, format, xva_start(format));
+//}
+//
+//void stringbuilder::addh(const char* format, ...) {
+//	if(p != result)
+//		p = driver.printv(p, result_maximum, "\n\n", 0);
+//	p = driver.printv(p, result_maximum, "**[", 0);
+//	p = driver.printv(p, result_maximum, format, xva_start(format));
+//	p = driver.printv(p, result_maximum, "]**", 0);
+//}
 
 void stringbuilder::addv(const char* format, const char* format_param) {
 	p = driver.printv(p, result_maximum, format, format_param);
@@ -181,14 +181,14 @@ void stringbuilder::sep(const char* header, const char* p) {
 		add(", ");
 }
 
-char* szprintvs(char* result, const char* result_maximum, const char* src, const char* vl) {
-	stringcreator e;
-	e.printv(result, result_maximum, src, vl);
-	return result;
-}
+//char* szprintvs(char* result, const char* result_maximum, const char* src, const char* vl) {
+//	stringcreator e;
+//	e.printv(result, result_maximum, src, vl);
+//	return result;
+//}
 
-char* szprints(char* result, const char* result_maximum, const char* src, ...) {
-	stringcreator e;
-	e.printv(result, result_maximum, src, xva_start(src));
-	return result;
-}
+//char* szprints(char* result, const char* result_maximum, const char* src, ...) {
+//	stringcreator e;
+//	e.printv(result, result_maximum, src, xva_start(src));
+//	return result;
+//}

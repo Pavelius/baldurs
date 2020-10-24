@@ -40,7 +40,7 @@ void scrollitem::update(container* object, int item_in_line) {
 	maximum_items = 0;
 	auto pb = data;
 	auto pe = pb + sizeof(data) / sizeof(data[0]);
-	for(auto& e : itemcont_data) {
+	for(auto& e : bsdata<itemcont>()) {
 		if(e.object != object)
 			continue;
 		if(!e)
@@ -58,7 +58,7 @@ void scrollitem::update(short unsigned index, int item_in_line) {
 	maximum_items = 0;
 	auto pb = data;
 	auto pe = pb + sizeof(data) / sizeof(data[0]);
-	for(auto& e : itemground_data) {
+	for(auto& e : bsdata<itemground>()) {
 		if(!e)
 			continue;
 		if(e.index != index)

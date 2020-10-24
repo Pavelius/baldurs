@@ -40,14 +40,14 @@ static char p4[] = {1, 2, 3, 4};
 static char c1[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 5};
 static char c2[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 5};
 static char c3[] = {1, 2, 2, 3, 3, 4};
-static class_info::slot_info wizard_spells[9] = {{1, p1}, {3, p1}, {5, p2},
+static classi::slot_info wizard_spells[9] = {{1, p1}, {3, p1}, {5, p2},
 {7, p2}, {9, p2}, {11, p1},
 {13, p1}, {15, p3}, {17, p4}};
-static class_info::slot_info cleric_spells[9] = {{1, c1}, {3, c1}, {5, c1},
+static classi::slot_info cleric_spells[9] = {{1, c1}, {3, c1}, {5, c1},
 {7, c1}, {9, c1}, {11, c1},
 {13, c1}, {15, c2}, {17, c3}};
 
-class_info class_data[] = {{"Commoner", "Крестьянин", 4, 2, 0, Strenght},
+BSDATA(classi) = {{"Commoner", "Крестьянин", 4, 2, 0, Strenght},
 {"Adept", "Адэпт", 4, 2, wizard_spells, Intellegence},
 {"Aristocrat", "Аристократ", 6, 2, 0, Strenght},
 {"Beast", "Бестия", 8, 2, 0, Strenght},
@@ -67,5 +67,4 @@ class_info class_data[] = {{"Commoner", "Крестьянин", 4, 2, 0, Strenght},
 {"Sorcerer", "Колдун", 4, 2, 0, Charisma, sorcerer_skills, simple_weapons},
 {"Wizard", "Волшебник", 4, 2, wizard_spells, Intellegence, wizard_skills, wizard_weapons},
 };
-assert_enum(class, Wizard);
-getstr_enum(class);
+assert_enum(classi, Wizard);

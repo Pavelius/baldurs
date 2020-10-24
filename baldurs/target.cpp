@@ -1,20 +1,20 @@
 #include "main.h"
 
 target::target(struct drawable* value) {
-	if(door_data.consist(value)) {
+	if(bsdata<struct door>::source.indexof(value) != -1) {
 		type = Door;
 		door = static_cast<struct door*>(value);
-	} else if(region_data.consist(value)) {
+	} else if(bsdata<struct region>::source.indexof(value) != -1) {
 		type = Region;
 		region = static_cast<struct region*>(value);
-	} else if(container_data.consist(value)) {
+	} else if(bsdata<struct container>::source.indexof(value) != -1) {
 		type = Container;
 		container = static_cast<struct container*>(value);
-	} else if(itemground_data.consist(value)) {
+	} else if(bsdata<struct itemground>::source.indexof(value) != -1) {
 		type = ItemGround;
 		itemground = static_cast<struct itemground*>(value);
-	} else if(creature_data.consist(value)
-		|| value>=players && value<=(players+sizeof(players)/ sizeof(players[0]))) {
+	} else if((bsdata<class creature>::source.indexof(value) != -1)
+		|| value >= players && value <= (players + sizeof(players) / sizeof(players[0]))) {
 		type = Creature;
 		creature = static_cast<struct creature*>(value);
 	} else {
