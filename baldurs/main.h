@@ -72,8 +72,6 @@ enum skill_s : unsigned char {
 	FirstSkill = Appraise, LastSkill = UseRope,
 };
 enum feat_s : unsigned char {
-	NoFeat,
-	// Feats
 	Alertness,
 	ArmorProfeciencyLight, ArmorProfeciencyMedium, ArmorProfeciencyHeavy,
 	BlindFight,
@@ -92,8 +90,8 @@ enum feat_s : unsigned char {
 	SpellFocus,
 	SpringAttack, StunningFist,
 	Toughness, Track, TwoWeaponFighting,
-	FocusAxes, FocusBows, FocusCrossbows, FocusDaggers, FocusGreatswords,
-	FocusLongswords, FocusMaces, FocusPolearm, FocusShortswords,
+	FocusAxes, FocusDaggers,
+	FocusMaces, FocusPolearm, FocusShooting, FocusSwords,
 	WhirlwindAttack,
 	// Владение оружием
 	ProficiencyAxe, ProficiencyClub, ProficiencyCrossbow,
@@ -302,6 +300,7 @@ enum variant_s : unsigned char {
 	Position, Race, Region, Skill, Spell, Name, Finish, Variant,
 };
 class creature;
+class item;
 struct container;
 struct door;
 struct itemground;
@@ -344,7 +343,11 @@ union variant {
 struct varianta : adat<variant, 512> {
 	void					addu(variant v1, variant v2);
 	void					addu(variant v1, variant v2, creature& e);
+	void					match(const creature& e, bool ispresent = true);
+	void					select(const variant v1, const variant v2);
+	void					select(const variant v1, const variant v2, const creature& player, bool required_feats = true);
 	void					sort();
+	void					shuffle();
 };
 template <class T, unsigned N, class DT = char>
 struct aset {
@@ -362,6 +365,87 @@ struct aset {
 };
 typedef aset<skill_s, LastSkill> skilla;
 typedef aset<class_s, LastClass> classa;
+struct rolli {
+	char					dc, bonus, rolled, result;
+	constexpr rolli() : bonus(0), rolled(0), result(0), dc(0) {}
+	bool					iscritical(int modifier) const { return rolled >= (20 - modifier); }
+};
+struct attacki : dice, rolli {
+	char					critical, multiplier;
+	char					ac;
+	int						range;
+	item*					weapon;
+	item*					ammunition;
+	attacki() = default;
+	constexpr attacki(const dice& d, char critical = 0, char m = 0, int rg = 0, item* pam = 0) : dice(d), critical(critical), multiplier(m), ac(0), range(rg), weapon(0), ammunition(pam) {}
+	constexpr attacki(char a) : dice(), critical(0), multiplier(0), ac(a), range(0), weapon(0), ammunition(0) {};
+};
+struct itemi {
+	struct animationi {
+		const char*			avatar;
+		const char*			ground;
+		res::tokens			wear;
+		res::tokens			thrown;
+	};
+	struct poweri {
+		char				magic;
+		const char*			name;
+		variant				power;
+		const char*			text;
+	};
+	const char*				id;
+	const char*				name;
+	animationi				images;
+	slot_s					slot;
+	feat_s					feat[2];
+	attacki					ai;
+	unsigned char			count;
+	int						weight;
+	int						cost; // Цена в золотых монетах
+	aref<poweri>			power;
+	const char*				text;
+};
+class item {
+	item_s					type;
+	unsigned char			effect;
+	unsigned char			count;
+	struct {
+		unsigned char		identified : 1;
+		unsigned char		stolen : 1;
+	};
+public:
+	constexpr explicit operator bool() const { return type != NoItem; }
+	constexpr operator item_s() const { return type; }
+	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(0), stolen(0) {}
+	void					clear();
+	int						getac() const;
+	int						getarmorindex() const;
+	item_s					getammunition() const;
+	static res::tokens		getanwear(int type);
+	res::tokens				getanthrown() const;
+	const attacki&			getattack() const { return geti().ai; }
+	int						getbonus() const;
+	int						getcost() const;
+	int						getcount() const;
+	feat_s					getfeat() const;
+	static const char*		getfname(int type);
+	static const char*		getfgname(int type);
+	int						getframe() const;
+	constexpr itemi&		geti() const { return bsdata<itemi>::elements[type]; }
+	magic_s					getmagic() const;
+	int						getportrait() const { return type * 2; }
+	int						getdragportrait() const { return type * 2 + 1; }
+	item_s					gettype() const { return type; }
+	constexpr bool			is(feat_s v) const { return geti().feat[0] == v || geti().feat[1] == v; }
+	constexpr bool			is(slot_s v) const { return geti().slot == v; }
+	bool					isbow() const;
+	constexpr bool			isranged() const { return geti().ai.range != 0; }
+	bool					isreach() const;
+	bool					isthrown() const;
+	bool					istwohand() const;
+	bool					isxbow() const;
+	void					setcount(int value);
+};
 struct abilityi {
 	const char*				id;
 	const char*				name;
@@ -429,7 +513,7 @@ struct scrolllist : scrolltext {
 	virtual void			row(rect rc, int n) = 0;
 };
 struct scrollitem : scrolllist {
-	struct item*			data[10];
+	item*					data[10];
 	int						maximum_items;
 	int						mx, my;
 	scrollitem(int mx, int my) : maximum_items(0), mx(mx), my(my) {}
@@ -545,49 +629,6 @@ struct selectable : drawable {
 	bool					hittest(point hittest) const;
 	void					painting(point screen) const override;
 };
-struct item {
-	constexpr explicit operator bool() const { return type != NoItem; }
-	constexpr operator item_s() const { return type; }
-	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(0), magic(Mundane), quality(0), stolen(0), damaged(0) {}
-	void					clear();
-	int						getac() const;
-	int						getarmorindex() const;
-	item_s					getammunition() const;
-	static res::tokens		getanwear(int type);
-	res::tokens				getanthrown() const;
-	const struct attack_info& getattack() const;
-	int						getbonus() const;
-	int						getcost() const;
-	int						getcount() const;
-	feat_s					getfeat() const;
-	static const char*		getfname(int type);
-	static const char*		getfgname(int type);
-	int						getframe() const;
-	magic_s					getmagic() const { return magic; }
-	int						getportrait() const { return type * 2; }
-	int						getdragportrait() const { return type * 2 + 1; }
-	item_s					gettype() const { return type; }
-	bool					is(feat_s value) const;
-	bool					is(slot_s value) const;
-	bool					isbow() const;
-	bool					isranged() const;
-	bool					isreach() const;
-	bool					isthrown() const;
-	bool					istwohand() const;
-	bool					isxbow() const;
-	void					setcount(int value);
-private:
-	item_s					type;
-	unsigned char			effect;
-	unsigned char			count;
-	struct {
-		magic_s				magic : 2;
-		unsigned char		quality : 2;
-		unsigned char		damaged : 2;
-		unsigned char		identified : 1;
-		unsigned char		stolen : 1;
-	};
-};
 struct itemdrag {
 	item*					source;
 	item*					target;
@@ -612,12 +653,6 @@ struct varset {
 	constexpr varset(const aref<spell_s>& v) : type(Spell), spells(v) {}
 	constexpr varset(const aref<skill_s>& v) : type(Skill), skills(v) {}
 };
-struct item_animation {
-	const char*				avatar;
-	const char*				ground;
-	res::tokens				wear;
-	res::tokens				thrown;
-};
 struct dietyi {
 	const char*				id;
 	const char*				name;
@@ -626,13 +661,14 @@ struct feati {
 	const char*				id;
 	const char*				name;
 	char					ability[6];
-	feat_s					prerequisit[4];
+	std::initializer_list<feat_s> prerequisits;
 	char					base_attack;
 	char					character_level;
 	const char*				text;
 	const char*				benefit;
 	const char*				normal;
 	prerequisit_s			prerequisit_special;
+	std::initializer_list<feat_s> prerequisits_oneof;
 };
 struct spelli {
 	struct duration_info {
@@ -668,8 +704,8 @@ struct racei {
 	const char*				id;
 	const char*				name;
 	char					abilities[6];
-	skilla				skills;
-	feat_s					feats[8];
+	skilla					skills;
+	std::initializer_list<feat_s> feats;
 	char					quick_learn; // Human's ability additional skills nad feats at start of game
 	const char*				text;
 };
@@ -687,6 +723,7 @@ struct classi {
 	aref<skill_s>			class_skills;
 	aref<feat_s>			weapon_proficiency;
 	aref<feat_s>			armor_proficiency;
+	std::initializer_list<alignment_s> alignment_restrict;
 	const char*				text;
 };
 struct skilli {
@@ -696,39 +733,10 @@ struct skilli {
 	skill_s				synergy[3];
 };
 struct savei {
-	const char*			id;
-	const char*			name;
-	ability_s			ability;
-	cflags<class_s>		classes;
-};
-struct roll_info {
-	char				bonus, rolled, result, dc;
-	constexpr roll_info() : bonus(0), rolled(0), result(0), dc(0) {}
-	explicit operator bool() const;
-	bool				iscritical(int modifier) const { return rolled >= (20 - modifier); }
-};
-struct attack_info : dice, roll_info {
-	attack_info() = default;
-	constexpr attack_info(const dice& d, char c = 0, char m = 0, int rg = 0, item* pam = 0) : dice(d), critical(c), multiplier(m), ac(0), range(rg), weapon(0), ammunition(pam) {}
-	constexpr attack_info(char a) : dice(), critical(0), multiplier(0), ac(a), range(0), weapon(0), ammunition(0) {};
-	char					critical;
-	char					multiplier;
-	char					ac;
-	int						range;
-	item*					weapon;
-	item*					ammunition;
-};
-struct itemi {
 	const char*				id;
 	const char*				name;
-	item_animation			images;
-	slot_s					slots[2];
-	feat_s					feat[2];
-	attack_info				ai;
-	unsigned char			count;
-	int						weight;
-	int						cost; // Цена в золотых монетах
-	varset					power;
+	ability_s				ability;
+	cflags<class_s>			classes;
 };
 struct entrance {
 	char				name[32];
@@ -969,18 +977,18 @@ public:
 	void						addinfo(stringbuilder& sb, variant_s step) const;
 	static void					adventure_combat();
 	static void					adventure();
-	void						apply(race_s id, bool add_ability);
+	void						apply(race_s id);
 	void						apply(class_s id);
 	void						apply(variant type, char level, bool interactive);
 	void						blockimpassable() const override;
 	void						clear();
 	void						clear(variant_s value);
 	void						close(const variant& e);
+	variant						choose(const char* title, const char* step_title, varianta& elements) const;
 	void						choose_action();
-	bool						choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive);
-	bool						choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive);
-	bool						choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive);
-	void						choose_skills(const char* title, const aref<variant>& elements);
+	bool						choose_feats(const char* title, const char* step_title, varianta& elements, const unsigned* minimal, char points, bool interactive);
+	bool						choose_skills(const char* title, const char* step_title, varianta& elements, char points, char points_per_skill, bool interactive);
+	bool						choose_skills(const char* title, varianta& elements, bool interactive);
 	static variant				choose_target(int cursor, short unsigned start, short unsigned max_cost);
 	void						create(monster_s type, reaction_s reaction);
 	static creature*			create(monster_s type, reaction_s reaction, point postition);
@@ -989,6 +997,7 @@ public:
 	static void					create_party();
 	void						damage(int count);
 	bool						equip(const item e);
+	bool						have(variant id) const;
 	void						generate(const char* title);
 	int							get(ability_s id) const;
 	int							get(save_s id) const;
@@ -997,8 +1006,8 @@ public:
 	int							get(feat_s id) const { return is(id) ? 1 : 0; }
 	int							get(spell_s id) const;
 	item*						get(slot_s id) { return wears + id; }
-	void						get(attack_info& result, slot_s slot) const;
-	void						get(attack_info& result, slot_s slot, const creature& enemy) const;
+	void						get(attacki& result, slot_s slot) const;
+	void						get(attacki& result, slot_s slot, const creature& enemy) const;
 	static ability_s			getability(save_s id);
 	int							getac(bool flatfooted) const;
 	static creature*			getactive();
@@ -1053,8 +1062,8 @@ public:
 	bool						is(feat_s id) const { return (feats[id / 32] & (1 << (id % 32))) != 0; }
 	static bool					is(spell_s id, class_s cls, int level);
 	bool						is(state_s id) const override { return (state&(1 << id)) != 0; }
-	bool						isallow(feat_s id) const;
-	static bool					isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack);
+	bool						isallow(alignment_s id) const;
+	bool						isallow(feat_s id, bool test_feats = true) const;
 	bool						isallow(item_s it) const;
 	bool						isallow(variant id) const;
 	bool						isblock(point value) const override;
@@ -1076,15 +1085,15 @@ public:
 	static void					options();
 	void						remove(feat_s id) { feats[id / 32] &= ~(1 << (id % 32)); }
 	void						remove(state_s id) { state &= ~(1 << id); }
-	bool						roll(roll_info& e) const;
+	bool						roll(rolli& e) const;
 	void						open(const variant& e);
 	void						say(const char* format, ...) const;
-	aref<variant>				select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	static aref<creature*>		select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
 	static void					select_all();
 	aref<variant>				selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void						set(ability_s id, int value) { ability[id] = value; }
 	void						set(alignment_s value) { alignment = value; }
+	void						set(class_s v, int level) { classes[v] = level; }
 	void						set(feat_s id) { feats[id / 32] |= (1 << (id % 32)); }
 	void						set(state_s id) override { state |= 1 << id; }
 	void						set(gender_s value) override { gender = value; }

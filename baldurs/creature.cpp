@@ -123,9 +123,11 @@ int creature::getbab() const {
 		+ (classes[Sorcerer] + classes[Wizard]) / 2;
 }
 
-void creature::apply(race_s id, bool add_ability) {
+void creature::apply(race_s id) {
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
 		ability[i] += bsdata<racei>::elements[id].abilities[i];
+	for(auto e : bsdata<racei>::elements[id].feats)
+		set(e);
 }
 
 void creature::apply(class_s id) {
@@ -525,56 +527,24 @@ aref<variant> creature::selecth(const aref<variant>& source, const variant v1, c
 	return result;
 }
 
-aref<variant> creature::select(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
-	auto pb = source.data;
-	auto pe = pb + source.count;
-	if(v1.type == Feat) {
-		auto character_level = getcharlevel();
-		auto base_attack = getbab();
-		for(auto e = v1; e.value <= v2.value; e.value++) {
-			if(is((feat_s)e.value))
-				continue;
-			if(!isallow((feat_s)e.value, ability, character_level, base_attack))
-				continue;
-			if(pb < pe)
-				*pb++ = e;
-		}
-	} else {
-		for(auto e = v1; e.value <= v2.value; e.value++) {
-			if(pb < pe)
-				*pb++ = e;
-		}
-	}
-	auto result = source;
-	result.count = pb - source.data;
-	if(sort_by_name)
-		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
-	return result;
-}
-
-bool creature::choose_skills(const char* title, const aref<variant>& elements, bool add_ability, bool interactive) {
+bool creature::choose_skills(const char* title, varianta& elements, bool interactive) {
 	auto type = getclass();
 	auto race = getrace();
-	apply(race, add_ability);
+	apply(race);
 	apply(type);
 	apply(race, 1, interactive);
 	apply(type, 1, interactive);
-	auto feat_points = 1;
-	feat_points += bsdata<racei>::elements[race].quick_learn;
-	if(!choose_feats(title, "Выбор особенностей",
-		select(elements, FirstFeat, ProficiencyWaraxe, !interactive), feats, feat_points, interactive))
+	auto feat_points = 1 + bsdata<racei>::elements[race].quick_learn;
+	elements.select(FirstFeat, ProficiencyWaraxe, *this, false);
+	elements.match(*this, false);
+	elements.sort();
+	if(!choose_feats(title, "Выбор особенностей", elements, feats, feat_points, interactive))
 		return false;
-	if(!choose_skills(title, "Выбор навыков",
-		select(elements, FirstSkill, LastSkill, !interactive), skills, getpoints(getclass()) * 4, 4, interactive))
+	elements.select(FirstSkill, LastSkill, *this);
+	elements.sort();
+	if(!choose_skills(title, "Выбор навыков", elements, getpoints(getclass()) * 4, 4, interactive))
 		return false;
 	return true;
-}
-
-void creature::choose_skills(const char* title, const aref<variant>& elements) {
-	creature player = *this;
-	if(!player.choose_skills(title, elements, false, true))
-		return;
-	*this = player;
 }
 
 static int compare_rolls(const void* p1, const void* p2) {
@@ -590,7 +560,6 @@ static int roll_4d6() {
 }
 
 void creature::create(class_s type, race_s race, gender_s gender, reaction_s reaction) {
-	variant elements[128];
 	clear();
 	this->kind = Character;
 	this->gender = gender;
@@ -599,7 +568,8 @@ void creature::create(class_s type, race_s race, gender_s gender, reaction_s rea
 	this->classes[type] = 1;
 	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
 		ability[a] = roll_4d6();
-	choose_skills("Случайная генерация", elements, true, false);
+	varianta elements;
+	choose_skills("Случайная генерация", elements, false);
 	update_levels();
 	portrait = random_portrait();
 	update_portrait();
@@ -710,7 +680,7 @@ void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
 	auto reach = map::getrange(getreach());
-	attack_info ai; get(ai, QuickWeapon, enemy);
+	attacki ai; get(ai, QuickWeapon, enemy);
 	res::tokens thrown_res = res::NONE;
 	auto thrown_speed = 300;
 	if(ai.range && ai.weapon)
@@ -730,7 +700,7 @@ void creature::attack(creature& enemy) {
 	enemy.wait();
 }
 
-void creature::get(attack_info& result, slot_s slot) const {
+void creature::get(attacki& result, slot_s slot) const {
 	memset(&result, 0, sizeof(result));
 	auto pitem = getwear(slot);
 	if(pitem) {
@@ -753,13 +723,13 @@ void creature::get(attack_info& result, slot_s slot) const {
 		result.critical++;
 }
 
-bool creature::roll(roll_info& e) const {
+bool creature::roll(rolli& e) const {
 	e.rolled = rand() % 20 + 1;
 	e.result = e.rolled + e.bonus;
 	return e.result >= e.dc;
 }
 
-void creature::get(attack_info& result, slot_s slot, const creature& enemy) const {
+void creature::get(attacki& result, slot_s slot, const creature& enemy) const {
 	get(result, slot);
 	result.dc = enemy.getac(false);
 }
@@ -938,7 +908,7 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 		position = e.target.getcreature()->getposition();
 		reach = e.reach;
 		if(e.method == &creature::attack) {
-			attack_info ai; get(ai, QuickWeapon, *e.target.getcreature());
+			attacki ai; get(ai, QuickWeapon, *e.target.getcreature());
 			if(ai.range)
 				reach = map::getrange(ai.range);
 		}
@@ -1002,36 +972,24 @@ int	creature::getbodyheight() const {
 	}
 }
 
-bool creature::isallow(feat_s id) const {
+bool creature::isallow(feat_s id, bool test_feats) const {
 	auto& ei = bsdata<feati>::elements[id];
 	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e + 1)) {
 		auto value = ei.ability[e];
 		if(value && getr(e) < value)
 			return false;
 	}
-	for(auto e : ei.prerequisit) {
-		if(e && !is(e))
-			return false;
+	if(test_feats) {
+		for(auto e : ei.prerequisits) {
+			if(!is(e))
+				return false;
+		}
 	}
 	if(ei.base_attack && getbab() < ei.base_attack)
 		return false;
 	if(ei.character_level && getcharlevel() < ei.character_level)
 		return false;
 	if(ei.prerequisit_special)
-		return false;
-	return true;
-}
-
-bool creature::isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack) {
-	auto& ei = bsdata<feati>::elements[id];
-	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e + 1)) {
-		auto value = ei.ability[e];
-		if(value && ability[e] < value)
-			return false;
-	}
-	if(ei.base_attack && base_attack < ei.base_attack)
-		return false;
-	if(ei.character_level && character_level < ei.character_level)
 		return false;
 	return true;
 }
@@ -1047,4 +1005,26 @@ bool creature::isallow(item_s i) const {
 			return true;
 	}
 	return false;
+}
+
+bool creature::isallow(alignment_s i) const {
+	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
+		if(!classes[e])
+			continue;
+		for(auto v : bsdata<classi>::elements[e].alignment_restrict) {
+			if(v == i)
+				return false;
+		}
+	}
+	return true;
+}
+
+bool creature::have(variant id) const {
+	switch(id.type) {
+	case Alignment: return alignment == id.value;
+	case Gender: return gender == id.value;
+	case Feat: return is((feat_s)id.value);
+	case Skill: return skills[id.value]!=0;
+	default: return false;
+	}
 }

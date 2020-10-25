@@ -31,3 +31,46 @@ static int compare(const void* v1, const void* v2) {
 void varianta::sort() {
 	qsort(data, count, sizeof(data[0]), compare);
 }
+
+void varianta::shuffle() {
+	zshuffle(data, count);
+}
+
+void varianta::match(const creature& player, bool ispresent) {
+	auto pb = data;
+	for(auto e : *this) {
+		if(player.have(e) != ispresent)
+			continue;
+		*pb++ = e;
+	}
+	count = pb - data;
+}
+
+void varianta::select(const variant v1, const variant v2, const creature& player, bool required_feats) {
+	auto pb = data;
+	auto pe = pb + getmaximum();
+	if(v1.type == Feat) {
+		for(auto e = v1; e.value <= v2.value; e.value++) {
+			if(!player.isallow((feat_s)e.value, required_feats))
+				continue;
+			if(pb < pe)
+				*pb++ = e;
+		}
+	} else {
+		for(auto e = v1; e.value <= v2.value; e.value++) {
+			if(pb < pe)
+				*pb++ = e;
+		}
+	}
+	count = pb - data;
+}
+
+void varianta::select(const variant v1, const variant v2) {
+	auto pb = data;
+	auto pe = pb + getmaximum();
+	for(auto e = v1; e.value <= v2.value; e.value++) {
+		if(pb < pe)
+			*pb++ = e;
+	}
+	count = pb - data;
+}

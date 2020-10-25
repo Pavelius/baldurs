@@ -90,6 +90,22 @@ static bool test_variant_position() {
 	return p1 == p2;
 }
 
+static void test_generate() {
+	creature player;
+	player.set(Human);
+	player.set(Male);
+	player.setportrait(12);
+	player.set(Strenght, 15);
+	player.set(Dexterity, 11);
+	player.set(Constitution, 14);
+	player.set(Intellegence, 8);
+	player.set(Wisdow, 8);
+	player.set(Charisma, 8);
+	player.set(Fighter, 1);
+	varianta elements;
+	player.choose_skills("Тест выбора навыков", elements, true);
+}
+
 int main(int argc, char* argv[]) {
 	if(!test_variant_position())
 		return -1;
@@ -98,6 +114,7 @@ int main(int argc, char* argv[]) {
 	if(!draw::pallette)
 		return -1;
 	//test_character();
+	//test_generate();
 	setlayout(start_scene);
 }
 

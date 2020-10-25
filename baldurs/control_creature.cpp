@@ -72,15 +72,17 @@ static void command_buttons(variant_s step = NoVariant) {
 	button(647, 550, cmpr(buttonparam, CreateNew), (step == NoVariant || step != Gender) ? 0 : Disabled, res::GBTNSTD, "Начать заново");
 }
 
-static variant choose(const creature& player, const char* title, const char* step_title, aref<variant> elements) {
+variant creature::choose(const char* title, const char* step_title, varianta& elements) const {
 	while(ismodal()) {
 		background(res::GUICGB, 0);
-		draw::image(23, 151, res::PORTL, player.getportrait());
+		draw::image(23, 151, res::PORTL, getportrait());
 		label(174, 22, 452, 29, title, 2);
 		label(173, 65, 453, 20, step_title);
 		int nid = 0;
 		for(auto e : elements) {
 			unsigned flags = (current_variant == e) ? Checked : 0;
+			if(!isallow(e))
+				flags |= Disabled;
 			button(274, 113 + 35 * nid, cmpr(select_variant, e), flags, res::GBTNLRG, getstr(e), Alpha + '1' + nid);
 			nid++;
 		}
@@ -239,9 +241,9 @@ static variant choose_gender(const creature& player, const char* title, const ch
 	return getresult();
 }
 
-bool creature::choose_skills(const char* title, const char* step_title, aref<variant> elements, const char* minimal, char points, char points_per_skill, bool interactive) {
+bool creature::choose_skills(const char* title, const char* step_title, varianta& elements, char points, char points_per_skill, bool interactive) {
 	if(!interactive) {
-		zshuffle(elements.data, elements.count);
+		elements.shuffle();
 		for(auto v : elements) {
 			if(!isclass((skill_s)v.value))
 				continue;
@@ -258,8 +260,8 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 		return true;
 	}
 	struct scroll : public scrolllist {
-		variant*			elements;
-		const char*			minimal;
+		varianta&			elements;
+		creature			copy;
 		creature&			player;
 		char				points_per_skill, points;
 		void row(rect rc, int i) override {
@@ -273,7 +275,7 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 			sb.add("%+1i", player.get(id));
 			label(rc.x1 + 180, rc.y1, 20, dy, temp);
 			unsigned flags = 0;
-			if(player.skills[id] <= minimal[id])
+			if(player.skills[id] <= copy.skills[id])
 				flags = Disabled;
 			button(rc.x1 + 230, rc.y1 - 3, cmpr(button_minus, i), flags, res::GBTNMINS, 0);
 			flags = 0;
@@ -286,10 +288,10 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 				iv.addinfo(sb);
 			}
 		}
-		scroll(creature& player, const aref<variant>& elements, const char* minimal) : player(player), minimal(minimal), elements(elements.data) {
+		scroll(creature& player, varianta& elements) : player(player), copy(player), elements(elements) {
 			maximum = elements.count;
 		}
-	} table(*this, elements, minimal);
+	} table(*this, elements);
 	char temp[32];
 	table.points = points;
 	table.points_per_skill = points_per_skill;
@@ -321,14 +323,11 @@ bool creature::choose_skills(const char* title, const char* step_title, aref<var
 	return getresult() != 0;
 }
 
-bool creature::choose_feats(const char* title, const char* step_title, aref<variant> elements, const unsigned* minimal, char points, bool interactive) {
+bool creature::choose_feats(const char* title, const char* step_title, varianta& elements, const unsigned* minimal, char points, bool interactive) {
 	if(!points)
 		return true;
 	if(!interactive) {
-		zshuffle(elements.data, elements.count);
 		for(auto v : elements) {
-			//if(is(v.feat))
-			//	continue;
 			if(!isallow(v))
 				continue;
 			set((feat_s)v.value);
@@ -337,20 +336,20 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 		}
 		return true;
 	}
-	struct scroll : public scrolllist {
-		variant*			elements;
-		const unsigned*		minimal;
-		creature&			player;
-		char				points;
+	struct scroll : scrolllist {
+		varianta&	elements;
+		creature	copy;
+		creature&	player;
+		char		points;
 		void row(rect rc, int i) override {
 			auto id = (feat_s)elements[i].value;
-			int value = player.get(id);
-			int dy = rc.height() - 8;
+			auto value = player.get(id);
+			auto dy = rc.height() - 8;
 			auto isallow = player.isallow(id);
 			labell(rc.x1, rc.y1, 200, dy, getstr(id), 0, isallow ? 0 : 5);
-			unsigned flags = Disabled;
-			if(player.is(id))
-				flags = 0;
+			unsigned flags = 0;
+			if(copy.is(id) || !player.is(id))
+				flags = Disabled;
 			button(rc.x1 + 230, rc.y1 - 3, cmpr(button_minus, i), flags, res::GBTNMINS, 0);
 			flags = 0;
 			if(!isallow || player.is(id) || points <= 0)
@@ -362,14 +361,10 @@ bool creature::choose_feats(const char* title, const char* step_title, aref<vari
 				iv.addinfo(sb);
 			}
 		}
-		bool is(feat_s id) const {
-			return (minimal[id / 32] & (1 << (id % 32))) != 0;
-		}
-		scroll(creature& player, const unsigned* minimal, const aref<variant>& elements) :
-			player(player), minimal(minimal), elements(elements.data) {
+		scroll(creature& player, varianta& elements) : player(player), copy(player), elements(elements) {
 			maximum = elements.count;
 		}
-	} table(*this, minimal, elements);
+	} table(*this, elements);
 	char temp[32];
 	table.points = points;
 	while(ismodal()) {
@@ -522,7 +517,7 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 
 void creature::generate(const char* title) {
 	variant var;
-	variant elements[128];
+	varianta elements;
 	while(true) {
 		auto step = getstep();
 		auto si = find(step);
@@ -545,7 +540,7 @@ void creature::generate(const char* title) {
 				choose_ability(*this, title, si->name);
 				break;
 			case Skill:
-				choose_skills(title, elements);
+				choose_skills(title, elements, true);
 				break;
 			case Apearance:
 				choose_apearance(title, si->name);
@@ -558,7 +553,9 @@ void creature::generate(const char* title) {
 				}
 				break;
 			default:
-				var = choose(*this, title, si->name, select(elements, si->from, si->to, true));
+				elements.select(si->from, si->to);
+				elements.sort();
+				var = choose(title, si->name, elements);
 				if(var)
 					set(var);
 				break;

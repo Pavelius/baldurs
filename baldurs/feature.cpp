@@ -1,12 +1,12 @@
 #include "main.h"
 
-struct feature_info {
+struct featurei {
+	typedef void(*applyp)(creature& player, featurei& f, bool interactive);
 	variant			type;
 	char			level;
 	const char*		name;
-	void(*proc)(creature& player, feature_info& f, bool interactive);
-	aref<variant>	elements;
-	feat_s			feats[8];
+	applyp			proc;
+	std::initializer_list<variant> elements;
 };
 
 static void set_spells(creature& player, class_s type, char level) {
@@ -29,7 +29,7 @@ static spell_s random_spell(creature& player, class_s type, char level) {
 	return elements.data[rand() % elements.count];
 }
 
-static void known_some_spells(creature& player, feature_info& f, bool interactive) {
+static void known_some_spells(creature& player, featurei& f, bool interactive) {
 	if(interactive) {
 
 	} else {
@@ -41,39 +41,29 @@ static void known_some_spells(creature& player, feature_info& f, bool interactiv
 	}
 }
 
-static void known_all_spells(creature& player, feature_info& f, bool interactive) {
+static void known_all_spells(creature& player, featurei& f, bool interactive) {
 	set_spells(player, (class_s)f.type.value, 1 + f.level / 2);
 }
 
-static void equipment(creature& player, feature_info& f, bool interactive) {
+static void apply_values(creature& player, featurei& f, bool interactive) {
 	for(auto e : f.elements) {
 		switch(e.type) {
-		case Item: player.add((item_s)f.type.value); break;
+		case Item: player.add((item_s)e.value); break;
+		case Feat: player.set((feat_s)e.value); break;
+			break;
 		}
 	}
 }
 
-static void apply_feats(creature& player, feature_info& f, bool interactive) {
-	for(auto e : f.feats)
-		player.set(e);
-}
-
-static variant cleric_equipment[] = {Mace};
-static variant fighter_equipment[] = {Longsword, LeatherArmor, Helm};
-static variant paladin_equipment[] = {Longsword, BandedMail, Helm};
-static variant ranger_equipment[] = {Shortbow, LeatherArmor};
-static variant rogue_equipment[] = {Shortsword};
-static variant wizard_equipment[] = {Staff};
-
-feature_info feature_data[] = {{Barbarian, 1, 0, apply_feats, {}, {FastMovement, Illiteracy}},
+featurei feature_data[] = {{Barbarian, 1, 0, apply_values, {FastMovement, Illiteracy}},
 {Cleric, 1, 0, known_all_spells},
+{Cleric, 1, 0, apply_values, {Mace}},
+{Fighter, 1, 0, apply_values, {Longsword, LeatherArmor, Helm}},
+{Paladin, 1, 0, apply_values, {Longsword, BandedMail, Helm}},
+{Ranger, 1, 0, apply_values, {Shortbow, LeatherArmor}},
+{Rogue, 1, 0, apply_values, {Shortsword}},
 {Wizard, 1, 0, known_some_spells},
-{Wizard, 1, 0, equipment, wizard_equipment},
-{Fighter, 1, 0, equipment, fighter_equipment},
-{Cleric, 1, 0, equipment, cleric_equipment},
-{Paladin, 1, 0, equipment, paladin_equipment},
-{Ranger, 1, 0, equipment, ranger_equipment},
-{Rogue, 1, 0, equipment, rogue_equipment},
+{Wizard, 1, 0, apply_values, {Staff}},
 {Cleric, 3, 0, known_all_spells},
 {Cleric, 5, 0, known_all_spells},
 {Cleric, 7, 0, known_all_spells},

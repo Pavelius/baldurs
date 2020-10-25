@@ -56,7 +56,7 @@ static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0
 			sb.add(prefix);
 		sb.add("¬ы умеете использовать такое оружие как ");
 		add_feat_item(sb, id);
-	} else if(id >= FocusAxes && id <= FocusShortswords) {
+	} else if(id >= FocusAxes && id <= FocusSwords) {
 		if(prefix)
 			sb.add(prefix);
 		sb.add("+1 к атаке, если исползуете такое оружие как ");
@@ -78,7 +78,7 @@ static void add_required(stringbuilder& sb, feat_s id) {
 		sb.sep(h, p);
 		sb.add("%1 %2i", getstr(i), ei.ability[i]);
 	}
-	for(auto e : ei.prerequisit) {
+	for(auto e : ei.prerequisits) {
 		if(!e)
 			break;
 		sb.sep(h, p);
@@ -133,7 +133,7 @@ static void add_skills(stringbuilder& sb, race_s id) {
 	}
 }
 
-static void add(stringbuilder& sb, const aref<feat_s>& source) {
+static void add(stringbuilder& sb, const std::initializer_list<feat_s>& source) {
 	for(auto i : source) {
 		if(i)
 			add_feat(sb, i);
