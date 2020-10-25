@@ -56,22 +56,22 @@ BSDATA(feati) = {{"None"},
 {"Focus shortswords", "Фокус на коротких мечах", {0}, {ProficiencyShortsword}, 1},
 {"WhirlwindAttack", "Атака вихрем", {0, 13, 0, 13}, {CombatExpertise, Dodge, Mobiliy, SpringAttack}, 4},
 //
-{"Axe Proficiency", "Владение топором", {}},
-{"Club Proficiency", "Владение дубиной", {}},
-{"Crossbow Proficiency", "Владение арбалетом", {}},
-{"Dagger Proficiency", "Владение кинжалом", {}},
+{"Axe Proficiency", "Владение топором"},
+{"Club Proficiency", "Владение дубиной"},
+{"Crossbow Proficiency", "Владение арбалетом"},
+{"Dagger Proficiency", "Владение кинжалом"},
 {"Greatweapon Proficiency", "Владение большим оружием", {}, {ProficiencyLongsword}},
-{"Heavy Crossbow Proficiency", "Владение тяжелым арбалетом", {}},
-{"Mace Proficiency", "Владение булавой", {}},
-{"Simple weapon Proficiency", "Владение простым оружием", {}},
-{"Spear Proficiency", "Владение копьем", {}},
-{"Longbow Proficiency", "Владение длинным луком", {}},
-{"Longsword Proficiency", "Владение длинным мечом", {}},
-{"Shortbow Proficiency", "Владение коротким луком", {}},
-{"Scimitar Proficiency", "Владение саблей", {}},
-{"Shortsword Proficiency", "Владение коротким мечом", {}},
+{"Heavy Crossbow Proficiency", "Владение тяжелым арбалетом"},
+{"Mace Proficiency", "Владение булавой"},
+{"Simple weapon Proficiency", "Владение простым оружием"},
+{"Spear Proficiency", "Владение копьем"},
+{"Longbow Proficiency", "Владение длинным луком"},
+{"Longsword Proficiency", "Владение длинным мечом"},
+{"Shortbow Proficiency", "Владение коротким луком"},
+{"Scimitar Proficiency", "Владение саблей"},
+{"Shortsword Proficiency", "Владение коротким мечом"},
 {"Bastardsword Proficiency", "Владение полуторным мечем", {}, {ProficiencyLongsword}},
-{"Catana Proficiency", "Владение катаной", {}},
+{"Catana Proficiency", "Владение катаной"},
 {"Waraxe Proficiency", "Владение военным топором", {}, {ProficiencyAxe}},
 //
 {"FastMovement", "Быстрое передвижение"},
@@ -92,39 +92,3 @@ BSDATA(feati) = {{"None"},
 {"Stonecunning", "Обработка камня", {}, {}, 0, 0, "+2 к Поиску при попытке обнаружить ловушки в подземелье. Делают это аналогично ворам."},
 };
 assert_enum(feati, LastFeat)
-
-void add_feat_item(stringbuilder& sb, feat_s id);
-
-bool creature::isallow(feat_s id) const {
-	auto& ei = bsdata<feati>::elements[id];
-	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e+1)) {
-		auto value = ei.ability[e];
-		if(value && getr(e) < value)
-			return false;
-	}
-	for(auto e : ei.prerequisit) {
-		if(e && !is(e))
-			return false;
-	}
-	if(ei.base_attack && getbab() < ei.base_attack)
-		return false;
-	if(ei.character_level && getcharlevel() < ei.character_level)
-		return false;
-	if(ei.prerequisit_special)
-		return false;
-	return true;
-}
-
-bool creature::isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack) {
-	auto& ei = bsdata<feati>::elements[id];
-	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e + 1)) {
-		auto value = ei.ability[e];
-		if(value && ability[e] < value)
-			return false;
-	}
-	if(ei.base_attack && base_attack < ei.base_attack)
-		return false;
-	if(ei.character_level && character_level < ei.character_level)
-		return false;
-	return true;
-}

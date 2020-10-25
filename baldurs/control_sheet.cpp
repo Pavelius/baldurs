@@ -62,7 +62,7 @@ void creature::sheet() {
 	button(256, 334, cmpr(biography), 0, res::GBTNSTD, "Экспорт");
 	button(256, 388, cmpr(biography), 0, res::GBTNSTD, "Персонализация");
 	button(655, 379, cmpr(levelup), Disabled, res::GBTNSTD, "Поднять уровень");
-	temp[0] = 0;
+	sb.clear();
 	switch(current_step) {
 	case InfoSkills:
 		add(sb, FirstSkill, LastSkill, "Навыки");

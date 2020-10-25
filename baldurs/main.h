@@ -313,7 +313,7 @@ union variant {
 	};
 	int						integer;
 	constexpr variant() : integer(0) {}
-	constexpr variant(variant_s type, unsigned char value) : type(type), value(value) {}
+	constexpr variant(variant_s type, unsigned short value) : type(type), value(value) {}
 	constexpr variant(ability_s v) : variant(Ability, v) {}
 	constexpr variant(alignment_s v) : variant(Alignment, v) {}
 	constexpr variant(class_s v) : variant(Class, v) {}
@@ -340,6 +340,11 @@ union variant {
 	itemground*				getitemground() const { return (itemground*)getpointer(ItemGround); }
 	region*					getregion() const { return (region*)getpointer(Region); }
 	point					getposition() const { return {(short)((integer >> 8) & 0xFFF), (short)((integer >> 20) & 0xFFF)}; }
+};
+struct varianta : adat<variant, 512> {
+	void					addu(variant v1, variant v2);
+	void					addu(variant v1, variant v2, creature& e);
+	void					sort();
 };
 template <class T, unsigned N, class DT = char>
 struct aset {
@@ -541,7 +546,8 @@ struct selectable : drawable {
 	void					painting(point screen) const override;
 };
 struct item {
-	explicit operator bool() const { return type != NoItem; }
+	constexpr explicit operator bool() const { return type != NoItem; }
+	constexpr operator item_s() const { return type; }
 	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(0), magic(Mundane), quality(0), stolen(0), damaged(0) {}
 	void					clear();
 	int						getac() const;
@@ -681,6 +687,7 @@ struct classi {
 	aref<skill_s>			class_skills;
 	aref<feat_s>			weapon_proficiency;
 	aref<feat_s>			armor_proficiency;
+	const char*				text;
 };
 struct skilli {
 	const char*			id;
@@ -956,10 +963,10 @@ public:
 	void						attack(creature& enemy);
 	void						attack(const variant& enemy);
 	void						add(item e);
-	void						add(stringbuilder& sb, variant v1) const;
 	void						add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name = true) const;
 	void						add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
 	void						addinfo(stringbuilder& sb) const;
+	void						addinfo(stringbuilder& sb, variant_s step) const;
 	static void					adventure_combat();
 	static void					adventure();
 	void						apply(race_s id, bool add_ability);
@@ -995,6 +1002,7 @@ public:
 	static ability_s			getability(save_s id);
 	int							getac(bool flatfooted) const;
 	static creature*			getactive();
+	alignment_s					getalignment() const { return alignment; }
 	int							getbab() const;
 	creature*					getbest(const aref<creature*>& source, bool (creature::*proc)(const creature& opponent) const) const;
 	int							getbodyheight() const;
@@ -1004,7 +1012,6 @@ public:
 	int							getcost(skill_s id) const { return isclass(id) ? 1 : 2; }
 	static creature*			getcreature(point position);
 	static creature*			getcreature(short unsigned index);
-	void						getdescription(stringbuilder& sb) const;
 	diety_s						getdiety() const { return diety; }
 	int							getfeats() const;
 	gender_s					getgender() const override { return gender; }
@@ -1048,7 +1055,7 @@ public:
 	bool						is(state_s id) const override { return (state&(1 << id)) != 0; }
 	bool						isallow(feat_s id) const;
 	static bool					isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack);
-	bool						isallow(const item& it) const;
+	bool						isallow(item_s it) const;
 	bool						isallow(variant id) const;
 	bool						isblock(point value) const override;
 	bool						isclass(skill_s id) const;
@@ -1210,6 +1217,7 @@ BSLNK(alignment_s, alignmenti)
 BSLNK(class_s, classi)
 BSLNK(feat_s, feati)
 BSLNK(gender_s, genderi)
+BSLNK(item_s, itemi)
 BSLNK(race_s, racei)
 BSLNK(save_s, savei)
 BSLNK(school_s, schooli)

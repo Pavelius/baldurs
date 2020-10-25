@@ -250,6 +250,9 @@
     <ClCompile Include="manual.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="varianta.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

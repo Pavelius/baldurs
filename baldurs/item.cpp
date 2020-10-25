@@ -155,19 +155,6 @@ int item::getarmorindex() const {
 	}
 }
 
-bool creature::isallow(const item& it) const {
-	const auto& ei = bsdata<itemi>::elements[it.gettype()];
-	if(!ei.feat[0])
-		return true;
-	for(auto e : ei.feat) {
-		if(!e)
-			break;
-		if(is(e))
-			return true;
-	}
-	return false;
-}
-
 bool item::isbow() const {
 	return bsdata<itemi>::elements[type].ai.ammunition
 		&& bsdata<itemi>::elements[type].ai.ammunition->type == Arrow;

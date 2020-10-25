@@ -29,6 +29,7 @@ template<> const char* getstr<variant>(variant id) {
 	case Alignment: return getstr((alignment_s)id.value);
 	case Ability: return getstr((ability_s)id.value);
 	case Class: return getstr((class_s)id.value);
+	case Item: return getstr((item_s)id.value);
 	case Gender: return getstr((gender_s)id.value);
 	case Race: return getstr((race_s)id.value);
 	case Skill: return getstr((skill_s)id.value);

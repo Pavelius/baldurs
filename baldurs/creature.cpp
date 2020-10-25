@@ -179,6 +179,7 @@ bool creature::isallow(variant id) const {
 	switch(id.type) {
 	case Alignment: return isallow((alignment_s)id.value);
 	case Feat: return isallow((feat_s)id.value);
+	case Item: return isallow((item_s)id.value);
 	default: return true;
 	}
 }
@@ -259,18 +260,6 @@ void creature::clear(variant_s value) {
 	}
 }
 
-void creature::add(stringbuilder& sb, variant value) const {
-	if(!value)
-		return;
-	if(sb)
-		sb.add("\n");
-	if(value.type != Alignment) {
-		sb.add(getstr(value.type));
-		sb.add(": ");
-	}
-	sb.add(getstr(value));
-}
-
 void creature::add(stringbuilder& sb, const aref<variant>& elements, const char* title) const {
 	if(!elements)
 		return;
@@ -295,7 +284,6 @@ void creature::addinfo(stringbuilder& sb) const {
 		if(classes[e])
 			sb.addn("%1: %2i", getstr(e), classes[e]);
 	}
-	sb.addn("");
 	sb.addn("Любимый класс: Любой");
 	sb.addh("Опыт");
 	sb.addn("Текущий: %1i", experience);
@@ -309,17 +297,6 @@ void creature::addinfo(stringbuilder& sb) const {
 		sb.addn("%1: %+2i", getstr(e), get(e));
 	sb.addh("Способности атрибутов");
 	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
-}
-
-void creature::getdescription(stringbuilder& sb) const {
-	add(sb, gender);
-	add(sb, race);
-	add(sb, getclass());
-	add(sb, alignment);
-	add(sb, Strenght, Charisma, "Атрибуты", false);
-	add(sb, FirstSkill, LastSkill, "Навыки");
-	add(sb, FirstFeat, WhirlwindAttack, "Особенности");
-	add(sb, ProficiencyAxe, ProficiencyWaraxe, "Доступность оружия");
 }
 
 int	creature::getskillpoints() const {
@@ -1023,4 +1000,51 @@ int	creature::getbodyheight() const {
 	case Gnome: case Dwarf: return 30;
 	default: return 50;
 	}
+}
+
+bool creature::isallow(feat_s id) const {
+	auto& ei = bsdata<feati>::elements[id];
+	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e + 1)) {
+		auto value = ei.ability[e];
+		if(value && getr(e) < value)
+			return false;
+	}
+	for(auto e : ei.prerequisit) {
+		if(e && !is(e))
+			return false;
+	}
+	if(ei.base_attack && getbab() < ei.base_attack)
+		return false;
+	if(ei.character_level && getcharlevel() < ei.character_level)
+		return false;
+	if(ei.prerequisit_special)
+		return false;
+	return true;
+}
+
+bool creature::isallow(feat_s id, const unsigned char* ability, char character_level, char base_attack) {
+	auto& ei = bsdata<feati>::elements[id];
+	for(auto e = Strenght; e <= Charisma; e = (ability_s)(e + 1)) {
+		auto value = ei.ability[e];
+		if(value && ability[e] < value)
+			return false;
+	}
+	if(ei.base_attack && base_attack < ei.base_attack)
+		return false;
+	if(ei.character_level && character_level < ei.character_level)
+		return false;
+	return true;
+}
+
+bool creature::isallow(item_s i) const {
+	const auto& ei = bsdata<itemi>::elements[i];
+	if(!ei.feat[0])
+		return true;
+	for(auto e : ei.feat) {
+		if(!e)
+			break;
+		if(is(e))
+			return true;
+	}
+	return false;
 }

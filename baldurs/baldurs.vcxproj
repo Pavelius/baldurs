@@ -209,6 +209,7 @@
     <ClCompile Include="treasure.cpp" />
     <ClCompile Include="variant.cpp" />
     <ClCompile Include="resource_static.cpp" />
+    <ClCompile Include="varianta.cpp" />
     <ClCompile Include="win_draw.cpp" />
     <ClCompile Include="win_io_file.cpp" />
     <ClCompile Include="worldmap.cpp" />

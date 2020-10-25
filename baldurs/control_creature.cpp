@@ -490,7 +490,7 @@ static const char* choose_name(const char* title) {
 
 static variant_s choose_step(creature& player, const char* title, const char* step_title, variant_s current) {
 	stringbuilder sb(description);
-	player.getdescription(sb);
+	player.addinfo(sb, current);
 	while(ismodal()) {
 		background(res::GUICGB, 0);
 		draw::image(23, 151, res::PORTL, player.getportrait());
@@ -509,9 +509,7 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 		switch(hot.key) {
 		case CreateNew:
 			if(dlgask("Вы действительно хотите начать заново создавать этого персонажа?")) {
-				player.clear();
-				sb.clear();
-				player.getdescription(sb);
+				player.clear(); sb.clear(); description[0] = 0;
 				return steps[0].step;
 			}
 			break;

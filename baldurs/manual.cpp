@@ -1,7 +1,27 @@
 #include "main.h"
 
+static variant_s		generation_steps[] = {Gender, Race, Class, Alignment, Ability, Skill, Apearance, Name};
+
+bool isallowstep(variant_s v, variant_s c) {
+	for(auto e : generation_steps) {
+		if(e == v)
+			break;
+		if(e == c)
+			return true;
+	}
+	return false;
+}
+
+static void adds(stringbuilder& sb, const char* header, const char* format, ...) {
+	sb.addsep('\n');
+	if(header)
+		sb.add("[**%1**]: ", header);
+	sb.addv(format, xva_start(format));
+}
+
 static void add(stringbuilder& sb, const char* header, const char* format, ...) {
-	sb.add("\n\n[**%1**]: ", header);
+	sb.addsep('\n');
+	sb.add("\n[**%1**]: ", header);
 	sb.addv(format, xva_start(format));
 }
 
@@ -17,10 +37,10 @@ static void add(stringbuilder& sb, const char* header, aref<skill_s> source) {
 	}
 }
 
-static void add_feat_item(stringbuilder& sb, feat_s id) {
+static void add_feat_item(stringbuilder& sb, feat_s id, int index = 0) {
 	auto p = sb.get();
 	for(auto& e : bsdata<itemi>()) {
-		if(e.feat[0] == id) {
+		if(e.feat[index] == id) {
 			sb.sep(0, p);
 			sb.add(e.name);
 		}
@@ -36,6 +56,11 @@ static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0
 			sb.add(prefix);
 		sb.add("Вы умеете использовать такое оружие как ");
 		add_feat_item(sb, id);
+	} else if(id >= FocusAxes && id <= FocusShortswords) {
+		if(prefix)
+			sb.add(prefix);
+		sb.add("+1 к атаке, если исползуете такое оружие как ");
+		add_feat_item(sb, id, 1);
 	} else if(ei.text && ei.text[0]) {
 		if(prefix)
 			sb.add(prefix);
@@ -129,6 +154,35 @@ static void add(stringbuilder& sb, const char* header, const classa& source) {
 	}
 }
 
+static void add(stringbuilder& sb, const char* header, const varianta& source) {
+	auto count = 0;
+	for(auto i : source) {
+		if(count == 0)
+			sb.add("\n\n[**%1**]: ", header);
+		else
+			sb.add(", ");
+		sb.add(getstr(i));
+		count++;
+	}
+}
+
+static void add(stringbuilder& sb, const char* header, item_s v1, item_s v2, const aref<feat_s>& feats, const char* empthy) {
+	if(!feats) {
+		if(empthy)
+			add(sb, header, empthy);
+		return;
+	}
+	varianta source;
+	for(auto v = v1; v <= v2; v = (item_s)(v + 1)) {
+		auto& vi = bsdata<itemi>::elements[v];
+		if(vi.feat[0] && !feats.is(vi.feat[0]))
+			continue;
+		source.add(v);
+	}
+	source.sort();
+	add(sb, header, source);
+}
+
 template<> void getrule<race_s>(stringbuilder& sb, race_s id) {
 	sb.add(bsdata<racei>::elements[id].text);
 	add_ability(sb, id);
@@ -145,12 +199,14 @@ template<> void getrule<feat_s>(stringbuilder& sb, feat_s id) {
 
 template<> void	getrule<class_s>(stringbuilder& sb, class_s value) {
 	auto& ei = bsdata<classi>::elements[value];
-	sb.add("Необходимо добавить описание класса");
+	sb.add(ei.text);
 	add(sb, "Кость хитов", "d%1i", ei.hd);
+	if(ei.spell_ability)
+		add(sb, "Способность заклинаний", getstr(ei.spell_ability));
 	add(sb, "Очков навыков", "%1i/уровень", ei.skill_points);
 	add(sb, "Классовые навыки", ei.class_skills);
-	add(sb, ei.weapon_proficiency);
-	add(sb, ei.armor_proficiency);
+	add(sb, "Доступное оружие", Club, Katana, ei.weapon_proficiency, "не использует оружие");
+	add(sb, "Доступная броня", LeatherArmor, Helm, ei.armor_proficiency, "не носит броню");
 }
 
 template<> void	getrule<spell_s>(stringbuilder& sb, spell_s value) {
@@ -158,4 +214,24 @@ template<> void	getrule<spell_s>(stringbuilder& sb, spell_s value) {
 	sb.add("Необходимо добавить описание заклинания");
 	add(sb, "Школа", getstr(ei.school));
 	add(sb, "Уровень", ei.levels);
+}
+
+void creature::addinfo(stringbuilder& sb, variant_s step) const {
+	if(isallowstep(step, Name))
+		adds(sb, getstr(Name), getname());
+	if(isallowstep(step, Gender))
+		adds(sb, getstr(Gender), getstr(getgender()));
+	if(isallowstep(step, Race))
+		adds(sb, getstr(Race), getstr(getrace()));
+	if(isallowstep(step, Class))
+		adds(sb, getstr(Class), getstr(getclass()));
+	if(isallowstep(step, Alignment))
+		adds(sb, 0, getstr(getalignment()));
+	if(isallowstep(step, Ability))
+		add(sb, Strenght, Charisma, "Атрибуты", false);
+	if(isallowstep(step, Skill)) {
+		add(sb, FirstSkill, LastSkill, "Навыки");
+		add(sb, FirstFeat, WhirlwindAttack, "Особенности");
+		add(sb, ProficiencyAxe, ProficiencyWaraxe, "Доступность оружия");
+	}
 }
