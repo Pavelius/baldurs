@@ -242,22 +242,13 @@ void creature::clear(variant_s value) {
 	}
 }
 
-void creature::add(stringbuilder& sb, const aref<variant>& elements, const char* title) const {
-	if(!elements)
-		return;
-	sb.addh(title);
-	for(auto e : elements) {
-		sb.addn(getstr(e));
-		switch(e.type) {
-		case Skill: sb.add(" %+1i (%2i)", get((skill_s)e.value), skills[e.value]); break;
-		case Ability: sb.add(": %1i", ability[e.value]); break;
-		}
-	}
-}
-
 void creature::add(stringbuilder& sb, variant v1, variant v2, const char* title, bool sort_by_name) const {
-	variant elements[128];
-	add(sb, selecth(elements, v1, v2, sort_by_name), title);
+	varianta elements;
+	elements.select(v1, v2);
+	elements.match(*this, true);
+	if(sort_by_name)
+		elements.sort();
+	add(sb, elements, title);
 }
 
 void creature::addinfo(stringbuilder& sb) const {
@@ -473,39 +464,39 @@ const item* creature::getwear(slot_s id) const {
 	}
 }
 
-aref<variant> creature::selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
-	auto pb = source.data;
-	auto pe = pb + source.count;
-	auto result = source; result.count = 0;
-	switch(v1.type) {
-	case Skill:
-		if(!getskillpoints())
-			return result;
-		break;
-	}
-	for(auto e = v1; e.value <= v2.value; e.value++) {
-		switch(e.type) {
-		case Feat:
-			if(!is((feat_s)e.value))
-				continue;
-			break;
-		case Skill:
-			if(!skills[e.value])
-				continue;
-			break;
-		case Ability:
-			if(ability[e.value] == 0)
-				continue;
-			break;
-		}
-		if(pb < pe)
-			*pb++ = e;
-	}
-	result.count = pb - source.data;
-	if(sort_by_name)
-		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
-	return result;
-}
+//aref<variant> creature::selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
+//	auto pb = source.data;
+//	auto pe = pb + source.count;
+//	auto result = source; result.count = 0;
+//	switch(v1.type) {
+//	case Skill:
+//		if(!getskillpoints())
+//			return result;
+//		break;
+//	}
+//	for(auto e = v1; e.value <= v2.value; e.value++) {
+//		switch(e.type) {
+//		case Feat:
+//			if(!is((feat_s)e.value))
+//				continue;
+//			break;
+//		case Skill:
+//			if(!skills[e.value])
+//				continue;
+//			break;
+//		case Ability:
+//			if(ability[e.value] == 0)
+//				continue;
+//			break;
+//		}
+//		if(pb < pe)
+//			*pb++ = e;
+//	}
+//	result.count = pb - source.data;
+//	if(sort_by_name)
+//		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
+//	return result;
+//}
 
 bool creature::choose_skills(const char* title, varianta& elements, bool interactive) {
 	auto type = getclass();
@@ -1002,8 +993,10 @@ bool creature::isallow(alignment_s i) const {
 bool creature::have(variant id) const {
 	switch(id.type) {
 	case Alignment: return alignment == id.value;
+	case Class: return classes[id.value] != 0;
 	case Gender: return gender == id.value;
 	case Feat: return is((feat_s)id.value);
+	case Race: return race == id.value;
 	case Skill: return skills[id.value]!=0;
 	default: return false;
 	}

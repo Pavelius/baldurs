@@ -49,6 +49,10 @@ enum spell_s : unsigned short {
 };
 enum ability_s : unsigned char {
 	Strenght, Dexterity, Constitution, Intellegence, Wisdow, Charisma,
+	// Addition abilities
+	ArmorClass, Attack, Damage, MeleeAttack, MeleeDamage, RangeAttack, RangeDamage,
+	SaveFortitude, SaveReflexes, SaveWill,
+	HitPoints, Movement,
 };
 enum class_s : unsigned char {
 	// Classes
@@ -717,12 +721,13 @@ struct classi {
 	aref<feat_s>			armor_proficiency;
 	std::initializer_list<alignment_s> alignment_restrict;
 	const char*				text;
+	bool					isclass(skill_s v) const;
 };
 struct skilli {
-	const char*			id;
-	const char*			name;
-	ability_s			ability;
-	skill_s				synergy[3];
+	const char*				id;
+	const char*				name;
+	ability_s				ability;
+	skill_s					synergy[3];
 };
 struct savei {
 	const char*				id;
@@ -731,9 +736,9 @@ struct savei {
 	cflags<class_s>			classes;
 };
 struct entrance {
-	char				name[32];
-	unsigned char		orientation;
-	point				position;
+	char					name[32];
+	unsigned char			orientation;
+	point					position;
 };
 struct region : selectable {
 	region_type_s		type;
@@ -1081,7 +1086,7 @@ public:
 	void						say(const char* format, ...) const;
 	static aref<creature*>		select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
 	static void					select_all();
-	aref<variant>				selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
+	//aref<variant>				selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void						set(ability_s id, int value) { ability[id] = value; }
 	void						set(alignment_s value) { alignment = value; }
 	void						set(class_s v, int level) { classes[v] = level; }

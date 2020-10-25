@@ -80,4 +80,12 @@ BSDATA(classi) = {{"Commoner", "Крестьянин", 4, 2, 0, Strenght},
 {"Wizard", "Волшебник", 4, 2, wizard_spells, Intellegence, wizard_skills, wizard_weapons, {},
 {}, "Могущественный заклинатель, обученный искусству тайных наук."},
 };
-assert_enum(classi, Wizard);
+assert_enum(classi, Wizard)
+
+bool classi::isclass(skill_s v) const {
+	for(auto e : class_skills) {
+		if(e == v)
+			return true;
+	}
+	return false;
+}

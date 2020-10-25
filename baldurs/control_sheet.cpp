@@ -34,7 +34,7 @@ static void levelup() {}
 void creature::sheet() {
 	static const creature* cashe_player;
 	char temp[8192]; stringbuilder sb(temp);
-	variant elements[128];
+	varianta source;
 	// Чтобы корректно отображался текст, кэшируем когда меняется игрок
 	if(cashe_player != this) {
 		cashe_player = this;

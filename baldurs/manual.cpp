@@ -181,6 +181,19 @@ static void add(stringbuilder& sb, const char* header, item_s v1, item_s v2, con
 	add(sb, header, source);
 }
 
+void creature::add(stringbuilder& sb, const aref<variant>& elements, const char* title) const {
+	if(!elements)
+		return;
+	sb.addh(title);
+	for(auto e : elements) {
+		sb.addn(getstr(e));
+		switch(e.type) {
+		case Skill: sb.add(" %+1i (%2i)", get((skill_s)e.value), skills[e.value]); break;
+		case Ability: sb.add(": %1i", ability[e.value]); break;
+		}
+	}
+}
+
 template<> void getrule<race_s>(stringbuilder& sb, race_s id) {
 	sb.add(bsdata<racei>::elements[id].text);
 	add_ability(sb, id);
