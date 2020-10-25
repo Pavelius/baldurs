@@ -77,10 +77,11 @@ static aref<variant> createlist(aref<variant> result, variant v1, variant v2) {
 }
 
 static void command_buttons(variant_s step = NoVariant) {
-	button(35, 550, cmpr(biography), (step==Finish) ? 0 : Disabled, res::GBTNSTD, "Биография");
-	button(204, 550, cmpr(import_character), 0, res::GBTNSTD, "Импортировать");
-	button(342, 550, cmpr(buttoncancel), 0, res::GBTNSTD, "Назад", KeyEscape);
-	button(647, 550, cmpr(buttonparam, CreateNew), (step == NoVariant || step != Gender) ? 0 : Disabled, res::GBTNSTD, "Начать заново");
+	button(35, 550, biography, (step==Finish) ? 0 : Disabled, res::GBTNSTD, "Биография");
+	button(204, 550, import_character, 0, res::GBTNSTD, "Импортировать");
+	button(342, 550, buttoncancel, 0, res::GBTNSTD, "Назад", KeyEscape);
+	if(button(647, 550, (step == NoVariant || step != Gender) ? 0 : Disabled, res::GBTNSTD, "Начать заново"))
+		execute(buttonparam, CreateNew);
 }
 
 variant creature::choose(const char* title, const char* step_title, varianta& elements) const {
@@ -94,11 +95,12 @@ variant creature::choose(const char* title, const char* step_title, varianta& el
 			unsigned flags = (current_variant == e) ? Checked : 0;
 			if(!isallow(e))
 				flags |= Disabled;
-			button(274, 113 + 35 * nid, cmpr(select_variant, e), flags, res::GBTNLRG, getstr(e), Alpha + '1' + nid);
+			if(button(274, 113 + 35 * nid, flags, res::GBTNLRG, getstr(e), Alpha + '1' + nid))
+				execute(select_variant, e);
 			nid++;
 		}
 		command_buttons();
-		button(478, 550, cmpr(next), current_variant ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, next, current_variant ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 	}
@@ -125,10 +127,12 @@ static int choose_portrait(const char* title, const char* step_title, gender_s g
 		image(252, 61, gres(res::GUIA), 1, 0);
 		image(23, 151, res::PORTL, 0);
 		image(295, 115, gres(res::PORTL), portrait_indicies[index], 0);
-		button(260, 265, cmpr(buttonparam, PreviousPortrait), 0, res::GBTNPOR, 0, 0, 1, -1, 0, KeyLeft, 0, false);
-		button(512, 265, cmpr(buttonparam, NextPortrait), 0, res::GBTNPOR, 0, 2, 3, -1, 0, KeyRight, 0, false);
+		if(button(260, 265, 0, res::GBTNPOR, 0, 0, 1, -1, 0, KeyLeft, 0, false))
+			execute(buttonparam, PreviousPortrait);
+		if(button(512, 265, 0, res::GBTNPOR, 0, 2, 3, -1, 0, KeyRight, 0, false))
+			execute(buttonparam, NextPortrait);
 		command_buttons();
-		button(478, 550, cmpr(buttonok), 0, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, buttonok, 0, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 		switch(hot.key) {
@@ -165,7 +169,7 @@ void actor::choose_apearance(const char* title, const char* step_title) {
 		labell(325, 472, 195, 20, "Второстепенный цвет одежды");
 		pickcolors({272, 314}, {272, 354}, {272, 422}, {272, 462}, ch);
 		command_buttons();
-		button(478, 550, cmpr(buttonok), 0, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, buttonok, 0, res::GBTNSTD, "Далее", KeyEnter);
 		domodal();
 	}
 	if(getresult()) {
@@ -185,10 +189,12 @@ static variant choose_gender(const creature& player, const char* title, const ch
 		label(173, 65, 453, 20, step_title);
 		draw::image(252, 61, gres(res::GUISEX), 0, 0);
 		int y = 270;
-		button(274, y + dy * 0, cmpr(select_variant, variant(Male)), (current_variant == variant(Male)) ? Checked : 0, res::GBTNLRG, "Мужчина", Alpha + '1');
-		button(274, y + dy * 1, cmpr(select_variant, variant(Female)), (current_variant == variant(Female)) ? Checked : 0, res::GBTNLRG, "Женщина", Alpha + '2');
+		if(button(274, y + dy * 0, (current_variant == variant(Male)) ? Checked : 0, res::GBTNLRG, "Мужчина", Alpha + '1'))
+			execute(select_variant, variant(Male));
+		if(button(274, y + dy * 1, (current_variant == variant(Female)) ? Checked : 0, res::GBTNLRG, "Женщина", Alpha + '2'))
+			execute(select_variant, variant(Female));
 		command_buttons();
-		button(478, 550, cmpr(next), current_variant ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, next, current_variant ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 	}
@@ -232,11 +238,13 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 			unsigned flags = 0;
 			if(player.skills[id] <= copy.skills[id])
 				flags = Disabled;
-			button(rc.x1 + 230, rc.y1 - 3, cmpr(button_minus, i), flags, res::GBTNMINS, 0);
+			if(button(rc.x1 + 230, rc.y1 - 3, flags, res::GBTNMINS, 0))
+				execute(button_minus, i);
 			flags = 0;
 			if(player.skills[id] >= value_maximum || points < value_cost)
 				flags = Disabled;
-			button(rc.x1 + 211, rc.y1 - 3, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
+			if(button(rc.x1 + 211, rc.y1 - 3, flags, res::GBTNPLUS, 0))
+				execute(button_plus, i);
 			if(area(rc) == AreaHilitedPressed) {
 				variant iv = id;
 				stringbuilder sb(description);
@@ -261,7 +269,7 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 		label(492, 118, 32, 28, temp);
 		view({280, 154, 526, 506}, {529, 154, 540, 506}, 36, table);
 		command_buttons();
-		button(478, 550, cmpr(buttonok), (table.points <= 1) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, buttonok, (table.points <= 1) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 		switch(hot.key) {
@@ -305,11 +313,13 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 			unsigned flags = 0;
 			if(copy.is(id) || !player.is(id))
 				flags = Disabled;
-			button(rc.x1 + 230, rc.y1 - 3, cmpr(button_minus, i), flags, res::GBTNMINS, 0);
+			if(button(rc.x1 + 230, rc.y1 - 3, flags, res::GBTNMINS, 0))
+				execute(button_minus, i);
 			flags = 0;
 			if(!isallow || player.is(id) || points <= 0)
 				flags = Disabled;
-			button(rc.x1 + 211, rc.y1 - 3, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
+			if(button(rc.x1 + 211, rc.y1 - 3, flags, res::GBTNPLUS, 0))
+				execute(button_plus, i);
 			if(area(rc) == AreaHilitedPressed) {
 				stringbuilder sb(description);
 				variant iv = id;
@@ -333,7 +343,7 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 		label(492, 118, 32, 28, temp);
 		view({280, 154, 526, 506}, {529, 154, 540, 506}, 36, table);
 		command_buttons();
-		button(478, 550, cmpr(buttonok), (table.points <= 0) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, buttonok, (table.points <= 0) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 		switch(hot.key) {
@@ -368,16 +378,19 @@ bool creature::choose_ability(const char* title, const char* step_title, bool ad
 				value += bsdata<racei>::elements[getrace()].abilities[i];
 			sb.clear(); sb.add("%1i", value);
 			label(414, 155 + i * dy, 33, 28, temp);
+			auto bonus = value / 2 - 5;
 			sb.clear(); sb.add("%+1i", value / 2 - 5);
-			label(454, 155 + i * dy, 33, 28, temp, 0, /*(value > 0) ? 0x4D : (value < 0) ? 0x4C :*/ 0);
+			label(454, 155 + i * dy, 33, 28, temp, 0, (bonus > 0) ? 0x4D : (bonus < 0) ? 0x4C : 0);
 			unsigned flags = 0;
 			if(ability[i] >= 18 || getabilitycost(ability, 0) > cost_maximum)
 				flags = Disabled;
-			button(491, 152 + i * dy, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
+			if(button(491, 152 + i * dy, flags, res::GBTNPLUS, 0))
+				execute(button_plus, i);
 			flags = 0;
 			if(ability[i] <= 8)
 				flags = Disabled;
-			button(509, 152 + i * dy, cmpr(button_minus, i), flags, res::GBTNMINS, 0);
+			if(button(509, 152 + i * dy, flags, res::GBTNMINS, 0))
+				execute(button_minus, i);
 		}
 		label(276, 118, 208, 28, "Очков атрибутов");
 		auto current_cost = getabilitycost(ability, 0);
@@ -385,7 +398,7 @@ bool creature::choose_ability(const char* title, const char* step_title, bool ad
 		sznum(temp, left_cost);
 		label(492, 118, 32, 28, temp);
 		command_buttons();
-		button(478, 550, cmpr(buttonok), (left_cost == 0) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
+		button(478, 550, buttonok, (left_cost == 0) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 		switch(hot.key) {
@@ -414,10 +427,10 @@ static const char* choose_name(const char* title) {
 	while(ismodal()) {
 		screen.restore();
 		image(262, 171, gres(res::GUICNAME), 0, 0);
-		button(280, 256, cmpr(buttoncancel), 0, res::GBTNSTD, "Назад", KeyEscape);
+		button(280, 256, buttoncancel, 0, res::GBTNSTD, "Назад", KeyEscape);
 		label(283, 194, 233, 20, "Введите имя");
 		field({286, 229, 506, 249}, temp, sizeof(temp));
-		button(402, 256, cmpr(buttonok), temp[0] ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
+		button(402, 256, buttonok, temp[0] ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		domodal();
 	}
 	if(getresult())
@@ -436,11 +449,11 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 		int nid = 0;
 		for(auto& e : bsdata<genstepi>()) {
 			unsigned flags = (current == e.step) ? 0 : Disabled;
-			button(274, 113 + 35 * nid, cmpr(buttonok), flags, res::GBTNLRG, getstr(e.step), Alpha + '1' + nid);
+			button(274, 113 + 35 * nid, buttonok, flags, res::GBTNLRG, getstr(e.step), Alpha + '1' + nid);
 			nid++;
 		}
 		command_buttons(current);
-		button(478, 550, cmpr(next), (current == Finish) ? 0 : Disabled, res::GBTNSTD, "Закончить", KeyEnter);
+		button(478, 550, next, (current == Finish) ? 0 : Disabled, res::GBTNSTD, "Закончить", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
 		domodal();
 		switch(hot.key) {

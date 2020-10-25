@@ -55,9 +55,6 @@
     <ClCompile Include="creature.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="coloration.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="container.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -78,15 +75,6 @@
     </ClCompile>
     <ClCompile Include="area.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="mslog.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="selectable.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="actor.cpp">
-      <Filter>Графика</Filter>
     </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Библиотека\Классы</Filter>
@@ -124,68 +112,20 @@
     <ClCompile Include="skill.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="loadsave.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_picker.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_party.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_creature.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_edit.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_area.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="animation.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="resource_dynamic.cpp">
       <Filter>Библиотека\Графика</Filter>
     </ClCompile>
-    <ClCompile Include="control_hotkey.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_invertory.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_sheet.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="save.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_scroll.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_help.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_setting.cpp">
-      <Filter>Графика</Filter>
     </ClCompile>
     <ClCompile Include="setting.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="control_minimap.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_spellbook.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="feature.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_dialog.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_button.cpp">
-      <Filter>Графика</Filter>
     </ClCompile>
     <ClCompile Include="main_util.cpp">
       <Filter>Инструменты</Filter>
@@ -196,23 +136,11 @@
     <ClCompile Include="school.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="control_journal.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
     <ClCompile Include="diety.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="monster.cpp">
       <Filter>Логика</Filter>
-    </ClCompile>
-    <ClCompile Include="control_label.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="draw_input.cpp">
-      <Filter>Графика</Filter>
-    </ClCompile>
-    <ClCompile Include="resource_static.cpp">
-      <Filter>Графика</Filter>
     </ClCompile>
     <ClCompile Include="sprite_util.cpp">
       <Filter>Инструменты</Filter>
@@ -251,6 +179,78 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="varianta.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="actor.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="coloration.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_area.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_button.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_creature.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_dialog.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_edit.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_help.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_hotkey.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_invertory.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_journal.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_label.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_minimap.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_party.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_picker.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_scroll.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_setting.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_sheet.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_spellbook.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_input.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="loadsave.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="mslog.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="resource_static.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="selectable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
@@ -308,9 +308,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Графика">
-      <UniqueIdentifier>{f3d8bb08-630c-4fab-b114-bf46add93166}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Инструменты">
       <UniqueIdentifier>{72695cb6-7015-42d3-8947-c780a59bbde0}</UniqueIdentifier>
     </Filter>

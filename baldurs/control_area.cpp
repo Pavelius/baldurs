@@ -124,39 +124,44 @@ static void hitpoints(int x, int y, int width, int height, int hp, int mhp) {
 	draw::rectf({x, y, x + width, y + height}, c1);
 }
 
-static int act(int x, int y, const runable& cmd, action_s id, action_s id_selected) {
+static bool act(int& x, int y, action_s id, action_s id_selected) {
 	unsigned flags = 0;
 	if(id == id_selected)
 		flags |= Checked;
 	auto i = id * 4;
-	button(x, y, cmd, flags, res::GUIBTACT, i + 3, i, i + 1, i + 2, 0, 0, 0, 0);
-	return 41;
+	auto r = button(x, y, flags, res::GUIBTACT, i + 3, i, i + 1, i + 2, 0, 0, 0, 0);
+	x += 41;
+	return r;
 }
 
-static int act(int x, int y, const runable& cmd, item& it) {
+static bool act(int& x, int y, item& it) {
 	button_states state;
-	button(x, y, cmd, 0, res::GUIBTBUT, 2, 1, 2, 1, 0, 0, &state);
-	return 41;
+	auto r = button(x, y, 0, res::GUIBTBUT, 2, 1, 2, 1, 0, 0, &state);
+	x += 41;
+	return r;
 }
 
-static int act(int x, int y, const runable& cmd, formation_s id) {
+static bool act(int& x, int y, formation_s id) {
 	unsigned flags = 0;
 	if(id == settings.formation)
 		flags |= Checked;
 	auto i = id * 4;
 	button_states state;
-	button(x, y, cmd, flags, res::GUIBTBUT, 0, 0, &state);
+	auto r = button(x, y, flags, res::GUIBTBUT, 0, 0, &state);
+	auto x0 = x;
 	if(state == ButtonPressed) {
-		x += 2;
+		x0 += 2;
 		y += 2;
 	}
-	draw::image(x + 3, y + 2, res::FORM, id);
-	return 41;
+	draw::image(x0 + 3, y + 2, res::FORM, id);
+	x += 41;
+	return r;
 }
 
-static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd, bool change_player = true) {
+static int act(int& x, int y, creature& player, itemdrag* pd, bool change_player = true) {
 	color s0 = colors::green;
 	unsigned flags = 0;
+	auto result = false;
 	if(current_selected.is(&player))
 		flags |= Checked;
 	int hp = player.gethits();
@@ -168,12 +173,13 @@ static int act(int x, int y, const runable& cmd, creature& player, itemdrag* pd,
 	image(x + 2, y + 2, res::PORTS, player.getportrait());
 	if(change_player) {
 		if(hot.key == MouseLeft && hot.pressed && area(rc) == AreaHilitedPressed)
-			cmd.execute();
+			result = true;
 	}
 	if(player && (flags&Disabled))
 		draw::rectf({x + 2, y + 2, x + 44, y + 44}, colors::red, 128);
 	hitpoints(x, y + 48, 49 - 3, 4, hp, mhp);
-	return 49;
+	x += 49;
+	return result;
 }
 
 static void render_tiles(rect rc, int mx, int my) {
@@ -491,18 +497,25 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 	if(show_actions) {
 		auto x1 = x + 6, y1 = y + 12;
 		if(current_selected.getcount() > 1) {
-			for(auto e : actions)
-				x1 += act(x1, y1, cmpr(choose_action, e), e, current_action);
-			for(auto e : formations)
-				x1 += act(x1, y1, cmpr(choose_formation, e), e);
+			for(auto e : actions) {
+				if(act(x1, y1, e, current_action))
+					execute(choose_action, e);
+			}
+			for(auto e : formations) {
+				if(act(x1, y1, e))
+					execute(choose_formation, e);
+			}
 		} else {
-			x1 += act(x1, y1, cmpr(choose_action, ActionGuard), ActionGuard, ActionAttack);
+			if(act(x1, y1, ActionGuard, ActionAttack))
+				execute(choose_action, ActionGuard);
 		}
 	}
 	auto x1 = 506, y1 = y + 4;
 	if(show_players) {
-		for(auto& e : players)
-			x1 += act(x1, y1, cmpr(choose_player, (int)&e), e, pd, change_players);
+		for(auto& e : players) {
+			if(act(x1, y1, e, pd, change_players))
+				execute(choose_player, (int)&e);
+		}
 	}
 	rcs.y2 = y;
 }
@@ -511,16 +524,26 @@ static void render_footer(rect& rcs, bool show_buttons = true) {
 	auto i = draw::getframe(12) % 32;
 	draw::image(0, 493, res::GCOMM, 0);
 	if(show_buttons) {
-		button(576, 496, cmpr(creature::select_all), 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0);
-		button(575, 565, cmpr(nothing), 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0); // ־עהûץ
-		button(600, 515, cmpr(character_sheet), 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0);
-		button(630, 510, cmpr(character_invertory), 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0);
-		button(668, 514, cmpr(character_spellbook), 0, res::GCOMMBTN, 0, 8, 9, 0, 0, 0, 0, 0);
-		button(600, 550, cmpr(game_minimap), 0, res::GCOMMBTN, 0, 14, 15, 0, 0, 0, 0, 0);
-		button(628, 553, cmpr(game_journal), 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0);
-		button(670, 550, cmpr(game_option), 0, res::GCOMMBTN, 0, 10, 11, 0, 0, 0, 0, 0);
-		button(703, 495, cmpr(nothing), 0, res::GCOMMBTN, 0, 2, 3, 0, 0, 0, 0, 0);
-		button(736, 536, cmpr(nothing), 0, res::CGEAR, i, i, i, i, 0, 0, 0, true);
+		if(button(576, 496, 0, res::GCOMMBTN, 0, 0, 1, 0, 0, 0, 0, 0))
+			execute(creature::select_all);
+		if(button(575, 565, 0, res::GCOMMBTN, 0, 16, 17, 0, 0, 0, 0, 0))
+			execute(nothing);
+		if(button(600, 515, 0, res::GCOMMBTN, 0, 4, 5, 0, 0, 0, 0, 0))
+			execute(character_sheet);
+		if(button(630, 510, 0, res::GCOMMBTN, 0, 6, 7, 0, 0, 0, 0, 0))
+			execute(character_invertory);
+		if(button(668, 514, 0, res::GCOMMBTN, 0, 8, 9, 0, 0, 0, 0, 0))
+			execute(character_spellbook);
+		if(button(600, 550, 0, res::GCOMMBTN, 0, 14, 15, 0, 0, 0, 0, 0))
+			execute(game_minimap);
+		if(button(628, 553, 0, res::GCOMMBTN, 0, 12, 13, 0, 0, 0, 0, 0))
+			execute(game_journal);
+		if(button(670, 550, 0, res::GCOMMBTN, 0, 10, 11, 0, 0, 0, 0, 0))
+			execute(game_option);
+		if(button(703, 495, 0, res::GCOMMBTN, 0, 2, 3, 0, 0, 0, 0, 0))
+			execute(nothing);
+		if(button(736, 536, 0, res::CGEAR, i, i, i, i, 0, 0, 0, true))
+			execute(nothing);
 	} else
 		image(736, 536, gres(res::CGEAR), i, 0);
 	draw::image(757, 494, res::GCOMMBTN, creature::iscombatmode() ? 19 : 18, 0);

@@ -2053,8 +2053,8 @@ void draw::buttonparam() {
 struct layout_info {
 	int					id;
 	layout_info*		previous;
-	callback_proc		proc;
-	callback_proc		def_proc;
+	fnevent		proc;
+	fnevent		def_proc;
 	static layout_info*	current;
 	layout_info(void(*proc)()) : proc(proc), def_proc(proc) {
 		previous = current;
@@ -2066,24 +2066,24 @@ struct layout_info {
 };
 layout_info* layout_info::current;
 
-callback_proc draw::getlayout() {
+fnevent draw::getlayout() {
 	return layout_info::current ? layout_info::current->def_proc : 0;
 }
 
-void draw::setlayout(callback_proc proc) {
+void draw::setlayout(fnevent proc) {
 	layout_info e(proc);
 	while(e.proc)
 		e.proc();
 }
 
-void draw::setpage(callback_proc proc) {
+void draw::setpage(fnevent proc) {
 	if(!layout_info::current)
 		return;
 	layout_info::current->proc = proc;
 	breakmodal(1);
 }
 
-void draw::setpagedef(callback_proc proc) {
+void draw::setpagedef(fnevent proc) {
 	if(!layout_info::current)
 		return;
 	layout_info::current->def_proc = proc;
@@ -2096,7 +2096,7 @@ void draw::setpage() {
 	breakmodal(1);
 }
 
-bool draw::isnext(callback_proc proc) {
+bool draw::isnext(fnevent proc) {
 	if(!layout_info::current)
 		return false;
 	return layout_info::current->proc == proc;

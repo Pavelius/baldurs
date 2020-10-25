@@ -149,7 +149,7 @@ extern int				padding;
 extern int				scroll;
 }
 namespace draw {
-typedef void(*callback_proc)();
+typedef void(*fnevent)();
 struct hotinfo {
 	unsigned			animate; // Frame tick count
 	unsigned			key; // [in] if pressed key or mouse this field has key
@@ -238,7 +238,7 @@ void					domodal();
 void					execute(void(*callback)(), int value = 0);
 void					execute(const hotinfo& id);
 void					focusing(int id, unsigned& flags, rect rc);
-callback_proc			getlayout();
+fnevent			getlayout();
 int						getbpp();
 color					getcolor(color normal, unsigned flags);
 color					getcolor(rect rc, color normal, color hilite, unsigned flags);
@@ -257,7 +257,7 @@ int						hittest(rect rc, const char* string, unsigned state, point mouse);
 inline bool				ischecked(unsigned flags) { return (flags&Checked) != 0; }
 inline bool				isdisabled(unsigned flags) { return (flags&Disabled) != 0; }
 inline bool				isfocused(unsigned flags) { return (flags&Focused) != 0; }
-bool					isnext(callback_proc proc);
+bool					isnext(fnevent proc);
 bool					ismodal();
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha = 0xFF);
 void					image(int x, int y, const sprite* e, int id, int flags, unsigned char alpha, color* pal);
@@ -287,10 +287,10 @@ void					setcaption(const char* string);
 void					setclip(rect rc);
 inline void				setclip() { clipping.set(0, 0, getwidth(), getheight()); }
 void					setfocus(int id, bool instant = false);
-void					setlayout(callback_proc proc);
+void					setlayout(fnevent proc);
 void					setpage();
-void					setpage(callback_proc proc);
-void					setpagedef(callback_proc proc);
+void					setpage(fnevent proc);
+void					setpagedef(fnevent proc);
 void					settimer(unsigned milleseconds);
 const char*				skiptr(const char* string);
 void					spline(point* points, int n);

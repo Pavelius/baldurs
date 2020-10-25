@@ -26,18 +26,20 @@ void creature::create_party() {
 		for(int i = 0; i < 6; i++) {
 			auto& e = players[i];
 			if(e) {
-				button(x, y + 1, cmpr(choose_character, i), 0, res::GBTNBFRM, e.getname());
+				if(button(x, y + 1, 0, res::GBTNBFRM, e.getname()))
+					execute(choose_character, i);
 				draw::image(647, y, res::PORTS, e.getportrait());
 				all_done = true;
 			} else {
-				button(x, y + 1, cmpr(choose_character, i), 0, res::GBTNBFRM, "Создать персонажа");
+				if(!button(x, y + 1, 0, res::GBTNBFRM, "Создать персонажа"))
+					execute(choose_character, i);
 				draw::image(647, y, res::PORTS, 0);
 			}
 			y += 69;
 		}
-		button(105, 495, cmpr(buttoncancel), 0, res::GBTNSTD, "Выход", KeyEscape);
-		button(322, 495, cmpr(buttoncancel), all_done ? 0 : Disabled, res::GBTNMED, "Все очистить");
-		button(576, 495, cmpr(buttonok), all_done ? 0 : Disabled, res::GBTNSTD, "Готово");
+		button(105, 495, buttoncancel, 0, res::GBTNSTD, "Выход", KeyEscape);
+		button(322, 495, buttoncancel, all_done ? 0 : Disabled, res::GBTNMED, "Все очистить");
+		button(576, 495, buttonok, all_done ? 0 : Disabled, res::GBTNSTD, "Готово");
 		domodal();
 	}
 }

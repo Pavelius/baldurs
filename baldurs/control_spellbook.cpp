@@ -87,18 +87,22 @@ void creature::spellbook() {
 	auto x = 273, y = 19;
 	for(int i = power_origin, im = i + 4; i < im; i++) {
 		if(i >= power_maximum)
-			button(x, y, cmpr(buttoncancel), Disabled, res::GBTNSPB1, 0);
+			button(x, y, buttoncancel, Disabled, res::GBTNSPB1, 0);
 		else {
 			auto e = power_class[i];
 			unsigned flags = 0;
 			if(e == power_class[power_index])
 				flags |= Checked;
-			button(x, y, cmpr(choose_class, power_class.indexof(e)), flags, res::GBTNSPB1, getstr(e));
+			if(button(x, y, flags, res::GBTNSPB1, getstr(e))) {
+				execute(choose_class, power_class.indexof(e));
+			}
 		}
 		x += 108;
 	}
-	button(252, 19, cmpr(power_modify, -1), 0, res::GBTNSPB3, 0, 0, 1, 0, 0, 0, 0);
-	button(705, 19, cmpr(power_modify, 1), 0, res::GBTNSPB3, 2, 2, 3, 2, 0, 0, 0);
+	if(button(252, 19, 0, res::GBTNSPB3, 0, 0, 1, 0, 0, 0, 0))
+		execute(power_modify, -1);
+	if(button(705, 19, 0, res::GBTNSPB3, 2, 2, 3, 2, 0, 0, 0))
+		execute(power_modify, 1);
 	if(power_maximum <= 0)
 		draw::rectf({0, 0, 800, 492}, colors::black, 128);
 	else {
@@ -111,7 +115,8 @@ void creature::spellbook() {
 		x = 740; y = 62;
 		for(int i = 1; i <= 9; i++) {
 			unsigned flags = (current_level == i) ? Checked : 0;
-			button(x, y, cmpr(choose_level, i), flags, res::GBTNSPB2, 0, 0, 0);
+			if(button(x, y, flags, res::GBTNSPB2, 0, 0, 0))
+				execute(choose_level, i);
 			y += 39;
 		}
 		// Создадим фильтр доступных
@@ -164,7 +169,8 @@ void creature::spellinfo(spell_s id) {
 		image(x + 375, y + 22, gres(res::SPELLS), id, 0);
 		//rectb({x + 23, y + 83, x + 23 + 363, y + 83 + 312}, colors::green);
 		//rectb({x + 396, y + 82, x + 408, y + 395}, colors::white);
-		button(x + 135, y + 402, cmpr(buttoncancel), 0, res::GBTNMED, 0, 1, 2, 3, "Закрыть", KeyEscape, 0);
+		if(button(x + 135, y + 402, 0, res::GBTNMED, 0, 1, 2, 3, "Закрыть", KeyEscape, 0))
+			execute(buttoncancel);
 		domodal();
 	}
 }

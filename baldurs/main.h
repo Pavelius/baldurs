@@ -469,18 +469,6 @@ struct animatei {
 	bool					disable_overlay;
 	bool					ready;
 };
-struct runable {
-	virtual void			execute() const = 0;
-	virtual int				getid() const { return 0; }
-};
-struct cmpr : runable {
-	constexpr cmpr(void(*proc)(), int param = 0) : proc(proc), param(param) {}
-	void					execute() const override { draw::execute(proc, param); }
-	int						getid() const override { return param; }
-private:
-	void(*proc)();
-	int						param;
-};
 struct varianti {
 	const char*				id;
 	const char*				name;
@@ -921,18 +909,18 @@ public:
 };
 struct monsteri {
 	struct classi {
-		class_s			type;
-		unsigned char	level;
+		class_s					type;
+		unsigned char			level;
 	};
-	const char*			name;
-	sprite_type_s		sptype;
-	res::tokens			sprites[4];
-	alignment_s			alignment;
-	classi				classes[3];
-	char				ability[Charisma + 1];
-	item_s				equipment[8];
-	skilla			skills;
-	cflags<feat_s>		feats;
+	const char*					name;
+	sprite_type_s				sptype;
+	res::tokens					sprites[4];
+	alignment_s					alignment;
+	classi						classes[3];
+	char						ability[Charisma + 1];
+	item_s						equipment[8];
+	skilla						skills;
+	cflags<feat_s>				feats;
 };
 class creature : public actor {
 	struct preparation {
@@ -1057,8 +1045,7 @@ public:
 	const item&					getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
 	const item*					getwear(slot_s id) const override;
 	static void					help();
-	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
-	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd);
+	bool						icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
 	void						icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
 	void						iconqw(int x, int y, int n, itemdrag* pd);
 	void						interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
@@ -1184,8 +1171,9 @@ void							settile(short unsigned index, short unsigned tile);
 }
 namespace draw {
 inline void						background(res::tokens token, int id = 0) { image(0, 0, gres(token), id, 0); }
-int								button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
-int								button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
+bool							button(int x, int y, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
+bool							button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
+void							button(int x, int y, fnevent proc, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
 bool							dlgask(const char* text);
 int								dlgcho(const char* text, const char* a1, const char* a2);
 void							dlgmsg(const char* text);
@@ -1203,7 +1191,7 @@ void							mslog(const char* format, ...);
 void							mslogv(const char* temp);
 void							mspaint(const rect& rc, const rect& rcs);
 extern surface					pallette;
-void							picker(int x, int y, unsigned char index, int type, const runable& cmd);
+bool							picker(int x, int y, unsigned char index, int type);
 void							set(color * dest, unsigned char index, int start = 4, int count = 12);
 void							textblend(point pos, const char* text, unsigned duration);
 void							translate(hotkey* keys);

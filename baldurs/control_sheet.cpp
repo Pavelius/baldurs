@@ -19,7 +19,8 @@ void switcher(int x, int y, info_page_s id) {
 	unsigned flags = 0;
 	if(current_step == id)
 		flags |= Checked;
-	button(x, y, cmpr(choose_page, id), flags, res::GBTNRECB, 0, 0);
+	if(button(x, y, flags, res::GBTNRECB, 0, 0))
+		execute(choose_page, id);
 }
 
 static void information() {
@@ -57,11 +58,11 @@ void creature::sheet() {
 	switcher(512, 22, InfoWeapons);
 	switcher(594, 22, InfoSkills);
 	switcher(676, 22, InfoStatistic);
-	button(256, 307, cmpr(information), 0, res::GBTNSTD, "Информация");
-	button(256, 361, cmpr(biography), 0, res::GBTNSTD, "Биография");
-	button(256, 334, cmpr(biography), 0, res::GBTNSTD, "Экспорт");
-	button(256, 388, cmpr(biography), 0, res::GBTNSTD, "Персонализация");
-	button(655, 379, cmpr(levelup), Disabled, res::GBTNSTD, "Поднять уровень");
+	button(256, 307, information, 0, res::GBTNSTD, "Информация");
+	button(256, 361, biography, 0, res::GBTNSTD, "Биография");
+	button(256, 334, biography, 0, res::GBTNSTD, "Экспорт");
+	button(256, 388, biography, 0, res::GBTNSTD, "Персонализация");
+	button(655, 379, levelup, Disabled, res::GBTNSTD, "Поднять уровень");
 	sb.clear();
 	switch(current_step) {
 	case InfoSkills:

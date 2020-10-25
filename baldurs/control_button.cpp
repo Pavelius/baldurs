@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-int draw::button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute) {
+bool draw::button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute) {
 	sprite* e = gres(res::tokens(r));
 	if(!e)
 		return 0;
@@ -56,16 +56,14 @@ int draw::button(int x, int y, const runable& cmd, unsigned flags, res::tokens r
 		draw::text({x + tx, y + ty, x + f.sx, y + f.sy}, name, AlignCenterCenter);
 		fore = old_fore;
 	}
-	if(need_execute)
-		cmd.execute();
-	return rc.height();
+	return need_execute;
 }
 
-int draw::button(int x, int y, const runable& cmd, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
+bool draw::button(int x, int y, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
 	char st[4];
 	sprite* f = gres(res::tokens(r));
 	int count;
-	int m = cmd.getid();
+	auto m = y/3;
 	switch(r) {
 	case res::GBTNMINS:
 	case res::GBTNPLUS:
@@ -109,5 +107,10 @@ int draw::button(int x, int y, const runable& cmd, unsigned flags, res::tokens r
 		}
 		break;
 	}
-	return button(x, y, cmd, flags, r, st[0], st[1], st[2], st[3], name, key, state, false);
+	return button(x, y, flags, r, st[0], st[1], st[2], st[3], name, key, state, false);
+}
+
+void draw::button(int x, int y, fnevent event, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
+	if(button(x, y, flags, r, name, key, state))
+		execute(event);
 }

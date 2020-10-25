@@ -12,16 +12,16 @@ static void show_item_ability() {
 		screen.restore();
 		image(x, y, res::GUIINV, 1, 0);
 		label(x + 23, y + 22, 254, 20, "Способности предмета"); // NORMAL
-		button(x + 18, y + 49, cmpr(buttonparam, 2), Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
-		button(x + 18, y + 89, cmpr(buttonparam, 3), Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
-		button(x + 18, y + 129, cmpr(buttonparam, 4), Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 18, y + 49, Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 18, y + 89, Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 18, y + 129, Disabled, res::SPLBUT, 0, 1, 2, 3, 0, 0, 0);
 		label(x + 71, y + 52, 205, 32, ""); // NORMAL
 		label(x + 71, y + 92, 205, 32, ""); // NORMAL
 		label(x + 71, y + 132, 205, 32, ""); // NORMAL
 		label(x + 24, y + 175, 232, 155, "255, 255, 255");
 		rectb({x + 266, y + 173, x + 278, y + 331}, colors::white);
-		button(x + 162, y + 339, cmpr(buttoncancel), 0, res::GBTNSTD, 0, 1, 2, 3, "Отмена", KeyEscape, 0);
-		button(x + 21, y + 339, cmpr(buttonok, 11), 0, res::GBTNSTD, 0, 1, 2, 3, "Применить", KeyEnter, 0);
+		button(x + 162, y + 339, buttoncancel, 0, res::GBTNSTD, "Отмена", KeyEscape, 0);
+		button(x + 21, y + 339, buttonok, 0, res::GBTNSTD, "Применить", KeyEnter, 0);
 		domodal();
 	}
 }
@@ -34,10 +34,10 @@ static void choose_item_count() {
 		screen.restore();
 		image(x, y, res::GUIINV, 2, 0);
 		//button(x + 20, y + 20, cmpr(buttonparam, 1), 0, res::GUICTRL, 0, 0, 1, 0, 0, 0, 0);
-		button(x + 20, y + 92, cmpr(buttonparam, 2), 0, res::GBTNSTD, 0, 1, 2, 3, 0, 0, 0);
-		button(x + 142, y + 92, cmpr(buttonparam, 3), 0, res::GBTNSTD, 0, 1, 2, 3, 0, 0, 0);
-		button(x + 222, y + 44, cmpr(buttonparam, 4), 0, res::GBTNPLUS, 2, 1, 2, 3, 0, 0, 0);
-		button(x + 242, y + 44, cmpr(buttonparam, 5), 0, res::GBTNMINS, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 20, y + 92, 0, res::GBTNSTD, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 142, y + 92, 0, res::GBTNSTD, 0, 1, 2, 3, 0, 0, 0);
+		button(x + 222, y + 44, 0, res::GBTNPLUS, 2, 1, 2, 3, 0, 0, 0);
+		button(x + 242, y + 44, 0, res::GBTNMINS, 0, 1, 2, 3, 0, 0, 0);
 		label(x + 71, y + 20, 187, 20, "Укажите количество"); // NORMAL
 		//rectb({x + 180, y + 46, x + 215, y + 61}, colors::white);
 		domodal();
@@ -89,7 +89,7 @@ static void choose_weapon() {
 	creature::getactive()->setquick(hot.param);
 }
 
-void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runable& cmd) {
+bool creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	int m = 0;
 	rect rc = {x + 2, y + 2, x + 34, y + 34};
 	auto ar = area(rc);
@@ -111,8 +111,9 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runab
 	} else
 		draw::image(x, y, res::STONSLOT, m, 0);
 	//draw::rectb(rc, colors::red);
+	auto result = false;
 	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
-		cmd.execute();
+		result = true;
 	else if(hot.key == MouseRight && ar == AreaHilitedPressed)
 		execute(show_item_ability, (int)pi);
 	if(!pi || !(*pi)) {
@@ -139,17 +140,15 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, const runab
 			fore_stroke = push_stroke;
 		}
 	}
-}
-
-void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
-	icon(x, y, pi, id, pd, cmpr(choose_item, (int)pi));
+	return result;
 }
 
 void creature::iconqw(int x, int y, int n, itemdrag* pd) {
 	unsigned flags = 0;
 	if(active_weapon == n)
 		flags |= Checked;
-	button(x, y, cmpr(choose_weapon, n), flags, res::INVBUT3, n * 3 + 2, n * 3, n * 3 + 1, n * 3, 0, 0, 0);
+	if(button(x, y, flags, res::INVBUT3, n * 3 + 2, n * 3, n * 3 + 1, n * 3, 0, 0, 0))
+		execute(choose_weapon, n),
 	icon(x + 28, y + 1, wears + QuickWeapon + n * 2, QuickWeapon, pd);
 	icon(x + 28 + 39, y + 1, wears + QuickOffhand + n * 2, QuickOffhand, pd);
 }

@@ -43,40 +43,18 @@ static void start_scene() {
 	while(ismodal()) {
 		int x = 170, y = 92;
 		background(res::START, fid);
-		button(x + 396, y + 68, cmpr(single_player), 0, res::GBTNMED2, "Один игрок");
-		//
-		button(x + 396, y + 156 + 0 * 32, cmpr(new_game), 0, res::GBTNMED2, "Новая игра");
-		button(x + 396, y + 156 + 1 * 32, cmpr(load_game), 0, res::GBTNMED2, "Загрузить игру");
-		button(x + 396, y + 156 + 2 * 32, cmpr(quick_load), 0, res::GBTNMED2, "Быстрая загрузка");
-		button(x + 396, y + 156 + 3 * 32, cmpr(join_game), Disabled, res::GBTNMED2, "Присоединиться к игре");
-		//
-		button(x + 396, y + 304 + 0 * 32, cmpr(setting), 0, res::GBTNMED2, "Настройки");
-		button(x + 396, y + 304 + 1 * 32, cmpr(exit_game), 0, res::GBTNMED2, "Выход из игры", KeyEscape);
+		button(x + 396, y + 68, single_player, 0, res::GBTNMED2, "Один игрок");
+		button(x + 396, y + 156 + 0 * 32, new_game, 0, res::GBTNMED2, "Новая игра");
+		button(x + 396, y + 156 + 1 * 32, load_game, 0, res::GBTNMED2, "Загрузить игру");
+		button(x + 396, y + 156 + 2 * 32, quick_load, 0, res::GBTNMED2, "Быстрая загрузка");
+		button(x + 396, y + 156 + 3 * 32, join_game, Disabled, res::GBTNMED2, "Присоединиться к игре");
+		button(x + 396, y + 304 + 0 * 32, setting, 0, res::GBTNMED2, "Настройки");
+		button(x + 396, y + 304 + 1 * 32, exit_game, 0, res::GBTNMED2, "Выход из игры", KeyEscape);
 		domodal();
 	}
 }
 
 extern int util_main();
-
-static void test_character() {
-	creature player; player.clear();
-	player.set(Male);
-	player.setportrait(2);
-	player.set(Dwarf);
-	player.set(Cleric);
-	player.set(LawfulNeutral);
-	player.set(Strenght, 13);
-	player.set(Dexterity, 8);
-	player.set(Constitution, 14);
-	player.set(Intellegence, 10);
-	player.set(Wisdow, 16);
-	player.set(Charisma, 12);
-	player.set(Endurance);
-	player.set(Diplomacy, 4);
-	player.set(KnowledgeHistory, 4);
-	player.update_portrait();
-	player.generate("Генерация персонажа");
-}
 
 void archive_pack(const char* arc_name, const char* folder);
 void archive_unpack(const char* arc_name, const char* folder);
@@ -91,7 +69,7 @@ static bool test_variant_position() {
 }
 
 static void test_generate() {
-	creature player;
+	creature player; player.clear();
 	player.set(Human);
 	player.set(Male);
 	player.setportrait(12);

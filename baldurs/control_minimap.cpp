@@ -47,7 +47,8 @@ static void render_worldmap() {
 				}
 			}
 		}
-		button(x + 680, y + 288, cmpr(open_minimap), 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0);
+		if(button(x + 680, y + 288, 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0))
+			execute(open_minimap);
 		label(x + 666, y + 18, 113, 22, "Карта мира");
 		if(current_area_hilite)
 			cur.set(res::CURSORS, 267);
@@ -86,18 +87,18 @@ static void choose_map_info() {
 		int x = 201, y = 88;
 		screen.restore();
 		image(x, y, res::GUIMAP, 1, 0);
-		button(x + 61, y + 157, cmpr(buttonparam, 1), 0, res::GBTNMED, 0, 1, 2, 3, "Удалить", 0, 0);
-		button(x + 61, y + 187, cmpr(buttonok), 0, res::GBTNMED, 0, 1, 2, 2, "Применить", KeyEnter, 0);
-		button(x + 61, y + 217, cmpr(buttoncancel), 0, res::GBTNMED, 0, 1, 2, 3, "Отмена", KeyEscape, 0);
+		button(x + 61, y + 157, buttonparam, 0, res::GBTNMED, "Удалить", 0, 0);
+		button(x + 61, y + 187, buttonok, 0, res::GBTNMED, "Применить", KeyEnter);
+		button(x + 61, y + 217, buttoncancel, 0, res::GBTNMED, "Отмена", KeyEscape);
 		rectb({x + 20, y + 20, x + 258, y + 123}, colors::white);
-		button(x + 21, y + 127, cmpr(buttonparam, 5), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 51, y + 127, cmpr(buttonparam, 6), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 81, y + 127, cmpr(buttonparam, 7), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 111, y + 127, cmpr(buttonparam, 8), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 141, y + 127, cmpr(buttonparam, 9), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 171, y + 127, cmpr(buttonparam, 10), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 201, y + 127, cmpr(buttonparam, 11), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
-		button(x + 231, y + 127, cmpr(buttonparam, 12), 0, res::FLAG1, 0, 0, 2, 1, 0, 0, 0);
+		button(x + 21, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 51, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 81, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 111, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 141, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 171, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 201, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 231, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
 		domodal();
 	}
 }
@@ -120,11 +121,12 @@ void creature::minimap() {
 		label(666, 18, 113, 22, "Карта местности");
 		label(696, 56, 82, 20, "Обозначения");
 		label(668, 92, 109, 165, description);
-		button(680, 288, cmpr(open_worldmap), 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0, 0);
-		draw::image(mview.x1, mview.y1, mm, 0, 0);
+		if(button(680, 288, 0, res::GUIMAPWC, 0, 0, 1, 0, 0, 0, 0, 0))
+			execute(open_worldmap);
+		image(mview.x1, mview.y1, mm, 0, 0);
 		auto camera = getcamera();
 		auto camera_size = getcamerasize();
-		draw::rectb({x2m(camera.x), y2m(camera.y),
+		rectb({x2m(camera.x), y2m(camera.y),
 			x2m(camera.x + camera_size.x), y2m(camera.y + camera_size.y)},
 			colors::white);
 		for(auto& e : players) {
@@ -135,7 +137,7 @@ void creature::minimap() {
 			auto y1 = y2m(position.y);
 			circle(x1, y1, 2, colors::green);
 		}
-		button(664, 54, cmpr(buttonparam), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
+		button(664, 54, 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
 		if(hot.mouse.in(mview))
 			cur.set(res::CURSORS, 44);
 		else

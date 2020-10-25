@@ -77,7 +77,8 @@ void scrollitem::view(creature* player, int x, int y, int dx, int dy, const rect
 		auto n = i % mx;
 		auto k = i / mx;
 		auto pi = get(i);
-		player->icon(x + n * dx, y + k * dy, pi, LastBackpack, 0, cmpr(item_proc, (int)pi));
+		if(player->icon(x + n * dx, y + k * dy, pi, LastBackpack, 0))
+			execute(item_proc, (int)pi);
 	}
 	draw::view({x, y, x + dx*mx, y + dy*my}, rcs, dy, *this);
 }
