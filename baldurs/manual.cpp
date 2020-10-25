@@ -1,12 +1,10 @@
 #include "main.h"
 
-static variant_s		generation_steps[] = {Gender, Race, Class, Alignment, Ability, Skill, Apearance, Name};
-
 bool isallowstep(variant_s v, variant_s c) {
-	for(auto e : generation_steps) {
-		if(e == v)
+	for(auto e : bsdata<genstepi>()) {
+		if(e.step == v)
 			break;
-		if(e == c)
+		if(e.step == c)
 			return true;
 	}
 	return false;
@@ -217,6 +215,7 @@ template<> void	getrule<spell_s>(stringbuilder& sb, spell_s value) {
 }
 
 void creature::addinfo(stringbuilder& sb, variant_s step) const {
+	sb.clear();
 	if(isallowstep(step, Name))
 		adds(sb, getstr(Name), getname());
 	if(isallowstep(step, Gender))

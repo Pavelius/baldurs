@@ -108,7 +108,6 @@ enum feat_s : unsigned char {
 	FirstFeat = Alertness, LastFeat = Stonecunning,
 };
 enum race_s : unsigned char {
-	NoRace,
 	Dwarf, Elf, Gnome, HalfElf, HalfOrc, Halfling, Human,
 	FirstRace = Dwarf, LastRace = Human,
 };
@@ -117,7 +116,6 @@ enum gender_s : unsigned char {
 	Male, Female,
 };
 enum alignment_s : unsigned char {
-	NoAlignment,
 	LawfulGood, NeutralGood, ChaoticGood, LawfulNeutral, TrueNeutral, ChaoticNeutral, LawfulEvil, NeutralEvil, ChaoticEvil,
 };
 enum diety_s : unsigned char {
@@ -296,8 +294,9 @@ enum prerequisit_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Container, Creature,
-	Door, Gender, Feat, Item, ItemCont, ItemGround,
-	Position, Race, Region, Skill, Spell, Name, Finish, Variant,
+	Door, Gender, Feat, Item, ItemCont, ItemGround, Name,
+	Position, Race, Region, Skill, Spell,
+	Finish, Variant,
 };
 class creature;
 class item;
@@ -449,6 +448,11 @@ public:
 struct abilityi {
 	const char*				id;
 	const char*				name;
+};
+struct genstepi {
+	variant_s				step;
+	const char*				name;
+	variant					from, to;
 };
 struct genderi {
 	const char*				id;
@@ -986,6 +990,7 @@ public:
 	void						close(const variant& e);
 	variant						choose(const char* title, const char* step_title, varianta& elements) const;
 	void						choose_action();
+	bool						choose_ability(const char* title, const char* step_title, bool add_race);
 	bool						choose_feats(const char* title, const char* step_title, varianta& elements, const unsigned* minimal, char points, bool interactive);
 	bool						choose_skills(const char* title, const char* step_title, varianta& elements, char points, char points_per_skill, bool interactive);
 	bool						choose_skills(const char* title, varianta& elements, bool interactive);
@@ -1048,7 +1053,6 @@ public:
 	int							getskillpoints() const;
 	int							getspellslots(variant type, int spell_level) const;
 	const sprite*				getsprite(int& wi) const;
-	variant_s					getstep() const;
 	int							getquick() const { return active_weapon; }
 	const item&					getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
 	const item*					getwear(slot_s id) const override;

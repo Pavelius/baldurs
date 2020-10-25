@@ -143,8 +143,5 @@ short unsigned actor::random_portrait() const {
 	auto result = random_portrait(gender, race, type);
 	if(result)
 		return result;
-	result = random_portrait(gender, race, Commoner);
-	if(result)
-		return result;
-	return random_portrait(gender, NoRace, Commoner);
+	return random_portrait(gender, race, Commoner);
 }

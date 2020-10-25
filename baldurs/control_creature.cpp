@@ -9,6 +9,17 @@ enum generation_event_s {
 
 using namespace draw;
 
+BSDATA(genstepi) = {{Gender, "Выбирайте пол", Male, Female},
+{Race, "Выбирайте расу", FirstRace, LastRace},
+{Class, "Выбирайте класс", FirstClass, LastClass},
+{Alignment, "Выбирайте мировозрение", LawfulGood, ChaoticEvil},
+{Ability, "Способности"},
+{Skill, "Навыки"},
+{Apearance, "Внешний вид"},
+{Name, "Имя"},
+};
+BSDATAF(genstepi)
+
 static variant			current_variant;
 static char				description[1024 * 16];
 static scrolltext		description_control;
@@ -18,7 +29,7 @@ static void biography() {}
 
 static void import_character() {}
 
-static int getcost(const char* ability, const char* modifier) {
+static int getabilitycost(const char* ability, const char* modifier) {
 	auto result = 0;
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto value = ability[i] - 8;
@@ -135,62 +146,6 @@ static int choose_portrait(const char* title, const char* step_title, gender_s g
 		return -1;
 	return portrait_indicies[index];
 }
-
-//static int spells(int step, int* elements, int* result, int maximum) {
-//	char temp[32];
-//	int check = -1;
-//	if(elements[0] == 0)
-//		return Next;
-//	result[0] = 0;
-//	int maximum_available = zlen(elements);
-//	szprint(description, "You may memorize %1i spells from %2's spells list.", maximum, "clerics");
-//	draw::screenshoot copy;
-//	while(true) {
-//		int count = zlen(result);
-//		copy.restore();
-//		draw::image(252, 61, gres(res::GUISPL), 1, 0);
-//		button(478, 550, Next, (count != maximum) ? Disabled : 0, res::GBTNSTD, 0, KeyEnter);
-//		label(173, 65, 453, 20, "Memorize spells");
-//		label(279, 116, 205, 28, "Spells left");
-//		sznum(temp, maximum - count);
-//		label(493, 116, 33, 28, temp);
-//		int x = 272;
-//		int y = 160;
-//		int inc = 43;
-//		for(int i = 0; i < maximum_available; i++) {
-//			button_states state;
-//			int rec = elements[i];
-//			rect rc;
-//			rc.x1 = x + (i % 6)*inc;
-//			rc.y1 = y + (i / 6)*inc;
-//			button(rc.x1, rc.y1, elements[i], zchr(result, rec) ? Checked : 0, res::SPLBUT, "", 0, 0, &state);
-//			int pi = bsget(rec, Portrait);
-//			if(true) {
-//				draw::image(rc.x1 + 4 + (state == ButtonPressed ? 2 : 0),
-//					rc.y1 + 4 + (state == ButtonPressed ? 2 : 0),
-//					gres(res::SPELLS), pi, 0);
-//			}
-//		}
-//		footer();
-//		int id = draw::input();
-//		switch(id) {
-//		case 0:
-//			return 0;
-//		case Back:
-//		case Next:
-//			return id;
-//		default:
-//			if(id >= FirstSpell && id <= LastSpell) {
-//				get_spell_description(description, id);
-//				if(zchr(result, id)) {
-//					//zremove(result, id);
-//				} else if(count < maximum)
-//					zcat(result, id);
-//			}
-//			break;
-//		}
-//	}
-//}
 
 void actor::choose_apearance(const char* title, const char* step_title) {
 	coloration ch; ch.set(getportrait());
@@ -395,28 +350,28 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 	return getresult() != 0;
 }
 
-static void choose_ability(creature& player, const char* title, const char* step_title) {
+bool creature::choose_ability(const char* title, const char* step_title, bool add_race) {
 	char temp[32]; stringbuilder sb(temp);
 	char ability[6] = {10, 10, 10, 10, 10, 10};
 	const auto cost_maximum = 25;
 	while(ismodal()) {
 		background(res::GUICGB, 0);
-		draw::image(23, 151, res::PORTL, player.getportrait());
+		draw::image(23, 151, res::PORTL, getportrait());
 		label(174, 22, 452, 29, title, 2);
 		label(173, 65, 453, 20, step_title);
 		draw::image(252, 61, gres(res::GUIA), 0, 0);
 		const int dy = 36;
 		for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 			label(276, 155 + i * dy, 120, 28, getstr(i));
-			auto value = ability[i] + bsdata<racei>::elements[player.getrace()].abilities[i];
+			auto value = ability[i];
+			if(add_race)
+				value += bsdata<racei>::elements[getrace()].abilities[i];
 			sb.clear(); sb.add("%1i", value);
 			label(414, 155 + i * dy, 33, 28, temp);
 			sb.clear(); sb.add("%+1i", value / 2 - 5);
-			label(454, 155 + i * dy, 33, 28, temp, 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
-			char modifiers[6];
-			memset(modifiers, 0, sizeof(modifiers)); modifiers[i] = 1;
+			label(454, 155 + i * dy, 33, 28, temp, 0, /*(value > 0) ? 0x4D : (value < 0) ? 0x4C :*/ 0);
 			unsigned flags = 0;
-			if(ability[i] >= 18 || getcost(ability, modifiers) > cost_maximum)
+			if(ability[i] >= 18 || getabilitycost(ability, 0) > cost_maximum)
 				flags = Disabled;
 			button(491, 152 + i * dy, cmpr(button_plus, i), flags, res::GBTNPLUS, 0);
 			flags = 0;
@@ -425,7 +380,7 @@ static void choose_ability(creature& player, const char* title, const char* step
 			button(509, 152 + i * dy, cmpr(button_minus, i), flags, res::GBTNMINS, 0);
 		}
 		label(276, 118, 208, 28, "Очков атрибутов");
-		auto current_cost = getcost(ability, 0);
+		auto current_cost = getabilitycost(ability, 0);
 		auto left_cost = cost_maximum - current_cost;
 		sznum(temp, left_cost);
 		label(492, 118, 32, 28, temp);
@@ -438,28 +393,15 @@ static void choose_ability(creature& player, const char* title, const char* step
 		case Minus: ability[hot.param]--; break;
 		}
 	}
-	if(getresult()) {
-		for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
-			player.set(i, ability[i] + bsdata<racei>::elements[player.getrace()].abilities[i]);
-	}
+	if(!getresult())
+		return false;
+	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
+		creature::ability[i] = ability[i];
+	return true;
 }
 
-static struct step_info {
-	variant_s		step;
-	const char*		name;
-	variant			from, to;
-} steps[] = {{Gender, "Выбирайте пол", Male, Female},
-{Race, "Выбирайте расу", FirstRace, LastRace},
-{Class, "Выбирайте класс", FirstClass, LastClass},
-{Alignment, "Выбирайте мировозрение", LawfulGood, ChaoticEvil},
-{Ability, "Способности"},
-{Skill, "Навыки"},
-{Apearance, "Внешний вид"},
-{Name, "Имя"},
-};
-
-static step_info* find(variant_s value) {
-	for(auto& e : steps) {
+static genstepi* find(variant_s value) {
+	for(auto& e : bsdata<genstepi>()) {
 		if(e.step == value)
 			return &e;
 	}
@@ -492,7 +434,7 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 		label(174, 22, 452, 29, title, 2);
 		label(173, 65, 453, 20, step_title);
 		int nid = 0;
-		for(auto& e : steps) {
+		for(auto& e : bsdata<genstepi>()) {
 			unsigned flags = (current == e.step) ? 0 : Disabled;
 			button(274, 113 + 35 * nid, cmpr(buttonok), flags, res::GBTNLRG, getstr(e.step), Alpha + '1' + nid);
 			nid++;
@@ -505,7 +447,7 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 		case CreateNew:
 			if(dlgask("Вы действительно хотите начать заново создавать этого персонажа?")) {
 				player.clear(); sb.clear(); description[0] = 0;
-				return steps[0].step;
+				return bsdata<genstepi>::elements[0].step;
 			}
 			break;
 		}
@@ -515,11 +457,34 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 	return current;
 }
 
+static variant_s prevstep(variant_s v) {
+	auto result = NoVariant;
+	for(auto e : bsdata<genstepi>()) {
+		if(e.step == v)
+			return result;
+		result = e.step;
+	}
+	return result;
+}
+
+static variant_s nextstep(variant_s v) {
+	auto need_break = false;
+	if(v == NoVariant)
+		return Gender;
+	for(auto e : bsdata<genstepi>()) {
+		if(need_break)
+			return e.step;
+		if(e.step == v)
+			need_break = true;
+	}
+	return Finish;
+}
+
 void creature::generate(const char* title) {
 	variant var;
 	varianta elements;
+	auto step = nextstep(NoVariant);
 	while(true) {
-		auto step = getstep();
 		auto si = find(step);
 		auto e1 = choose_step(*this, title, "Главное меню", step);
 		if(e1 == step) {
@@ -537,7 +502,7 @@ void creature::generate(const char* title) {
 				}
 				break;
 			case Ability:
-				choose_ability(*this, title, si->name);
+				choose_ability(title, si->name, true);
 				break;
 			case Skill:
 				choose_skills(title, elements, true);
@@ -560,10 +525,12 @@ void creature::generate(const char* title) {
 					set(var);
 				break;
 			}
+			step = nextstep(step);
 		} else if(e1 == NoVariant) {
-			if(si > steps)
+			if(si > bsdata<genstepi>::begin()) {
 				clear(si[-1].step);
-			else
+				step = si[-1].step;
+			} else
 				return;
 		}
 	}

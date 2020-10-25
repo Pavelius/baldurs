@@ -196,26 +196,6 @@ void creature::set(variant id) {
 	}
 }
 
-variant_s creature::getstep() const {
-	if(!gender)
-		return Gender;
-	else if(!race)
-		return Race;
-	else if(!getclass())
-		return Class;
-	else if(!alignment)
-		return Alignment;
-	else if(!ability[0])
-		return Ability;
-	else if(!getskillpoints())
-		return Skill;
-	else if(!iscolors())
-		return Apearance;
-	else if(!name)
-		return Name;
-	return Finish;
-}
-
 void creature::clear() {
 	actor::clear();
 	clear(Race);
@@ -234,7 +214,7 @@ void creature::clear(variant_s value) {
 		memset(ability, 0, sizeof(ability));
 		break;
 	case Alignment:
-		alignment = NoAlignment;
+		alignment = LawfulGood;
 		break;
 	case Class:
 		memset(classes, 0, sizeof(classes));
@@ -247,7 +227,7 @@ void creature::clear(variant_s value) {
 		initiative = 0;
 		break;
 	case Race:
-		race = NoRace;
+		race = Human;
 		break;
 	case Skill:
 		memset(skills, 0, sizeof(skills));
