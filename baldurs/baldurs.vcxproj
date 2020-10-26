@@ -174,7 +174,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="locale.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="control_minimap.cpp" />
     <ClCompile Include="manual.cpp" />
@@ -251,7 +251,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\locale\items_ru.txt" />
+    <Text Include="..\locale\ru\item.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

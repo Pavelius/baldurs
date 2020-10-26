@@ -259,7 +259,7 @@
     <ClCompile Include="dice.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="locale.cpp">
+    <ClCompile Include="game.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
@@ -348,7 +348,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\locale\items_ru.txt">
+    <Text Include="..\locale\ru\item.txt">
       <Filter>Локализация</Filter>
     </Text>
   </ItemGroup>

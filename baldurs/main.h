@@ -419,7 +419,6 @@ struct itemi {
 		short				ac, range;
 	};
 	const char*				id;
-	const char*				name;
 	animationi				images;
 	slot_s					slot;
 	feat_s					feat[2];
@@ -429,6 +428,7 @@ struct itemi {
 	int						weight;
 	int						cost; // Цена в золотых монетах
 	aref<poweri>			power;
+	const char*				name;
 	const char*				text;
 };
 class item {
@@ -841,7 +841,7 @@ struct setting {
 };
 class gamei {
 public:
-	static bool			readl();
+	static void			localization(const char* locale_id, bool writemode);
 };
 struct targetreaction {
 	variant				target;
