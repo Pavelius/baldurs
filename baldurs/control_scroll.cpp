@@ -71,14 +71,13 @@ void scrollitem::update(short unsigned index, int item_in_line) {
 	maximum = (maximum_items + 1) / 2;
 }
 
-void scrollitem::view(creature* player, int x, int y, int dx, int dy, const rect& rcs, void(*item_proc)()) {
+void scrollitem::view(creature* player, int x, int y, int dx, int dy, const rect& rcs, fnevent item_proc) {
 	auto count = getcount();
 	for(auto i = 0; i < count; i++) {
 		auto n = i % mx;
 		auto k = i / mx;
 		auto pi = get(i);
-		if(player->icon(x + n * dx, y + k * dy, pi, LastBackpack, 0))
-			execute(item_proc, (int)pi);
+		player->icon(x + n * dx, y + k * dy, pi, LastBackpack, 0, item_proc);
 	}
 	draw::view({x, y, x + dx*mx, y + dy*my}, rcs, dy, *this);
 }

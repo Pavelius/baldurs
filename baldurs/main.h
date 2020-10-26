@@ -302,6 +302,7 @@ enum variant_s : unsigned char {
 	Position, Race, Region, Skill, Spell,
 	Finish, Variant,
 };
+typedef void (*fnitem)();
 class creature;
 class item;
 struct container;
@@ -520,7 +521,7 @@ struct scrollitem : scrolllist {
 	void					update(creature* player, int item_in_line);
 	void					update(container* object, int item_in_line);
 	void					update(short unsigned index, int item_in_line);
-	void					view(creature* player, int x, int y, int dx, int dy, const rect& rcs, void(*item_proc)());
+	void					view(creature* player, int x, int y, int dx, int dy, const rect& rcs, fnitem item_proc);
 };
 struct cursorset {
 	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
@@ -1052,8 +1053,8 @@ public:
 	const item&					getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
 	const item*					getwear(slot_s id) const override;
 	static void					help();
-	bool						icon(int x, int y, item* pi, slot_s id, itemdrag* pd);
-	void						icon(int x, int y, slot_s id, itemdrag* pd) { icon(x, y, wears + id, id, pd); }
+	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc);
+	void						icon(int x, int y, slot_s id, itemdrag* pd);
 	void						iconqw(int x, int y, int n, itemdrag* pd);
 	void						interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
 	void						interacting(const targetreaction& e) override;

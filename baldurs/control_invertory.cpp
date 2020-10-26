@@ -89,7 +89,11 @@ static void choose_weapon() {
 	creature::getactive()->setquick(hot.param);
 }
 
-bool creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
+void creature::icon(int x, int y, slot_s id, itemdrag* pd) {
+	icon(x, y, wears + id, id, pd, choose_item);
+}
+
+void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc) {
 	int m = 0;
 	rect rc = {x + 2, y + 2, x + 34, y + 34};
 	auto ar = area(rc);
@@ -111,9 +115,8 @@ bool creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 	} else
 		draw::image(x, y, res::STONSLOT, m, 0);
 	//draw::rectb(rc, colors::red);
-	auto result = false;
 	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
-		result = true;
+		execute(proc, (int)pi);
 	else if(hot.key == MouseRight && ar == AreaHilitedPressed)
 		execute(show_item_ability, (int)pi);
 	if(!pi || !(*pi)) {
@@ -140,7 +143,6 @@ bool creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd) {
 			fore_stroke = push_stroke;
 		}
 	}
-	return result;
 }
 
 void creature::iconqw(int x, int y, int n, itemdrag* pd) {
@@ -148,9 +150,9 @@ void creature::iconqw(int x, int y, int n, itemdrag* pd) {
 	if(active_weapon == n)
 		flags |= Checked;
 	if(button(x, y, flags, res::INVBUT3, n * 3 + 2, n * 3, n * 3 + 1, n * 3, 0, 0, 0))
-		execute(choose_weapon, n),
-	icon(x + 28, y + 1, wears + QuickWeapon + n * 2, QuickWeapon, pd);
-	icon(x + 28 + 39, y + 1, wears + QuickOffhand + n * 2, QuickOffhand, pd);
+		execute(choose_weapon, n);
+	icon(x + 28, y + 1, wears + QuickWeapon + n * 2, QuickWeapon, pd, choose_item);
+	icon(x + 28 + 39, y + 1, wears + QuickOffhand + n * 2, QuickOffhand, pd, choose_item);
 }
 
 void creature::invertory(itemdrag* pd) {
@@ -165,15 +167,15 @@ void creature::invertory(itemdrag* pd) {
 	iconqw(572, 88, 1, pd); iconqw(679, 88, 3, pd);
 	label(574, 131, 111, 22, "Колчан");
 	for(auto i = 0; i < 3; i++)
-		icon(572 + 39 * i, 159, wears + Quiver + i, Quiver, pd);
+		icon(572 + 39 * i, 159, wears + Quiver + i, Quiver, pd, choose_item);
 	label(574, 200, 111, 22, "На поясе");
 	for(auto i = 0; i < 3; i++)
-		icon(572 + 39 * i, 228, wears + QuickItem + i, QuickItem, pd);
+		icon(572 + 39 * i, 228, wears + QuickItem + i, QuickItem, pd, choose_item);
 	label(574, 270, 111, 22, "Земля");
 	ground.update(map::getindex(getposition(), getsize()), 2);
 	for(auto i = 0; i < 6; i++) {
 		auto j = ground.maximum_items - ground.origin * 2;
-		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd);
+		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd, choose_item);
 	}
 	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
 	//label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
@@ -196,7 +198,7 @@ void creature::invertory(itemdrag* pd) {
 	for(auto i = Backpack; i <= LastBackpack; i = (slot_s)(i + 1)) {
 		int x1 = x + (i % 8)*d;
 		int y1 = y + (i / 8)*d;
-		icon(x1, y1, wears + i, Backpack, pd);
+		icon(x1, y1, wears + i, Backpack, pd, choose_item);
 	}
 	//
 	pickcolors({252, 191}, {252, 231}, {507, 191}, {507, 231});
