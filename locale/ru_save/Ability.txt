@@ -1,0 +1,6 @@
+﻿Charisma: Харизма. 
+Constitution: Телосложение. 
+Dexterity: Ловкость. 
+Intellegence: Интеллект. 
+Strenght: Сила. 
+Wisdow: Мудрость. 

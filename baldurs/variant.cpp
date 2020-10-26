@@ -3,7 +3,7 @@
 static_assert(sizeof(variant) == sizeof(int), "variant must be sizeof(int)");
 
 BSDATA(varianti) = {{""},
-{"Ability", "Способности", &bsdata<abilityi>::source},
+{"Ability", "Способности", &bsdata<abilityi>::source, {FO(abilityi, name), FO(abilityi, text)}},
 {"Alignment", "Мировозрение", &bsdata<alignmenti>::source},
 {"Apearance", "Внешность"},
 {"Class", "Класс", &bsdata<classi>::source},
@@ -20,7 +20,7 @@ BSDATA(varianti) = {{""},
 {"Race", "Раса", &bsdata<racei>::source},
 {"Region", "Регион", &bsdata<region>::source},
 {"Skills", "Навыки", &bsdata<skilli>::source},
-{"Spells", "Заклинания", &bsdata<spelli>::source},
+{"Spells", "Заклинания", &bsdata<spelli>::source, {FO(spelli, name), FO(spelli, text)}},
 {"Finish", "Готово"},
 {"Variant", "Вариант"},
 };

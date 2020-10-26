@@ -480,6 +480,7 @@ public:
 struct abilityi {
 	const char*				id;
 	const char*				name;
+	const char*				text;
 };
 struct genstepi {
 	variant_s				step;
@@ -706,6 +707,7 @@ struct spelli {
 	school_s				school;
 	classa					levels;
 	duration_info			duration;
+	const char*				text;
 };
 struct schooli {
 	const char*				id;

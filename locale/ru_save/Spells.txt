@@ -1,0 +1,43 @@
+﻿Antichickenator: Антикурица. 
+ArmorOfFaith: Доспех веры. 
+Bane: Погибель. 
+Bless: Благословение. 
+BurningHands: Огненные руки. 
+CharmPerson: Очаровать персону. 
+ChillTouch: Ледяное касание. 
+ChromaticOrb: Радужная сфера. 
+ColorSpray: Цветные брызги. 
+Command: Команда. 
+CureLightWounds: Исцелить легкое ранение. 
+DispelMagic: Рассеять магию. 
+Doom: Злой рок. 
+EaglesSplendor: Орлиное великолепие. 
+Entangle: Опутать. 
+FaerieFire: Волшебный огонь. 
+FlameStrike: Огненный удар. 
+FrostFingers: Морозные пальцы. 
+GenericAbjuration: Базовый оберег. 
+GlyphOfWarding: Глиф защиты. 
+Grease: Смазка. 
+HoldPerson: Остановить персону. 
+IceDagger: Ледяной кинжал. 
+Identify: Опознание. 
+InflictLightWounds: Нанести легкое ранение. 
+LarlochsMinorDrain: Слабое иссушение Ларлоха. 
+MageArmor: Доспех мага. 
+MagicMissile: Волшебный снаряд. 
+MagicStone: Волшебный камень. 
+MinorMirrorImage: Слабое зеркальное отображение. 
+NoSpell: Нет Заклинания. 
+ProtectionFromEvil: Защита от зла. 
+ProtectionFromPetrification: Защита от окаменения. 
+RemoveFear: Убрать страх. 
+RemoveParalysis: Убрать паралич. 
+Sanctuary: Убежище. 
+Shield: Щит. 
+Shillelagh: Дубинка. 
+ShockingGrasp: Шокирующая хватка. 
+Sleep: Сон. 
+Spook: Бабай. 
+SummonMonsterI: Призыв монстра I. 
+Sunscorch: Солнечный ожег. 

@@ -87,7 +87,7 @@ static void test_generate() {
 
 int main(int argc, char* argv[]) {
 	gamei::localization("ru", false);
-	//gamei::localization("ru", true);
+	gamei::localization("ru_save", true);
 	if(!test_variant_position())
 		return -1;
 	srand(clock());

@@ -78,13 +78,23 @@ bool readloc(const char* url, array& source, unsigned* fields, int fields_count)
 	return true;
 }
 
+static int sort_by_id(const void* v1, const void* v2, void* param) {
+	auto p1 = *(*((const char***)v1));
+	auto p2 = *(*((const char***)v2));
+	return strcmp(p1, p2);
+}
+
 bool saveloc(const char* url, array& source, unsigned* fields, int fields_count) {
 	io::file file(url, StreamText | StreamWrite);
 	if(!file)
 		return false;
 	int count = source.getcount();
+	vector<void*> sorted;
+	for(auto i = 0; i < count; i++)
+		sorted.add(source.ptr(i));
+	sorted.sort(sort_by_id);
 	for(auto i = 0; i < count; i++) {
-		auto p = source.ptr(i);
+		auto p = sorted[i];
 		auto id = *((const char**)p);
 		if(!id ||id[0]==0)
 			continue;

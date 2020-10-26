@@ -420,6 +420,10 @@ int array::find(void* value, unsigned offset, unsigned size) const {
 	return -1;
 }
 
+void array::sort(pcompare compare, void* param) {
+	sort(0, getcount() - 1, compare, param);
+}
+
 void array::sort(int i1, int i2, pcompare compare, void* param) {
 	for(int i = i2; i > i1; i--) {
 		for(int j = i1; j < i; j++) {

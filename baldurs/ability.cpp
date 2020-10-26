@@ -1,11 +1,11 @@
 #include "main.h"
 
 BSDATA(abilityi) = {
-	{"Strenght", "Сила"},
-	{"Dexterity", "Ловкость"},
-	{"Constitution", "Телосложение"},
-	{"Intellegence", "Интеллект"},
-	{"Wisdow", "Мудрость"},
-	{"Charisma", "Харизма"},
+	{"Strenght"},
+	{"Dexterity"},
+	{"Constitution"},
+	{"Intellegence"},
+	{"Wisdow"},
+	{"Charisma"},
 };
 assert_enum(abilityi, Charisma)
