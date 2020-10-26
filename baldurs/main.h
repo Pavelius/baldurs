@@ -1,7 +1,6 @@
 ﻿#include "archive.h"
 #include "converter.h"
 #include "crt.h"
-#include "dice.h"
 #include "draw.h"
 #include "io.h"
 #include "map.h"
@@ -74,6 +73,9 @@ enum skill_s : unsigned char {
 	Spot, Survival, Swim, Tumble, UseMagicDevice,
 	UseRope,
 	FirstSkill = Appraise, LastSkill = UseRope,
+};
+enum item_flag_s : unsigned char {
+	Balanced, Precise, Deadly, Light,
 };
 enum feat_s : unsigned char {
 	Alertness,
@@ -282,6 +284,10 @@ enum save_s : unsigned char {
 enum reaction_s : unsigned char {
 	Undifferent, Friendly, Helpful, Unfriendly, Hostile,
 };
+enum damage_s : unsigned char {
+	Bludgeon, Slashing, Pierce,
+	Acid, Cold, Fire, Lighting, Sound,
+};
 enum tile_s : unsigned char {
 	ObstacleImpassableBlack, Sand, WoodGreen, WoodBrown,
 	StoneDry, Grass, WaterTurquose, Stone,
@@ -298,6 +304,9 @@ enum variant_s : unsigned char {
 	Door, Gender, Feat, Item, ItemCont, ItemGround, Name,
 	Position, Race, Region, Skill, Spell,
 	Finish, Variant,
+};
+enum magic_s : unsigned char {
+	Mundane, Minor, Medium, Major,
 };
 typedef void (*fnitem)();
 class creature;
@@ -369,18 +378,26 @@ typedef aset<skill_s, LastSkill> skilla;
 typedef aset<class_s, LastClass> classa;
 struct rolli {
 	char					dc, bonus, rolled, result;
-	constexpr rolli() : bonus(0), rolled(0), result(0), dc(0) {}
 	bool					iscritical(int modifier) const { return rolled >= (20 - modifier); }
 };
-struct attacki : dice, rolli {
+struct damagei {
+	const char*				id;
+	const char*				name;
+};
+struct dicei {
+	damage_s				type;
+	unsigned char			c, d;
+	char					b;
+	constexpr explicit operator bool() const { return c != 0; }
+	int						roll() const;
+};
+struct attacki : rolli {
+	dicei					damage;
 	char					critical, multiplier;
-	char					ac;
-	int						range;
+	short					range;
 	item*					weapon;
 	item*					ammunition;
-	attacki() = default;
-	constexpr attacki(const dice& d, char critical = 0, char m = 0, int rg = 0, item* pam = 0) : dice(d), critical(critical), multiplier(m), ac(0), range(rg), weapon(0), ammunition(pam) {}
-	constexpr attacki(char a) : dice(), critical(0), multiplier(0), ac(a), range(0), weapon(0), ammunition(0) {};
+	constexpr explicit operator bool() const { return damage.c!=0; }
 };
 struct itemi {
 	struct animationi {
@@ -390,17 +407,24 @@ struct itemi {
 		res::tokens			thrown;
 	};
 	struct poweri {
-		char				magic;
+		magic_s				rate;
+		char				bonus;
 		const char*			name;
 		variant				power;
 		const char*			text;
+		const int			getweight() const;
+	};
+	struct combati {
+		dicei				damage;
+		short				ac, range;
 	};
 	const char*				id;
 	const char*				name;
 	animationi				images;
 	slot_s					slot;
 	feat_s					feat[2];
-	attacki					ai;
+	cflags<item_flag_s>		flags;
+	combati					ai;
 	unsigned char			count;
 	int						weight;
 	int						cost; // Цена в золотых монетах
@@ -420,13 +444,13 @@ public:
 	constexpr operator item_s() const { return type; }
 	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(1), stolen(0) {}
 	void					addinfo(stringbuilder& sb) const;
+	void					apply(attacki& a) const;
 	void					clear();
 	int						getac() const;
 	int						getarmorindex() const;
 	item_s					getammunition() const;
 	static res::tokens		getanwear(int type);
 	res::tokens				getanthrown() const;
-	const attacki&			getattack() const { return geti().ai; }
 	int						getbonus() const;
 	int						getcost() const;
 	int						getcount() const;
@@ -440,11 +464,14 @@ public:
 	int						getdragportrait() const { return type * 2 + 1; }
 	item_s					gettype() const { return type; }
 	constexpr bool			is(feat_s v) const { return geti().feat[0] == v || geti().feat[1] == v; }
-	constexpr bool			is(slot_s v) const { return geti().slot == v; }
+	bool					is(slot_s v) const;
+	bool					is(item_flag_s v) const { return geti().flags.is(v); }
 	bool					isbow() const;
+	bool					islight() const { return geti().slot == QuickOffhand && !isshield(); }
 	bool					isknown() const { return identified != 0; }
-	constexpr bool			isranged() const { return geti().ai.range != 0; }
+	bool					isranged() const { return isbow(); }
 	bool					isreach() const;
+	bool					isshield() const { return geti().feat[0] == ShieldProfeciency; }
 	bool					isthrown() const;
 	bool					istwohand() const;
 	bool					isxbow() const;
@@ -932,9 +959,9 @@ struct monsteri {
 class creature : public actor {
 	struct preparation {
 		spell_s					id;
-		variant					type;
 		unsigned char			count;
 		unsigned char			count_maximum;
+		variant					type;
 		explicit operator bool() const { return count_maximum != 0; }
 	};
 	monster_s					kind;
@@ -951,22 +978,20 @@ class creature : public actor {
 	unsigned					state;
 	short						hits, hits_rolled;
 	unsigned					spells_known[LastSpell / 32 + 1];
+	unsigned					spells_prepared[LastSpell / 32 + 1];
+	unsigned char				sorcerers_used_powers[9];
 	item						wears[LastQuickItem + 1];
 	char						initiative;
 	unsigned char				active_weapon;
 	unsigned short				portrait;
-	unsigned char				sorcerers_used_powers[9];
-	adat<preparation, 24>		powers;
+	adat<preparation, 32>		powers;
 	unsigned					experience;
-	//
 	preparation*				add(spell_s id, variant type);
 	void						random_name();
 	static const char*			random_name(gender_s gender, race_s race);
 	void						update_levels();
 public:
 	explicit operator bool() const { return ability[0] != 0; }
-	void* operator new(unsigned size);
-	void operator delete (void* data);
 	void						attack(creature& enemy);
 	void						attack(const variant& enemy);
 	void						add(item e);

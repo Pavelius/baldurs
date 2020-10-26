@@ -259,7 +259,7 @@ static void addm(stringbuilder& sb, const char* header, const char* format, ...)
 	sb.addv(format, xva_start(format));
 }
 
-static void addm(stringbuilder& sb, const attacki& e) {
+static void addm(stringbuilder& sb, const dicei& e) {
 	if(!e)
 		return;
 	addm(sb, "Повреждения");
@@ -278,6 +278,7 @@ void item::addinfo(stringbuilder& sb) const {
 	auto bonus = getbonus();
 	sb.add("\n\n");
 	sb.add("[Характеристики]");
-	addm(sb, getattack());
+	attacki ai = {}; apply(ai);
+	addm(sb, ai.damage);
 	addm(sb, "Вес", "%1i фунтов", ei.weight);
 }

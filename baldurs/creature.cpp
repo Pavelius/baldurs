@@ -42,18 +42,6 @@ static short carrying_capacity[][3] = {{1, 2, 3},
 {466, 933, 1400},
 };
 
-void* creature::operator new(unsigned size) {
-	for(auto& e : bsdata<creature>()) {
-		if(!e)
-			return &e;
-	}
-	return bsdata<creature>::add();
-}
-
-void creature::operator delete (void* data) {
-	((creature*)data)->ability[0] = 0;
-}
-
 void targetreaction::clear() {
 	target.clear();
 	method = 0;
@@ -651,7 +639,7 @@ void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
 	auto reach = map::getrange(getreach());
-	attacki ai; get(ai, QuickWeapon, enemy);
+	attacki ai = {}; get(ai, QuickWeapon, enemy);
 	res::tokens thrown_res = res::NONE;
 	auto thrown_speed = 300;
 	if(ai.range && ai.weapon)
@@ -665,7 +653,9 @@ void creature::attack(creature& enemy) {
 	}
 	if(!roll(ai))
 		return;
-	auto damage = ai.roll();
+	auto damage = ai.damage.roll();
+	if(ai.iscritical(ai.critical))
+		damage *= 2 + ai.multiplier;
 	enemy.damage(damage);
 	enemy.render_hit(enemy.gethits() <= 0);
 	enemy.wait();
@@ -675,20 +665,21 @@ void creature::get(attacki& result, slot_s slot) const {
 	memset(&result, 0, sizeof(result));
 	auto pitem = getwear(slot);
 	if(pitem) {
-		result = pitem->getattack();
+		pitem->apply(result);
 		if(*pitem)
 			result.weapon = const_cast<item*>(pitem);
 	}
 	if(result.weapon) {
-		if(result.weapon->isranged()) {
+		if(result.weapon->isranged())
 			result.bonus += get(Dexterity);
-		} else {
-			result.b += get(Strenght);
+		else {
 			result.bonus += get(Strenght);
+			result.damage.b += get(Strenght);
 		}
 	} else {
-		result.c = 0;
-		result.d = imax(1, 1 + get(Strenght));
+		result.damage.c = 1;
+		result.damage.d = 3;
+		result.damage.b += get(Strenght);
 	}
 	if(is(ImprovedCritical))
 		result.critical++;

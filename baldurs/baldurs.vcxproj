@@ -151,6 +151,7 @@
     <ClCompile Include="converter.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="crt.cpp" />
+    <ClCompile Include="damage.cpp" />
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="diety.cpp" />
     <ClCompile Include="door.cpp" />
@@ -227,7 +228,6 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="converter.h" />
     <ClInclude Include="crt.h" />
-    <ClInclude Include="dice.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="main.h">

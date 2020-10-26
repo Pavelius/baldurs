@@ -16,9 +16,6 @@
     <ClCompile Include="color.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
-    <ClCompile Include="dice.cpp">
-      <Filter>Библиотека\Классы</Filter>
-    </ClCompile>
     <ClCompile Include="point.cpp">
       <Filter>Библиотека\Классы</Filter>
     </ClCompile>
@@ -256,6 +253,12 @@
     <ClCompile Include="..\data\cpp\GUIINV.cpp">
       <Filter>Источник</Filter>
     </ClCompile>
+    <ClCompile Include="damage.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="dice.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -268,9 +271,6 @@
       <Filter>Библиотека\Графика</Filter>
     </ClInclude>
     <ClInclude Include="color.h">
-      <Filter>Библиотека\Классы</Filter>
-    </ClInclude>
-    <ClInclude Include="dice.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
     <ClInclude Include="point.h">

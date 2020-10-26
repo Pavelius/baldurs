@@ -2,10 +2,10 @@
 
 const item_s Gems = BlueQuarz;
 const item_s Arts = CarvedStone;
-const item_s Mundane = Mace;
-const item_s Minor = Shortsword;
-const item_s Medium = Longsword;
-const item_s Major = Greatsword;
+const item_s MundaneItem = Mace;
+const item_s MinorMagicItem = Shortsword;
+const item_s MediumMagicItem = Longsword;
+const item_s MajorMagicItem = Greatsword;
 
 struct range {
 	char		c, d;
@@ -49,9 +49,9 @@ static treasure_coins goods_01[] = {{90}, {95, {1}, Gems}, {100, {1}, Arts}};
 static treasure_coins goods_02[] = {{81}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
 static treasure_coins goods_03[] = {{77}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
 //
-static treasure_coins items_01[] = {{71}, {95, {1}, Mundane}, {100, {1}, Minor}};
-static treasure_coins items_02[] = {{49}, {85, {1}, Mundane}, {100, {1}, Minor}};
-static treasure_coins items_03[] = {{49}, {79, {1, 3}, Mundane}, {100, {1}, Minor}};
+static treasure_coins items_01[] = {{71}, {95, {1}, MundaneItem}, {100, {1}, MinorMagicItem}};
+static treasure_coins items_02[] = {{49}, {85, {1}, MundaneItem}, {100, {1}, MinorMagicItem}};
+static treasure_coins items_03[] = {{49}, {79, {1, 3}, MundaneItem}, {100, {1}, MinorMagicItem}};
 static struct treasure_info {
 	aref<treasure_coins>	coins;
 	aref<treasure_coins>	goods;
@@ -101,10 +101,10 @@ void treasure::generate(int level) {
 	p = match(treasure_data[level].items, d);
 	if(p) {
 		switch(p->type) {
-		case Mundane: mundane += p->dice.roll(); break;
-		case Minor: minor += p->dice.roll(); break;
-		case Medium: medium += p->dice.roll(); break;
-		case Major: major += p->dice.roll(); break;
+		case MundaneItem: mundane += p->dice.roll(); break;
+		case MinorMagicItem: minor += p->dice.roll(); break;
+		case MediumMagicItem: medium += p->dice.roll(); break;
+		case MajorMagicItem: major += p->dice.roll(); break;
 		}
 	}
 }
