@@ -87,18 +87,18 @@ static void choose_map_info() {
 		int x = 201, y = 88;
 		screen.restore();
 		image(x, y, res::GUIMAP, 1, 0);
-		button(x + 61, y + 157, buttonparam, 0, res::GBTNMED, "Удалить", 0, 0);
-		button(x + 61, y + 187, buttonok, 0, res::GBTNMED, "Применить", KeyEnter);
-		button(x + 61, y + 217, buttoncancel, 0, res::GBTNMED, "Отмена", KeyEscape);
+		button(x + 61, y + 157, buttonparam, 0, 0, res::GBTNMED, "Удалить", 0, 0);
+		button(x + 61, y + 187, buttonok, 0, 0, res::GBTNMED, "Применить", KeyEnter);
+		button(x + 61, y + 217, buttoncancel, 0, 0, res::GBTNMED, "Отмена", KeyEscape);
 		rectb({x + 20, y + 20, x + 258, y + 123}, colors::white);
-		button(x + 21, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 51, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 81, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 111, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 141, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 171, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 201, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
-		button(x + 231, y + 127, buttonparam, 0, res::FLAG1, 0, 0);
+		button(x + 21, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 51, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 81, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 111, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 141, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 171, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 201, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
+		button(x + 231, y + 127, buttonparam, 0, 0, res::FLAG1, 0, 0);
 		domodal();
 	}
 }

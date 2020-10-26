@@ -32,7 +32,7 @@ static void choose() {
 			if(picker(x + px * inc, y + py * inc, id, 0))
 				execute(pick_color, id);
 		}
-		button(322, 332, buttoncancel, 0, res::GBTNMED, "Отмена", KeyEscape);
+		button(322, 332, buttoncancel, 0, 0, res::GBTNMED, "Отмена", KeyEscape);
 		label(331, 134, 135, 22, "Выбирайте цвет");
 		domodal();
 	}

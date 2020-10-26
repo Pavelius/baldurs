@@ -59,11 +59,10 @@ bool draw::button(int x, int y, unsigned flags, res::tokens r, int checked, int 
 	return need_execute;
 }
 
-bool draw::button(int x, int y, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
+bool draw::button(int x, int y, int m, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
 	char st[4];
 	sprite* f = gres(res::tokens(r));
 	int count;
-	auto m = y/3;
 	switch(r) {
 	case res::GBTNMINS:
 	case res::GBTNPLUS:
@@ -110,7 +109,7 @@ bool draw::button(int x, int y, unsigned flags, res::tokens r, const char* name,
 	return button(x, y, flags, r, st[0], st[1], st[2], st[3], name, key, state, false);
 }
 
-void draw::button(int x, int y, fnevent event, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
-	if(button(x, y, flags, r, name, key, state))
-		execute(event);
+void draw::button(int x, int y, fnevent event, int m, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
+	if(button(x, y, m, flags, r, name, key, state))
+		execute(event, m);
 }

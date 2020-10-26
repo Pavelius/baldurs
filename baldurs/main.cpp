@@ -43,13 +43,13 @@ static void start_scene() {
 	while(ismodal()) {
 		int x = 170, y = 92;
 		background(res::START, fid);
-		button(x + 396, y + 68, single_player, 0, res::GBTNMED2, "Один игрок");
-		button(x + 396, y + 156 + 0 * 32, new_game, 0, res::GBTNMED2, "Новая игра");
-		button(x + 396, y + 156 + 1 * 32, load_game, 0, res::GBTNMED2, "Загрузить игру");
-		button(x + 396, y + 156 + 2 * 32, quick_load, 0, res::GBTNMED2, "Быстрая загрузка");
-		button(x + 396, y + 156 + 3 * 32, join_game, Disabled, res::GBTNMED2, "Присоединиться к игре");
-		button(x + 396, y + 304 + 0 * 32, setting, 0, res::GBTNMED2, "Настройки");
-		button(x + 396, y + 304 + 1 * 32, exit_game, 0, res::GBTNMED2, "Выход из игры", KeyEscape);
+		button(x + 396, y + 68, single_player, 0, 0, res::GBTNMED2, "Один игрок");
+		button(x + 396, y + 156 + 0 * 32, new_game, 1, 0, res::GBTNMED2, "Новая игра");
+		button(x + 396, y + 156 + 1 * 32, load_game, 2, 0, res::GBTNMED2, "Загрузить игру");
+		button(x + 396, y + 156 + 2 * 32, quick_load, 3, 0, res::GBTNMED2, "Быстрая загрузка");
+		button(x + 396, y + 156 + 3 * 32, join_game, 4, Disabled, res::GBTNMED2, "Присоединиться к игре");
+		button(x + 396, y + 304 + 0 * 32, setting, 5, 0, res::GBTNMED2, "Настройки");
+		button(x + 396, y + 304 + 1 * 32, exit_game, 6, 0, res::GBTNMED2, "Выход из игры", KeyEscape);
 		domodal();
 	}
 }
@@ -60,6 +60,7 @@ void archive_pack(const char* arc_name, const char* folder);
 void archive_unpack(const char* arc_name, const char* folder);
 
 static bool test_variant_position() {
+	auto s1 = sizeof(variant);
 	point p1 = {1024, 3451};
 	variant v1 = p1;
 	if(v1.type != Position)

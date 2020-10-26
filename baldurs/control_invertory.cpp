@@ -20,8 +20,8 @@ static void show_item_ability() {
 		label(x + 71, y + 132, 205, 32, ""); // NORMAL
 		label(x + 24, y + 175, 232, 155, "255, 255, 255");
 		rectb({x + 266, y + 173, x + 278, y + 331}, colors::white);
-		button(x + 162, y + 339, buttoncancel, 0, res::GBTNSTD, "Отмена", KeyEscape, 0);
-		button(x + 21, y + 339, buttonok, 0, res::GBTNSTD, "Применить", KeyEnter, 0);
+		button(x + 162, y + 339, buttoncancel, 0, 0, res::GBTNSTD, "Отмена", KeyEscape, 0);
+		button(x + 21, y + 339, buttonok, 0, 0, res::GBTNSTD, "Применить", KeyEnter, 0);
 		domodal();
 	}
 }

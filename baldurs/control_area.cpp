@@ -147,7 +147,7 @@ static bool act(int& x, int y, formation_s id) {
 		flags |= Checked;
 	auto i = id * 4;
 	button_states state;
-	auto r = button(x, y, flags, res::GUIBTBUT, 0, 0, &state);
+	auto r = button(x, y, id, flags, res::GUIBTBUT, 0, 0, &state);
 	auto x0 = x;
 	if(state == ButtonPressed) {
 		x0 += 2;

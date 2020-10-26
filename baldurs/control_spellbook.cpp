@@ -87,15 +87,13 @@ void creature::spellbook() {
 	auto x = 273, y = 19;
 	for(int i = power_origin, im = i + 4; i < im; i++) {
 		if(i >= power_maximum)
-			button(x, y, buttoncancel, Disabled, res::GBTNSPB1, 0);
+			button(x, y, buttoncancel, 0, Disabled, res::GBTNSPB1, 0);
 		else {
 			auto e = power_class[i];
 			unsigned flags = 0;
 			if(e == power_class[power_index])
 				flags |= Checked;
-			if(button(x, y, flags, res::GBTNSPB1, getstr(e))) {
-				execute(choose_class, power_class.indexof(e));
-			}
+			button(x, y, choose_class, power_class.indexof(e), flags, res::GBTNSPB1, getstr(e));
 		}
 		x += 108;
 	}
@@ -115,8 +113,7 @@ void creature::spellbook() {
 		x = 740; y = 62;
 		for(int i = 1; i <= 9; i++) {
 			unsigned flags = (current_level == i) ? Checked : 0;
-			if(button(x, y, flags, res::GBTNSPB2, 0, 0, 0))
-				execute(choose_level, i);
+			button(x, y, choose_level, i, flags, res::GBTNSPB2, 0, 0, 0);
 			y += 39;
 		}
 		// Создадим фильтр доступных

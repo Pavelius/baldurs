@@ -1,5 +1,7 @@
 #include "main.h"
 
+static_assert(sizeof(variant) == sizeof(int), "variant must be sizeof(int)");
+
 BSDATA(varianti) = {{""},
 {"Ability", "Способности", &bsdata<abilityi>::source},
 {"Alignment", "Мировозрение", &bsdata<alignmenti>::source},

@@ -311,11 +311,12 @@ struct region;
 union variant {
 	struct {
 		variant_s			type;
+		unsigned char		count;
 		unsigned short		value;
 	};
 	int						integer;
 	constexpr variant() : integer(0) {}
-	constexpr variant(variant_s type, unsigned short value) : type(type), value(value) {}
+	constexpr variant(variant_s type, unsigned short value) : type(type), value(value), count(0) {}
 	constexpr variant(ability_s v) : variant(Ability, v) {}
 	constexpr variant(alignment_s v) : variant(Alignment, v) {}
 	constexpr variant(class_s v) : variant(Class, v) {}
@@ -700,6 +701,7 @@ struct racei {
 	const char*				id;
 	const char*				name;
 	char					abilities[6];
+	class_s					favorite;
 	skilla					skills;
 	std::initializer_list<feat_s> feats;
 	char					quick_learn; // Human's ability additional skills nad feats at start of game
@@ -1176,9 +1178,9 @@ void							settile(short unsigned index, short unsigned tile);
 }
 namespace draw {
 inline void						background(res::tokens token, int id = 0) { image(0, 0, gres(token), id, 0); }
-bool							button(int x, int y, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
 bool							button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
-void							button(int x, int y, fnevent proc, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
+bool							button(int x, int y, int m, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
+void							button(int x, int y, fnevent proc, int m, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
 bool							dlgask(const char* text);
 int								dlgcho(const char* text, const char* a1, const char* a2);
 void							dlgmsg(const char* text);
