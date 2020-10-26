@@ -259,6 +259,9 @@
     <ClCompile Include="dice.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="locale.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -335,10 +338,18 @@
     <Filter Include="Источник">
       <UniqueIdentifier>{63f1131f-acdd-4b9c-9218-9e2431dcb876}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Локализация">
+      <UniqueIdentifier>{1495f666-f034-44a4-8398-8e73c394a5dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="images.xml">
       <Filter>Инструменты</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\locale\items_ru.txt">
+      <Filter>Локализация</Filter>
+    </Text>
   </ItemGroup>
 </Project>

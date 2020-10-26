@@ -86,6 +86,7 @@ static void test_generate() {
 }
 
 int main(int argc, char* argv[]) {
+	gamei::readl();
 	if(!test_variant_position())
 		return -1;
 	srand(clock());

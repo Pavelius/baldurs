@@ -505,6 +505,7 @@ struct varianti {
 	const char*				id;
 	const char*				name;
 	array*					source;
+	unsigned				locale[2];
 };
 struct drawable {
 	virtual int				getcursor() const { return 0; } // Get cursor index when over this drawable
@@ -837,6 +838,10 @@ struct setting {
 	mode_s				panel;
 	bool				show_search;
 	bool				show_path;
+};
+class gamei {
+public:
+	static bool			readl();
 };
 struct targetreaction {
 	variant				target;
