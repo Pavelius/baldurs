@@ -576,9 +576,9 @@ void stringbuilder::add(const char* s, const grammar* source, const char* def) {
 void stringbuilder::addh(const char* format, ...) {
 	if(p > pb && !(p[-1] == '\n' || p[-1] == '\r'))
 		add("\n\n");
-	add("[**");
+	add("**[");
 	addv(format, xva_start(format));
-	add("**]");
+	add("]**");
 }
 
 void stringbuilder::addof(const char* s) {

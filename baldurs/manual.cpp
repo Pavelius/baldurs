@@ -247,3 +247,37 @@ void creature::addinfo(stringbuilder& sb, variant_s step) const {
 		add(sb, ProficiencyAxe, ProficiencyWaraxe, "Доступность оружия");
 	}
 }
+
+static void addm(stringbuilder& sb, const char* header) {
+	sb.add("\n");
+	sb.add(header);
+	sb.add(": ");
+}
+
+static void addm(stringbuilder& sb, const char* header, const char* format, ...) {
+	addm(sb, header);
+	sb.addv(format, xva_start(format));
+}
+
+static void addm(stringbuilder& sb, const attacki& e) {
+	if(!e)
+		return;
+	addm(sb, "Повреждения");
+	if(e.b)
+		sb.add("%1id%2i%+3i", e.c, e.d, e.b);
+	else
+		sb.add("%1id%2i", e.c, e.d);
+}
+
+void item::addinfo(stringbuilder& sb) const {
+	auto& ei = bsdata<itemi>::elements[type];
+	if(ei.text)
+		sb.add(ei.text);
+	else
+		sb.add("Необходимо добавить описание предмета.");
+	auto bonus = getbonus();
+	sb.add("\n\n");
+	sb.add("[Характеристики]");
+	addm(sb, getattack());
+	addm(sb, "Вес", "%1i фунтов", ei.weight);
+}

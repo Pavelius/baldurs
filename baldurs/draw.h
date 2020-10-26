@@ -156,6 +156,7 @@ struct hotinfo {
 	point				mouse; // current mouse coordinates
 	bool				pressed; // flag if any of mouse keys is pressed
 	int					param; // Draw command context. Application can extend this structure
+	void*				object; // Application defined object
 	explicit operator bool() const { return key != 0; }
 };
 extern hotinfo			hot;
@@ -235,17 +236,14 @@ void					circlef(int x, int y, int radius, const color c1, unsigned char alpha =
 void					create(int x, int y, int width, int height, unsigned flags, int bpp);
 void					decortext(unsigned flags);
 void					domodal();
-void					execute(void(*callback)(), int value = 0);
+void					execute(void(*callback)(), int value = 0, void* object = 0);
 void					execute(const hotinfo& id);
-void					focusing(int id, unsigned& flags, rect rc);
-fnevent			getlayout();
+fnevent					getlayout();
 int						getbpp();
 color					getcolor(color normal, unsigned flags);
 color					getcolor(rect rc, color normal, color hilite, unsigned flags);
 inline draw_event_s		getcontrol(unsigned flags) { return (draw_event_s)(flags&ControlMask); }
-int						getfocus();
 int						getheight();
-int						getnext(int id, int key);
 int						getresult();
 const sprite*			gres(const char* name, const char* folder);
 int						getwidth();

@@ -4,7 +4,43 @@ using namespace draw;
 
 static scrollitem ground(2, 3);
 
-static void show_item_ability() {
+void creature::show(const char* header, item& it) {
+	screenshoot screen(true);
+	cursorset set;
+	while(ismodal()) {
+		int x = 144, y = 15;
+		screen.restore();
+		image(x, y, res::GIITMH08, 0, 0);
+		label(x + 36, y + 37, 357, 30, header, 2); // STONEBIG
+		rectb({x + 480, y + 109, x + 492, y + 420}, colors::white);
+		if(true) {
+			const auto sx = 64, sy = 64;
+			draw::state push;
+			setclip({x + 429, y + 20, x + 493, y + 84});
+			auto sp = gres(res::ITEMS);
+			auto& fr = sp->get(it.getportrait() + 1);
+			image(x + 429 + 2 + (sx - fr.sx)/2, y + 20 + 2 + (sy - fr.sy) / 2, res::ITEMS, it.getportrait() + 1, ImageNoOffset);
+		}
+		char temp[512]; stringbuilder sb(temp);
+		it.addinfo(sb);
+		textf(x + 25, y + 113, 425, temp);
+		if(!it.isknown())
+			button(x + 179, y + 432, 0, res::GBTNMED, 0, 1, 2, 3, "Îïîçíàòü", 0, 0);
+		button(x + 338, y + 432, buttoncancel, 0, 0, res::GBTNMED, "Îòìåíà", KeyEscape, 0); //4
+		//label(x + 314, y + 111, 152, 18, "×òî ıòî çà òåêñò?"); // NORMAL
+		domodal();
+	}
+}
+
+static void item_description() {
+	auto p = (creature*)hot.object;
+	auto pi = (item*)hot.param;
+	if(!p || !pi)
+		return;
+	p->show(pi->getname(), *pi);
+}
+
+static void enchant_item() {
 	screenshoot screen(true);
 	cursorset set;
 	while(ismodal()) {
@@ -116,9 +152,9 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc
 		draw::image(x, y, res::STONSLOT, m, 0);
 	//draw::rectb(rc, colors::red);
 	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
-		execute(proc, (int)pi);
+		execute(proc, (int)pi, this);
 	else if(hot.key == MouseRight && ar == AreaHilitedPressed)
-		execute(show_item_ability, (int)pi);
+		execute(item_description, (int)pi, this);
 	if(!pi || !(*pi)) {
 		if(id >= Head && id <= Legs)
 			draw::image(x + 2, y + 2, gres(res::STON), id - Head, 0, 0x80);
@@ -157,7 +193,7 @@ void creature::iconqw(int x, int y, int n, itemdrag* pd) {
 
 void creature::invertory(itemdrag* pd) {
 	const int d = 38;
-	char temp[260];
+	char temp[260]; stringbuilder sb(temp);
 	int x, y;
 	updategame();
 	draw::image(0, 0, gres(res::GUIINV), 0, 0);
@@ -178,11 +214,11 @@ void creature::invertory(itemdrag* pd) {
 		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd, choose_item);
 	}
 	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
-	//label(721, 243, 34, 32, szprints(temp, zendof(temp), "%1i", getac(false)), 3);
-	//label(710, 354, 54, 16, szprints(temp, zendof(temp), "%1i", gethits()), 3);
-	//label(710, 372, 54, 16, szprints(temp, zendof(temp), "%1i", gethitsmax()), 3);
-	labelr(704, 141, 70, 20, sznum(temp, getmoney()/SP), 0, MetalSilver);
-	//label(341, 281, 117, 14, szprints(temp, zendof(temp), "%1i / %2i lbs", 143, 223), 0, MetalGold);
+	sb.clear(); sb.add("%1i", getac(false)); label(721, 243, 34, 32, temp, 3);
+	sb.clear(); sb.add("%1i", gethits()); label(710, 354, 54, 16, temp, 3);
+	sb.clear(); sb.add("%1i", gethitsmax()); label(710, 372, 54, 16, temp, 3);
+	sb.clear(); sb.add("%1i", getmoney() / SP); labelr(704, 141, 70, 20, temp, 0, MetalSilver);
+	sb.clear(); sb.add("%1i / %2i lbs", 143, 223); label(341, 281, 117, 14, temp, 0, MetalGold);
 	// Wears items
 	icon(255, 22, Body, pd);
 	icon(319, 22, Rear, pd);

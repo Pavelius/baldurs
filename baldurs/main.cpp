@@ -92,6 +92,7 @@ int main(int argc, char* argv[]) {
 	draw::initialize();
 	if(!draw::pallette)
 		return -1;
+	util_main();
 	//test_character();
 	//test_generate();
 	setlayout(start_scene);

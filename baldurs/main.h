@@ -155,9 +155,6 @@ enum slot_s : unsigned char {
 	Quiver, LastQuiver = Quiver + 2,
 	QuickItem, LastQuickItem = QuickItem + 2,
 };
-enum magic_s : unsigned char {
-	Mundane, Cursed, Magical, Artifact,
-};
 enum state_s : unsigned char {
 	Stunned, ReadyToBattle,
 };
@@ -231,7 +228,7 @@ enum tokens {
 	CIFB1, CIFB2, CIFB3, CIFC4, CIFF4, CIFT1,
 	CIMB1, CIMB2, CIMB3, CIMC4, CIMF4, CIMT1,
 	GUIA, GUIBTACT, GUIBTBUT,
-	GUICGB, GUICHP, GUIHELP, GUIFEAT, GUIINV, GUIHSB, GUICARBB,
+	GUICGB, GUICHP, GUIHELP, GUIFEAT, GUIINV, GIITMH08, GUIHSB, GUICARBB,
 	GUIPFC, GUIRSPOR, GUISEX, GUISPL, GUICNAME, GUIERR,
 	GUIRLVL, GMPMCHRB, GCGPARTY, GBTNLRG2,
 	GUIJRLN, GOPT, GUIMOVB, STONEOPT, GUISRSVB, GUISRRQB,
@@ -421,7 +418,8 @@ class item {
 public:
 	constexpr explicit operator bool() const { return type != NoItem; }
 	constexpr operator item_s() const { return type; }
-	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(0), stolen(0) {}
+	constexpr item(item_s t = NoItem) : type(t), effect(0), count(0), identified(1), stolen(0) {}
+	void					addinfo(stringbuilder& sb) const;
 	void					clear();
 	int						getac() const;
 	int						getarmorindex() const;
@@ -437,13 +435,14 @@ public:
 	static const char*		getfgname(int type);
 	int						getframe() const;
 	constexpr itemi&		geti() const { return bsdata<itemi>::elements[type]; }
-	magic_s					getmagic() const;
+	const char*				getname() const { return geti().name; }
 	int						getportrait() const { return type * 2; }
 	int						getdragportrait() const { return type * 2 + 1; }
 	item_s					gettype() const { return type; }
 	constexpr bool			is(feat_s v) const { return geti().feat[0] == v || geti().feat[1] == v; }
 	constexpr bool			is(slot_s v) const { return geti().slot == v; }
 	bool					isbow() const;
+	bool					isknown() const { return identified != 0; }
 	constexpr bool			isranged() const { return geti().ai.range != 0; }
 	bool					isreach() const;
 	bool					isthrown() const;
@@ -1089,7 +1088,6 @@ public:
 	void						say(const char* format, ...) const;
 	static aref<creature*>		select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
 	static void					select_all();
-	//aref<variant>				selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const;
 	void						set(ability_s id, int value) { ability[id] = value; }
 	void						set(alignment_s value) { alignment = value; }
 	void						set(class_s v, int level) { classes[v] = level; }
@@ -1109,6 +1107,7 @@ public:
 	void						setprepared(spell_s id, variant type, int count);
 	void						setquick(int value) { active_weapon = value; }
 	void						sheet();
+	void						show(const char* header, item& it);
 	void						spellbook();
 	static void					spellinfo(spell_s id);
 	void						talk(const variant& e) {}

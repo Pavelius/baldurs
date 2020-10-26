@@ -2,7 +2,7 @@
 
 const item_s Gems = BlueQuarz;
 const item_s Arts = CarvedStone;
-const item_s Mund = Mace;
+const item_s Mundane = Mace;
 const item_s Minor = Shortsword;
 const item_s Medium = Longsword;
 const item_s Major = Greatsword;
@@ -49,9 +49,9 @@ static treasure_coins goods_01[] = {{90}, {95, {1}, Gems}, {100, {1}, Arts}};
 static treasure_coins goods_02[] = {{81}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
 static treasure_coins goods_03[] = {{77}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
 //
-static treasure_coins items_01[] = {{71}, {95, {1}, Mund}, {100, {1}, Minor}};
-static treasure_coins items_02[] = {{49}, {85, {1}, Mund}, {100, {1}, Minor}};
-static treasure_coins items_03[] = {{49}, {79, {1, 3}, Mund}, {100, {1}, Minor}};
+static treasure_coins items_01[] = {{71}, {95, {1}, Mundane}, {100, {1}, Minor}};
+static treasure_coins items_02[] = {{49}, {85, {1}, Mundane}, {100, {1}, Minor}};
+static treasure_coins items_03[] = {{49}, {79, {1, 3}, Mundane}, {100, {1}, Minor}};
 static struct treasure_info {
 	aref<treasure_coins>	coins;
 	aref<treasure_coins>	goods;

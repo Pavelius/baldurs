@@ -153,3 +153,19 @@ const char* szext(const char* path) {
 	}
 	return 0;
 }
+
+const char* szfname(const char* path) {
+	for(const char* r = zend((char*)path); r > path; r--) {
+		if(*r == '\\' || *r == '/')
+			return r + 1;
+	}
+	return path;
+}
+
+char* szfnamewe(char* result, const char* name) {
+	zcpy(result, szfname(name));
+	char* p = (char*)szext(result);
+	if(p && p != result)
+		p[-1] = 0;
+	return result;
+}

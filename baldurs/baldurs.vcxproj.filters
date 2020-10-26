@@ -253,6 +253,9 @@
     <ClCompile Include="selectable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="..\data\cpp\GUIINV.cpp">
+      <Filter>Источник</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -328,6 +331,9 @@
     </Filter>
     <Filter Include="Логика">
       <UniqueIdentifier>{4c4b65bd-b5e6-425e-bb80-f8fef1713409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Источник">
+      <UniqueIdentifier>{63f1131f-acdd-4b9c-9218-9e2431dcb876}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

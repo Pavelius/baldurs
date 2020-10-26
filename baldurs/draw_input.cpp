@@ -55,9 +55,10 @@ res::tokens	cursorset::getres() {
 	return cursor_sprite;
 }
 
-void draw::execute(void(*proc)(), int param) {
+void draw::execute(void(*proc)(), int param, void* object) {
 	current_execute = proc;
 	hot.param = param;
+	hot.object = object;
 	hot.key = InputExecute;
 }
 
