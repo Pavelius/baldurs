@@ -9,7 +9,6 @@ void draw::dlgmsg(const char* text) {
 	while(ismodal()) {
 		e.restore();
 		image(261, 173, res::GUIERR, 1);
-		//rectb({286, 200, 512, 262}, colors::green);
 		textf(286, 200, (512 - 286), text);
 		button(346, 276, buttonok, 0, 0, res::GBTNSTD, "Продолжить", KeyEnter);
 		domodal();
@@ -29,7 +28,9 @@ bool draw::dlgask(const char* text) {
 	return getresult();
 }
 
-static void choose_answer() { breakmodal(hot.param); }
+static void choose_answer() {
+	breakmodal(hot.param);
+}
 
 int draw::dlgcho(const char* text, const char* a1, const char* a2) {
 	screenshoot e(true);

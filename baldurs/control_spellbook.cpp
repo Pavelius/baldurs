@@ -41,7 +41,7 @@ static void info_power() {
 	creature::spellinfo(id);
 }
 
-static struct scrollspell : scrolllist {
+static struct scrollspell : clist {
 	variant		data[64];
 	int			free;
 	void row(rect rc, int n) {

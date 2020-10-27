@@ -2,14 +2,35 @@
 
 const int maximum_strings = 32;
 
-static const char* read_string(const char* p, char* ps, const char* pe) {
-	while(p[0] && p[0] != '\n' && p[0] != '\r') {
+static const char* read_string_v2(const char* p, char* ps, const char* pe) {
+	auto pb = ps;
+	while(*p) {
+		if(*p == '\n' || *p == '\r') {
+			p = skipcr(p);
+			if(*p == '#' || *p == 0)
+				break;
+			if(ps < pe)
+				*ps++ = '\n';
+		} else {
+			if(ps < pe)
+				*ps++ = *p;
+			p++;
+		}
+	}
+	while(ps > pb && ps[-1] == '\n')
+		ps--;
+	*ps = 0;
+	return p;
+}
+
+static const char* read_string_v1(const char* p, char* ps, const char* pe) {
+	while(*p && *p != '\n' && *p != '\r') {
 		if(ps < pe)
 			*ps++ = *p;
 		p++;
 	}
-	ps[0] = 0;
-	while(p[0] == '\n' || p[0] == '\r') {
+	*ps = 0;
+	while(*p == '\n' || *p == '\r') {
 		p = skipcr(p);
 		p = skipsp(p);
 	}
@@ -43,7 +64,7 @@ bool readloc(const char* url, array& source, unsigned* fields, int fields_count)
 		if(p[0] != ':')
 			break;
 		p = skipsp(p + 1);
-		p = read_string(p, value, value + sizeof(value) - 1);
+		p = read_string_v1(p, value, value + sizeof(value) - 1);
 		const char* strings[maximum_strings] = {};
 		auto count = 0;
 		auto pt = value;

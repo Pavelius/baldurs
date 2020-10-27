@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-static scrollitem ground(2, 3);
+static citem ground(2, 3);
 
 void creature::show(const char* header, item& it) {
 	screenshoot screen(true);

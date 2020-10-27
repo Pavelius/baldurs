@@ -9,7 +9,3 @@ assert_enum(savei, Will)
 bool creature::isgood(class_s id, save_s value) {
 	return bsdata<savei>::elements[value].classes.is(id);
 }
-
-ability_s creature::getability(save_s id) {
-	return bsdata<savei>::elements[id].ability;
-}

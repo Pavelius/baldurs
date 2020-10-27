@@ -2,23 +2,23 @@
 
 using namespace draw;
 
-scrolltext::scrolltext() : origin(0), maximum(0), increment(16), bar(res::GBTNSCRL),
+ctext::ctext() : origin(0), maximum(0), increment(16), bar(res::GBTNSCRL),
 cache_text(0), cache_height(0), cache_origin(-1), scroll_frame(4) {}
 
-void scrolltext::reset() {
+void ctext::reset() {
 	cache_origin = -1;
 }
 
-void scrolltext::prerender() {
+void ctext::prerender() {
 }
 
-item* scrollitem::get(int index) const {
+item* citem::get(int index) const {
 	if(index < maximum_items)
 		return data[index];
 	return 0;
 }
 
-void scrollitem::update(creature* player, int item_in_line) {
+void citem::update(creature* player, int item_in_line) {
 	auto bi = origin * item_in_line;
 	maximum_items = 0;
 	auto pb = data;
@@ -35,7 +35,7 @@ void scrollitem::update(creature* player, int item_in_line) {
 	maximum = (maximum_items + (item_in_line - 1)) / item_in_line;
 }
 
-void scrollitem::update(container* object, int item_in_line) {
+void citem::update(container* object, int item_in_line) {
 	auto bi = origin * 2;
 	maximum_items = 0;
 	auto pb = data;
@@ -53,7 +53,7 @@ void scrollitem::update(container* object, int item_in_line) {
 	maximum = (maximum_items + 1) / 2;
 }
 
-void scrollitem::update(short unsigned index, int item_in_line) {
+void citem::update(short unsigned index, int item_in_line) {
 	auto i = origin * 2;
 	maximum_items = 0;
 	auto pb = data;
@@ -71,7 +71,7 @@ void scrollitem::update(short unsigned index, int item_in_line) {
 	maximum = (maximum_items + 1) / 2;
 }
 
-void scrollitem::view(creature* player, int x, int y, int dx, int dy, const rect& rcs, fnevent item_proc) {
+void citem::view(creature* player, int x, int y, int dx, int dy, const rect& rcs, fnevent item_proc) {
 	auto count = getcount();
 	for(auto i = 0; i < count; i++) {
 		auto n = i % mx;
@@ -91,8 +91,8 @@ static void scroll_button(rect rc, sprite* pb, int i, int& value, int inc) {
 	}
 }
 
-void draw::view(rect rc, rect rcs, int pixels_per_line, scrolllist& e) {
-	int lines_per_screen = rc.height() / pixels_per_line;
+void draw::view(rect rc, rect rcs, int pixels_per_line, clist& e) {
+	auto lines_per_screen = rc.height() / pixels_per_line;
 	if(draw::areb(rc) || draw::areb(rcs)) {
 		switch(hot.key) {
 		case MouseWheelDown: e.origin++; break;
@@ -106,9 +106,8 @@ void draw::view(rect rc, rect rcs, int pixels_per_line, scrolllist& e) {
 			scroll_button({rcs.x1, rcs.y2 - rcs.width(), rcs.x2, rcs.y2}, pb, 2, e.origin, 1);
 		}
 	}
-	//rectb(rc, colors::white);
 	e.prerender();
-	auto valid_maximum = e.maximum - lines_per_screen - 1;
+	auto valid_maximum = e.getmaximum() - lines_per_screen - 1;
 	if(e.origin > valid_maximum)
 		e.origin = valid_maximum;
 	if(e.origin < 0)
@@ -128,16 +127,16 @@ void draw::view(rect rc, rect rcs, int pixels_per_line, scrolllist& e) {
 	while(true) {
 		if(y1 >= rc.y2)
 			break;
-		if(i >= e.maximum)
+		if(i >= e.getmaximum())
 			break;
-		struct rect rcm = {rc.x1, y1, rc.x1 + rw, y1 + pixels_per_line};
+		rect rcm = {rc.x1, y1, rc.x1 + rw, y1 + pixels_per_line};
 		e.row(rcm, i);
 		y1 += pixels_per_line;
 		i++;
 	}
 }
 
-void scrolltext::cashing(const char* text, int width) {
+void ctext::cashing(const char* text, int width) {
 	draw::state push;
 	draw::setclip({0, 0, 0, 0});
 	maximum = draw::textf(0, 0, width, text, 0,
@@ -145,7 +144,7 @@ void scrolltext::cashing(const char* text, int width) {
 	cache_origin = origin;
 }
 
-void draw::view(rect rc, rect rcs, const char* text, scrolltext& e) {
+void draw::view(rect rc, rect rcs, const char* text, ctext& e) {
 	int lines_per_screen = rc.height();
 	if(draw::areb(rc) || draw::areb(rcs)) {
 		switch(hot.key) {

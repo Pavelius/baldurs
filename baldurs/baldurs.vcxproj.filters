@@ -351,5 +351,8 @@
     <Text Include="..\locale\ru\item.txt">
       <Filter>Локализация</Filter>
     </Text>
+    <Text Include="..\locale\ru\Alignment.txt">
+      <Filter>Локализация</Filter>
+    </Text>
   </ItemGroup>
 </Project>

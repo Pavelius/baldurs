@@ -701,7 +701,7 @@ static void item_to_container() {
 	pi->clear();
 }
 
-static void render_container(rect& rcs, int frame, scrollitem& container, scrollitem& backpack) {
+static void render_container(rect& rcs, int frame, citem& container, citem& backpack) {
 	char temp[260]; stringbuilder sb(temp);
 	int x = 0, y = 476;
 	image(x, y, res::GUICONT, 1, 0);
@@ -779,8 +779,8 @@ static void getin_container() {
 	animation shifter;
 	if(!current_target)
 		setpage();
-	scrollitem backpack(2, 2);
-	scrollitem container(5, 2);
+	citem backpack(2, 2);
+	citem container(5, 2);
 	short unsigned current_index = Blocked;
 	if(current_target.type == ItemGround)
 		current_index = current_target.getitemground()->index;

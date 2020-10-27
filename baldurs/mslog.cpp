@@ -2,7 +2,7 @@
 
 static char			textdata[256 * 256 * 4];
 static int			count;
-static scrolltext	scroll;
+static ctext	scroll;
 static rect			last_rect;
 
 void msclear() {

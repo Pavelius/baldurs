@@ -47,25 +47,6 @@ static void add_feat_item(stringbuilder& sb, feat_s id, int index = 0) {
 		sb.add(".");
 }
 
-static void add_description(stringbuilder& sb, feat_s id, const char* prefix = 0) {
-	auto& ei = bsdata<feati>::elements[id];
-	if(id >= ProficiencyAxe && id <= ProficiencyWaraxe) {
-		if(prefix)
-			sb.add(prefix);
-		sb.add("Вы умеете использовать такое оружие как ");
-		add_feat_item(sb, id);
-	} else if(id >= FocusAxes && id <= FocusSwords) {
-		if(prefix)
-			sb.add(prefix);
-		sb.add("+1 к атаке, если исползуете такое оружие как ");
-		add_feat_item(sb, id, 1);
-	} else if(ei.text && ei.text[0]) {
-		if(prefix)
-			sb.add(prefix);
-		sb.add(ei.text);
-	}
-}
-
 static void add_required(stringbuilder& sb, feat_s id) {
 	auto& ei = bsdata<feati>::elements[id];
 	auto p = sb.get();
@@ -104,7 +85,7 @@ static void add_header(stringbuilder& sb, const char* header, const char* text) 
 
 static void add_feat(stringbuilder& sb, feat_s id) {
 	sb.add("\n\n[**%1**]", getstr(id));
-	add_description(sb, id, ": ");
+	bsdata<feati>::elements[id].addhead(sb, ": ");
 }
 
 static void add_ability(stringbuilder& sb, race_s id) {
@@ -181,6 +162,27 @@ static void add(stringbuilder& sb, const char* header, item_s v1, item_s v2, con
 	add(sb, header, source);
 }
 
+static void addm(stringbuilder& sb, const char* header) {
+	sb.add("\n");
+	sb.add(header);
+	sb.add(": ");
+}
+
+static void addm(stringbuilder& sb, const char* header, const char* format, ...) {
+	addm(sb, header);
+	sb.addv(format, xva_start(format));
+}
+
+static void addm(stringbuilder& sb, const dicei& e) {
+	if(!e)
+		return;
+	addm(sb, "Повреждения");
+	if(e.b)
+		sb.add("%1id%2i%+3i", e.c, e.d, e.b);
+	else
+		sb.add("%1id%2i", e.c, e.d);
+}
+
 void creature::add(stringbuilder& sb, const aref<variant>& elements, const char* title) const {
 	if(!elements)
 		return;
@@ -193,38 +195,24 @@ void creature::add(stringbuilder& sb, const aref<variant>& elements, const char*
 		}
 	}
 }
-
-template<> void getrule<race_s>(stringbuilder& sb, race_s id) {
-	sb.add(bsdata<racei>::elements[id].text);
-	add_ability(sb, id);
-	add_skills(sb, id);
-	add(sb, bsdata<racei>::elements[id].feats);
+static void add_skill_ability(stringbuilder& sb, const char* header, ability_s id) {
+	varianta elements;
+	for(auto e = FirstSkill; e <= LastSkill; e = (skill_s)(e+1)) {
+		if(bsdata<skilli>::elements[e].ability == id)
+			elements.add(e);
+	}
+	elements.sort();
+	add(sb, header, elements);
 }
 
-template<> void getrule<feat_s>(stringbuilder& sb, feat_s id) {
-	add_description(sb, id);
-	add_header(sb, "Преемущество", bsdata<feati>::elements[id].benefit);
-	add_header(sb, "Обычно", bsdata<feati>::elements[id].normal);
-	add_required(sb, id);
-}
-
-template<> void	getrule<class_s>(stringbuilder& sb, class_s value) {
-	auto& ei = bsdata<classi>::elements[value];
-	sb.add(ei.text);
-	add(sb, "Кость хитов", "d%1i", ei.hd);
-	if(ei.spell_ability)
-		add(sb, "Способность заклинаний", getstr(ei.spell_ability));
-	add(sb, "Очков навыков", "%1i/уровень", ei.skill_points);
-	add(sb, "Классовые навыки", ei.class_skills);
-	add(sb, "Доступное оружие", Club, Katana, ei.weapon_proficiency, "не использует оружие");
-	add(sb, "Доступная броня", LeatherArmor, Helm, ei.armor_proficiency, "не носит броню");
-}
-
-template<> void	getrule<spell_s>(stringbuilder& sb, spell_s value) {
-	auto& ei = bsdata<spelli>::elements[value];
-	sb.add("Необходимо добавить описание заклинания");
-	add(sb, "Школа", getstr(ei.school));
-	add(sb, "Уровень", ei.levels);
+static void add_skill_synergy(stringbuilder& sb, const char* header, skill_s id) {
+	varianta elements;
+	for(auto e : bsdata<skilli>::elements[id].synergy) {
+		if(e)
+			elements.add(e);
+	}
+	elements.sort();
+	add(sb, header, elements);
 }
 
 void creature::addinfo(stringbuilder& sb, variant_s step) const {
@@ -248,37 +236,67 @@ void creature::addinfo(stringbuilder& sb, variant_s step) const {
 	}
 }
 
-static void addm(stringbuilder& sb, const char* header) {
-	sb.add("\n");
-	sb.add(header);
-	sb.add(": ");
-}
-
-static void addm(stringbuilder& sb, const char* header, const char* format, ...) {
-	addm(sb, header);
-	sb.addv(format, xva_start(format));
-}
-
-static void addm(stringbuilder& sb, const dicei& e) {
-	if(!e)
-		return;
-	addm(sb, "Повреждения");
-	if(e.b)
-		sb.add("%1id%2i%+3i", e.c, e.d, e.b);
-	else
-		sb.add("%1id%2i", e.c, e.d);
-}
-
 void item::addinfo(stringbuilder& sb) const {
 	auto& ei = bsdata<itemi>::elements[type];
-	if(ei.text)
+	if(ei.text && ei.text[0])
 		sb.add(ei.text);
 	else
 		sb.add("Необходимо добавить описание предмета.");
 	auto bonus = getbonus();
-	sb.add("\n\n");
-	sb.add("[Характеристики]");
+	sb.add("\n\n[Характеристики]");
 	attacki ai = {}; apply(ai);
 	addm(sb, ai.damage);
 	addm(sb, "Вес", "%1i фунтов", ei.weight);
+}
+
+void spelli::addinfo(stringbuilder& sb) const {
+	add(sb, "Школа", getstr(school));
+	add(sb, "Уровень", levels);
+}
+
+void skilli::addinfo(stringbuilder& sb) const {
+	add_skill_synergy(sb, "Усиляется навыками", (skill_s)(this - bsdata<skilli>::elements));
+}
+
+void classi::addinfo(stringbuilder& sb) const {
+	add(sb, "Кость хитов", "d%1i", hd);
+	if(spell_ability)
+		add(sb, "Способность заклинаний", getstr(spell_ability));
+	add(sb, "Очков навыков", "%1i/уровень", skill_points);
+	add(sb, "Классовые навыки", class_skills);
+	add(sb, "Доступное оружие", Club, Katana, weapon_proficiency, "не использует оружие");
+	add(sb, "Доступная броня", LeatherArmor, Helm, armor_proficiency, "не носит броню");
+}
+
+void racei::addinfo(stringbuilder& sb) const {
+	auto id = (race_s)(this - bsdata<racei>::elements);
+	add_ability(sb, id);
+	add_skills(sb, id);
+	add(sb, feats);
+}
+
+void feati::addhead(stringbuilder& sb, const char* prefix) const {
+	auto id = (feat_s)(this - bsdata<feati>::elements);
+	if(prefix)
+		sb.add(prefix);
+	if(id >= ProficiencyAxe && id <= ProficiencyWaraxe) {
+		sb.add("Вы умеете использовать такое оружие как ");
+		add_feat_item(sb, id);
+	} else if(id >= FocusAxes && id <= FocusSwords) {
+		sb.add("+1 к атаке, если исползуете такое оружие как ");
+		add_feat_item(sb, id, 1);
+	} else if(text && text[0])
+		sb.add(text);
+}
+
+void feati::addinfo(stringbuilder& sb) const {
+	auto id = (feat_s)(this - bsdata<feati>::elements);
+	add_header(sb, "Преемущество", benefit);
+	add_header(sb, "Обычно", normal);
+	add_required(sb, id);
+}
+
+void abilityi::addinfo(stringbuilder& sb) const {
+	auto id = (ability_s)(this - bsdata<abilityi>::elements);
+	add_skill_ability(sb, "Навыки", id);
 }

@@ -74,8 +74,8 @@ enum skill_s : unsigned char {
 	UseRope,
 	FirstSkill = Appraise, LastSkill = UseRope,
 };
-enum item_flag_s : unsigned char {
-	Balanced, Precise, Deadly, Light,
+enum tag_s : unsigned char {
+	ArmorCheck, Balanced, Precise, Deadly, Light, Trained,
 };
 enum feat_s : unsigned char {
 	Alertness,
@@ -309,6 +309,7 @@ enum magic_s : unsigned char {
 	Mundane, Minor, Medium, Major,
 };
 typedef void (*fnitem)();
+typedef cflags<tag_s>		taga;
 class creature;
 class item;
 struct container;
@@ -422,7 +423,7 @@ struct itemi {
 	animationi				images;
 	slot_s					slot;
 	feat_s					feat[2];
-	cflags<item_flag_s>		flags;
+	taga					flags;
 	combati					ai;
 	unsigned char			count;
 	int						weight;
@@ -465,7 +466,7 @@ public:
 	item_s					gettype() const { return type; }
 	constexpr bool			is(feat_s v) const { return geti().feat[0] == v || geti().feat[1] == v; }
 	bool					is(slot_s v) const;
-	bool					is(item_flag_s v) const { return geti().flags.is(v); }
+	bool					is(tag_s v) const { return geti().flags.is(v); }
 	bool					isbow() const;
 	bool					islight() const { return geti().slot == QuickOffhand && !isshield(); }
 	bool					isknown() const { return identified != 0; }
@@ -481,6 +482,7 @@ struct abilityi {
 	const char*				id;
 	const char*				name;
 	const char*				text;
+	void					addinfo(stringbuilder& sb) const;
 };
 struct genstepi {
 	variant_s				step;
@@ -505,8 +507,10 @@ struct animatei {
 struct varianti {
 	const char*				id;
 	const char*				name;
+	variant					manual[2];
 	array*					source;
 	unsigned				locale[2];
+	const char*				text;
 };
 struct drawable {
 	virtual int				getcursor() const { return 0; } // Get cursor index when over this drawable
@@ -520,7 +524,7 @@ struct drawable {
 	virtual void			painting(point position) const = 0; // How to paint drawable.
 	virtual void			update() {}
 };
-struct scrolltext {
+struct ctext {
 	int						origin;
 	int						maximum;
 	int						increment;
@@ -530,19 +534,20 @@ struct scrolltext {
 	int						cache_origin;
 	int						scroll_frame;
 	//
-	scrolltext();
+	ctext();
 	void					cashing(const char* text, int width);
 	virtual void			prerender();
 	void					reset();
 };
-struct scrolllist : scrolltext {
+struct clist : ctext {
 	virtual void			row(rect rc, int n) = 0;
+	virtual int				getmaximum() const { return maximum; }
 };
-struct scrollitem : scrolllist {
+struct citem : clist {
 	item*					data[10];
 	int						maximum_items;
 	int						mx, my;
-	scrollitem(int mx, int my) : maximum_items(0), mx(mx), my(my) {}
+	citem(int mx, int my) : maximum_items(0), mx(mx), my(my) {}
 	void					row(rect rc, int n) override {}
 	item*					get(int index) const;
 	int						getcount() const { return mx * my; }
@@ -695,6 +700,8 @@ struct feati {
 	const char*				normal;
 	prerequisit_s			prerequisit_special;
 	std::initializer_list<feat_s> prerequisits_oneof;
+	void					addhead(stringbuilder& sb, const char* prefix = 0) const;
+	void					addinfo(stringbuilder& sb) const;
 };
 struct spelli {
 	struct duration_info {
@@ -708,6 +715,7 @@ struct spelli {
 	classa					levels;
 	duration_info			duration;
 	const char*				text;
+	void					addinfo(stringbuilder& sb) const;
 };
 struct schooli {
 	const char*				id;
@@ -736,6 +744,7 @@ struct racei {
 	std::initializer_list<feat_s> feats;
 	char					quick_learn; // Human's ability additional skills nad feats at start of game
 	const char*				text;
+	void					addinfo(stringbuilder& sb) const;
 };
 struct classi {
 	struct slot_info {
@@ -754,17 +763,21 @@ struct classi {
 	std::initializer_list<alignment_s> alignment_restrict;
 	const char*				text;
 	bool					isclass(skill_s v) const;
+	void					addinfo(stringbuilder& sb) const;
 };
 struct skilli {
 	const char*				id;
-	const char*				name;
 	ability_s				ability;
 	skill_s					synergy[3];
+	taga					flags;
+	const char*				name;
+	const char*				text;
+	void					addinfo(stringbuilder& sb) const;
 };
 struct savei {
 	const char*				id;
 	const char*				name;
-	ability_s				ability;
+	ability_s				base;
 	cflags<class_s>			classes;
 };
 struct entrance {
@@ -1040,7 +1053,7 @@ public:
 	item*						get(slot_s id) { return wears + id; }
 	void						get(attacki& result, slot_s slot) const;
 	void						get(attacki& result, slot_s slot, const creature& enemy) const;
-	static ability_s			getability(save_s id);
+	static ability_s			getability(save_s id) { return bsdata<savei>::elements[id].base; }
 	int							getac(bool flatfooted) const;
 	static creature*			getactive();
 	alignment_s					getalignment() const { return alignment; }
@@ -1234,11 +1247,10 @@ bool							picker(int x, int y, unsigned char index, int type);
 void							set(color * dest, unsigned char index, int start = 4, int count = 12);
 void							textblend(point pos, const char* text, unsigned duration);
 void							translate(hotkey* keys);
-void							view(rect rc, rect rcs, int pixels_per_line, scrolllist& e);
-void							view(rect rc, rect rcs, const char* text, scrolltext& e);
+void							view(rect rc, rect rcs, int pixels_per_line, clist& e);
+void							view(rect rc, rect rcs, const char* text, ctext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
-template<class T> void			getrule(stringbuilder& sb, T value);
 template<class T> const char*	getstr(T e) { return bsdata<T>::elements[e].name; }
 extern creature					players[6];
 extern setting					settings;

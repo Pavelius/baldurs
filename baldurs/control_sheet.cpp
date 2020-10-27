@@ -8,7 +8,7 @@ enum info_page_s : unsigned char {
 
 static const char*		ability_short_name[] = {"Сил", "Лов", "Тел", "Инт", "Муд", "Хар"};
 static info_page_s		current_step;
-static scrolltext		textarea;
+static ctext		textarea;
 
 static void choose_page() {
 	textarea.reset();

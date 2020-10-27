@@ -96,7 +96,7 @@ bool load_game_file(const char* url, gamefile& gm) {
 	return true;
 }
 
-struct scrollgamefile : public scrolllist {
+struct scrollgamefile : public clist {
 	int				mode;
 	aref<gamefile>	files;
 

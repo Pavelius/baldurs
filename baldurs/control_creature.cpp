@@ -22,7 +22,7 @@ BSDATAF(genstepi)
 
 static variant			current_variant;
 static char				description[1024 * 16];
-static scrolltext		description_control;
+static ctext		description_control;
 static char				ability_cost[] = {0, 1, 2, 3, 4, 5, 6, 8, 10, 13, 16};
 
 static void biography() {}
@@ -217,7 +217,7 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 		}
 		return true;
 	}
-	struct scroll : public scrolllist {
+	struct scroll : public clist {
 		varianta&			elements;
 		creature			copy;
 		creature&			player;
@@ -294,7 +294,7 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 		}
 		return true;
 	}
-	struct scroll : scrolllist {
+	struct scroll : clist {
 		varianta&	elements;
 		creature	copy;
 		creature&	player;
