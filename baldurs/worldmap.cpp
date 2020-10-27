@@ -27,11 +27,11 @@ static worldmap::area world_areas_1[] = {{"AR4000", "Western Pass", {135, 55}, 6
 {"AR5005", "River Caves", {483, 100}, 11, 2, {{North, 3, "FR5005", 1, 5, 1}, {North, 2, "FR5001", 4, 5, 1}}},
 {"AR5200", "Black Raven Monastery", {446, 5}, 13, 2, {{North, 2, "FR5001", 6, 5, 1}, {North, 5, "FR5200", 1, 5, 1}}},
 {"AR5300", "The Underdark", {541, 34}, 14, 2, {}},
-{"", "Luskan", {203, 299}, 23, 3, {}},
-{"", "Neverwinter Wood", {475, 320}, 23, 3, {}},
+{"", "Лускан", {203, 299}, 23, 3, {}},
+{"", "Лес Невервинтер", {475, 320}, 23, 3, {}},
 };
 static worldmap::area world_areas_2[] = {{"AR6000", "Kuldahar Valley", {263, 104}, 20, 2, {}},
-{"AR6001", "Kuldahar", {322, 87}, 15, 2, {{North, 3, "FRWMap", 4, 5, 1}, {North, 5, "FRWMap", 6, 5, 1}, {North, 6, "FRWMap", 6, 5, 1}, {North, 0, "FR6001a", 0, 5, 1}}},
+{"AR6001", "Кулдахар", {322, 87}, 15, 2, {{North, 3, "FRWMap", 4, 5, 1}, {North, 5, "FRWMap", 6, 5, 1}, {North, 6, "FRWMap", 6, 5, 1}, {North, 0, "FR6001a", 0, 5, 1}}},
 {"AR6104", "Dragon's Eye Exit", {496, 176}, 16, 2, {{North, 5, "FRWMap", 2, 5, 1}, {North, 1, "FRWMapE", 4, 5, 1}}},
 {"AR6100", "Dragon's Eye", {439, 118}, 16, 2, {{North, 1, "FRWMapE", 4, 5, 1}}},
 {"AR6201", "Fields of Slaughter", {481, 357}, 18, 2, {{North, 6, "FRWMap", 2, 5, 1}, {North, 2, "FRWMap", 2, 5, 1}, {North, 1, "FRWMapE", 6, 5, 1}}},
@@ -40,9 +40,9 @@ static worldmap::area world_areas_2[] = {{"AR6000", "Kuldahar Valley", {263, 104
 {"", "", {590, 302}, 21, 0, {}},
 {"", "", {590, 357}, 21, 0, {}},
 };
-worldmap world[] = {{"WMAP1", "Icewind Dale II", "MAPICONS", world_areas_0},
-{"WMAP2", "Western Pass", "MAPICONS", world_areas_1},
-{"WMAP3", "Kuldahar", "MAPICONS", world_areas_2}};
+worldmap world[] = {{"WMAP1", "Долина ледяного ветра", "MAPICONS", world_areas_0},
+{"WMAP2", "Западный проход", "MAPICONS", world_areas_1},
+{"WMAP3", "Кулдахар", "MAPICONS", world_areas_2}};
 static worldmap::area* current_area;
 
 worldmap::area* worldmap::getarea() {

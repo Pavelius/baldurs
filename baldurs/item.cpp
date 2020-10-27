@@ -6,6 +6,7 @@ static item ammunition_arrow(Arrow);
 static itemi::poweri sword_powers[] = {{},
 {Minor, 1},
 {Minor, 2},
+{Medium, 2, "%1 поджигания", Fire},
 };
 
 BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},

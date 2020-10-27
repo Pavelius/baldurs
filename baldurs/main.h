@@ -23,7 +23,6 @@ enum geography_s : unsigned char {
 	North, East, South, West
 };
 enum school_s : unsigned char {
-	NoSchool,
 	Abjuration, Conjuration, Divination, Enchantment,
 	Evocation, Illusion, Necromancy, Transmutation,
 };
@@ -125,7 +124,6 @@ enum alignment_s : unsigned char {
 	LawfulGood, NeutralGood, ChaoticGood, LawfulNeutral, TrueNeutral, ChaoticNeutral, LawfulEvil, NeutralEvil, ChaoticEvil,
 };
 enum diety_s : unsigned char {
-	NoGod,
 	GodBane, GodChauntea, GodIllmater, GodGruumsh, GodHelm,
 	GodKelemvor, GodKossuth, GodLathander, GodLolth, GodMask,
 	GodMystra, GodMoradin, GodOghma, GodShar, GodTempus,
@@ -294,15 +292,11 @@ enum tile_s : unsigned char {
 	ObstacleImpassableGrey, WoorRed, Wall, WaterYellow,
 	WaterImpassable, RoofImpassable, WorldExit, GrassHardMove,
 };
-enum prerequisit_s : unsigned char {
-	NoPrerequisit,
-	ProfecienceWithWeapon, ThreeOrMoreNaturalAttack,
-};
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Container, Creature,
-	Door, Gender, Feat, Item, ItemCont, ItemGround, Name,
-	Position, Race, Region, Skill, Spell,
+	Diety, Door, Gender, Feat, Item, ItemCont, ItemGround, Name,
+	Position, Race, Region, School, Skill, Spell,
 	Finish, Variant,
 };
 enum magic_s : unsigned char {
@@ -510,6 +504,7 @@ struct varianti {
 	variant					manual[2];
 	array*					source;
 	unsigned				locale[2];
+	unsigned				special[4];
 	const char*				text;
 };
 struct drawable {
@@ -687,19 +682,19 @@ struct varset {
 struct dietyi {
 	const char*				id;
 	const char*				name;
+	const char*				text;
 };
 struct feati {
 	const char*				id;
-	const char*				name;
 	char					ability[6];
 	std::initializer_list<feat_s> prerequisits;
 	char					base_attack;
 	char					character_level;
-	const char*				text;
-	const char*				benefit;
-	const char*				normal;
-	prerequisit_s			prerequisit_special;
 	std::initializer_list<feat_s> prerequisits_oneof;
+	const char*				name;
+	const char*				text;
+	const char*				normal;
+	const char*				benefit;
 	void					addhead(stringbuilder& sb, const char* prefix = 0) const;
 	void					addinfo(stringbuilder& sb) const;
 };
@@ -709,17 +704,18 @@ struct spelli {
 		unsigned char		rounds;
 	};
 	const char*				id;
-	const char*				name;
 	char					rsname[10];
 	school_s				school;
 	classa					levels;
 	duration_info			duration;
+	const char*				name;
 	const char*				text;
 	void					addinfo(stringbuilder& sb) const;
 };
 struct schooli {
 	const char*				id;
 	const char*				name;
+	const char*				text;
 };
 struct portrait_info {
 	const char*				name;
@@ -737,12 +733,12 @@ struct portrait_info {
 };
 struct racei {
 	const char*				id;
-	const char*				name;
 	char					abilities[6];
 	class_s					favorite;
 	skilla					skills;
 	std::initializer_list<feat_s> feats;
 	char					quick_learn; // Human's ability additional skills nad feats at start of game
+	const char*				name;
 	const char*				text;
 	void					addinfo(stringbuilder& sb) const;
 };
@@ -752,7 +748,6 @@ struct classi {
 		aref<char>			progress;
 	};
 	const char*				id;
-	const char*				name;
 	char					hd;
 	char					skill_points;
 	slot_info*				spells;
@@ -761,6 +756,7 @@ struct classi {
 	aref<feat_s>			weapon_proficiency;
 	aref<feat_s>			armor_proficiency;
 	std::initializer_list<alignment_s> alignment_restrict;
+	const char*				name;
 	const char*				text;
 	bool					isclass(skill_s v) const;
 	void					addinfo(stringbuilder& sb) const;

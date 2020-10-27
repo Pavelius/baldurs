@@ -1,0 +1,8 @@
+﻿Abjuration: Оберегание. 
+Conjuration: Вызов. 
+Divination: Предсказание. 
+Enchantment: Очарование. 
+Evocation: Воплощение. 
+Illusion: Иллюзия. 
+Necromancy: Некромантия. 
+Transmutation: Преобразование. 

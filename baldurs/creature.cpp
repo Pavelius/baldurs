@@ -878,9 +878,9 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	case ItemGround:
 		position = e.target.getitemground()->getposition();
 		break;
-	//case Position:
-	//	position = e.position;
-	//	break;
+	case Position:
+		position = e.target.getposition();
+		break;
 	case Region:
 		switch(e.target.getregion()->type) {
 		case RegionTravel:
@@ -950,8 +950,6 @@ bool creature::isallow(feat_s id, bool test_feats) const {
 	if(ei.base_attack && getbab() < ei.base_attack)
 		return false;
 	if(ei.character_level && getcharlevel() < ei.character_level)
-		return false;
-	if(ei.prerequisit_special)
 		return false;
 	return true;
 }

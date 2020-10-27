@@ -1,7 +1,6 @@
 #include "main.h"
 
-BSDATA(schooli) = {{"NoSchool"},
-{"Abjuration", "Оберегание"},
+BSDATA(schooli) = {{"Abjuration", "Оберегание"},
 {"Conjuration", "Вызов"},
 {"Divination", "Предсказание"},
 {"Enchantment", "Очарование"},

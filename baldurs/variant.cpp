@@ -11,9 +11,10 @@ BSDATA(varianti) = {{"NoVariant", "Нет"},
 {"Class", "Класс", {Bard, Wizard}, BSVRN(classi)},
 {"Container", "Контейнер", {}, &bsdata<container>::source},
 {"Creature", "Существо", {}, &bsdata<creature>::source},
+{"Diety", "Божество", {GodBane, GodUmberly}, BSVRN(dietyi)},
 {"Door", "Дверь", {}, &bsdata<door>::source},
 {"Gender", "Пол", {Male, Female}, BSVRN(genderi)},
-{"Feat", "Особенность", {FirstFeat, LastFeat}, BSVRN(feati)},
+{"Feat", "Особенность", {FirstFeat, LastFeat}, BSVRN(feati), {FO(feati, benefit), FO(feati, normal)}},
 {"Item", "Предмет", {}, BSVRN(itemi)},
 {"ItemCont", "Предмет в контейнере", {}, &bsdata<itemcont>::source},
 {"ItemGround", "Предмет на земле", {}, &bsdata<itemground>::source},
@@ -21,6 +22,7 @@ BSDATA(varianti) = {{"NoVariant", "Нет"},
 {"Position", "Позиция"},
 {"Race", "Раса", {FirstRace, LastRace}, BSVRN(racei)},
 {"Region", "Регион", {}, &bsdata<region>::source},
+{"School", "Школа", {}, BSVRN(schooli)},
 {"Skills", "Навыки", {FirstSkill, LastSkill}, BSVRN(skilli)},
 {"Spells", "Заклинания", {FirstSpell, LastSpell}, BSVRN(spelli)},
 {"Finish", "Готово"},
@@ -61,13 +63,15 @@ void* variant::getpointer(variant_s t) const {
 
 void variant::addinfo(stringbuilder& sb) const {
 	auto& ei = bsdata<varianti>::elements[type];
-	if(type==Feat)
+	if(type == Feat)
 		bsdata<feati>::elements[value].addhead(sb);
 	else if(ei.locale[1] && ei.source) {
 		auto p = ei.source->ptr(value);
 		auto pd = *((const char**)((char*)p + ei.locale[1]));
 		if(pd && pd[0])
 			sb.add(pd);
+		else
+			sb.add("Описание отсутствует и его необходимо добавить.");
 	}
 	switch(type) {
 	case Ability: bsdata<abilityi>::elements[value].addinfo(sb); break;
@@ -75,5 +79,6 @@ void variant::addinfo(stringbuilder& sb) const {
 	case Feat: bsdata<feati>::elements[value].addinfo(sb); break;
 	case Race: bsdata<racei>::elements[value].addinfo(sb); break;
 	case Skill: bsdata<skilli>::elements[value].addinfo(sb); break;
+	case Spell: bsdata<spelli>::elements[value].addinfo(sb); break;
 	}
 }
