@@ -63,6 +63,7 @@ static void character_spellbook() { choose_menu(&creature::spellbook); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
+static void game_zoom() { game.zoom = !game.zoom; }
 static void layer_search() { game.show_search = !game.show_search; }
 static void layer_path() { game.show_path = !game.show_path; }
 
@@ -109,6 +110,7 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {game_journal, Alpha + 'J', "Журнал заданий"},
+{game_zoom, Alpha + 'Z', "Увеличенный режим"},
 {adventure_step, KeyEscape, "Вернуться в режим приключений"},
 {}};
 
@@ -196,8 +198,8 @@ static void render_tiles(rect rc, int mx, int my) {
 	while(y1 < y2) {
 		int x1 = rc.x1;
 		while(x1 < x2) {
-			int py = dy + (y1 - rc.y1) / 64;
-			int px = dx + (x1 - rc.x1) / 64;
+			auto py = dy + (y1 - rc.y1) / 64;
+			auto px = dx + (x1 - rc.x1) / 64;
 			draw::image(x1, y1, sp, map::gettile(py * 64 + px), 0);
 			x1 += 64;
 		}
@@ -248,21 +250,6 @@ static void render_movement(const rect& rc, int mx, int my) {
 	}
 }
 
-static void correct_camera(const rect& rc, point& camera) {
-	camera_size.x = rc.width();
-	camera_size.y = rc.height();
-	if(camera.x < 0)
-		camera.x = 0;
-	if(camera.y < 0)
-		camera.y = 0;
-	auto mx = map::width * 16 - rc.width();
-	auto my = map::height * 12 - rc.height();
-	if(camera.x > mx)
-		camera.x = mx;
-	if(camera.y > my)
-		camera.y = my;
-}
-
 static void add(const rect& srceen, drawablet& source, drawable& e) {
 	if(!e.isvisible())
 		return;
@@ -293,25 +280,28 @@ bool creature::isselected() const {
 	return game.selected.is((creature* const)this);
 }
 
-static variant render_area(rect rc, const point origin) {
+static variant render_area_noscale(const rect& rc, point& hotspot, const point origin, point mouse) {
 	draw::state push;
 	draw::setclip(rc);
 	// Получим экран
 	rect screen;
-	screen.x1 = origin.x;
-	screen.y1 = origin.y;
+	screen.x1 = origin.x - getwidth() / 2;
+	if(screen.x1 < 0)
+		screen.x1 = 0;
+	screen.y1 = origin.y - getheight() / 2;
+	if(screen.y1 < 0)
+		screen.y1 = 0;
 	screen.x2 = screen.x1 + rc.width();
 	screen.y2 = screen.y1 + rc.height();
 	// Получим где мышка
-	point hotspot;
-	hotspot.x = hot.mouse.x - rc.x1 + origin.x;
-	hotspot.y = hot.mouse.y - rc.y1 + origin.y;
+	hotspot.x = mouse.x - rc.x1 + screen.x1;
+	hotspot.y = mouse.y - rc.y1 + screen.y1;
 	// Нарисуем тайлы
 	render_tiles(rc, screen.x1, screen.y1);
 	if(game.show_search)
 		render_search(rc, screen.x1, screen.y1);
-	//if(show_movement)
-	//	render_movement(rc, screen.x1, screen.y1);
+	if(game.show_movement)
+		render_movement(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
 	for(auto& e : players) {
 		if(e) {
@@ -373,33 +363,73 @@ static variant render_area(rect rc, const point origin) {
 		for(auto p : drawables)
 			p->painting(origin);
 	}
-#ifdef _DEBUG
-	char temp[1024]; stringbuilder sb(temp);
-	auto map_index = map::getindex(hotspot);
-	sb.add("Mouse (%3i, %4i), Map (%1i, %2i), Search (%5i, %6i), index=%7i, ",
-		hotspot.x, hotspot.y,
-		hot.mouse.x, hot.mouse.y,
-		map::getx(map_index), map::gety(map_index), map_index);
-	sb.add("Drawables=%1i", drawables.count);
-	if(result) {
-		if(bsdata<region>::source.indexof(static_cast<region*>(result)) != -1) {
-			auto p = static_cast<region*>(result);
-			if(p->type == RegionTravel)
-				sb.addn("Region lead to %1, %2", p->move_to_area, p->move_to_entrance);
-			else if(p->type == RegionTriger)
-				sb.addn("Trigger");
-			else
-				sb.addn("Region info in %1i, %2i", p->launch.x, p->launch.y);
-		} else
-			sb.addn("Object (%1i, %2i)", result->getposition().x, result->getposition().y);
-	}
-	textf(rc.x1, rc.y1, rc.width(), temp);
-#endif
 	if(result)
 		return result;
 	if(hotspot.in(screen))
 		return hotspot;
 	return variant();
+}
+
+static variant render_area_scale(rect rc, point& hotspot, const point origin, point mouse) {
+	rect rc1 = {0, 0, rc.width() / 2, rc.height() / 2};
+	draw::surface copy(rc1.width(), rc1.height(), 32);
+	point mouse1;
+	mouse1.x = (mouse.x - rc.x1) / 2;
+	mouse1.y = (mouse.y - rc.y1) / 2;
+	auto push_canvas = draw::canvas;
+	draw::canvas = &copy;
+	auto result = render_area_noscale(rc1, hotspot, origin, mouse1);
+	draw::canvas = push_canvas;
+	scale2x(draw::canvas->ptr(rc.x1, rc.y1), draw::canvas->scanline,
+		copy.ptr(0, 0), copy.scanline, copy.width, copy.height);
+	return result;
+}
+
+static void debug_info(point hotspot, const variant& result) {
+#ifdef _DEBUG
+	char temp[1024]; stringbuilder sb(temp);
+	auto map_index = map::getindex(hotspot);
+	sb.add("Mouse (%3i, %4i), Map (%1i, %2i), Search (%5i, %6i), index=%7i",
+		hotspot.x, hotspot.y,
+		hot.mouse.x, hot.mouse.y,
+		map::getx(map_index), map::gety(map_index), map_index);
+	if(result) {
+		//	if(bsdata<region>::source.indexof(static_cast<region*>(result)) != -1) {
+		//		auto p = static_cast<region*>(result);
+		//		if(p->type == RegionTravel)
+		//			sb.addn("Region lead to %1, %2", p->move_to_area, p->move_to_entrance);
+		//		else if(p->type == RegionTriger)
+		//			sb.addn("Trigger");
+		//		else
+		//			sb.addn("Region info in %1i, %2i", p->launch.x, p->launch.y);
+		//	} else
+		sb.addn("Object"/*, result->getposition().x, result->getposition().y*/);
+	}
+	textf(0, 0, draw::getwidth(), temp);
+#endif
+}
+
+static variant render_area(rect rc, const point origin, point mouse) {
+	point hotspot;
+	variant result;
+	if(game.zoom)
+		result = render_area_scale(rc, hotspot, origin, mouse);
+	else
+		result = render_area_noscale(rc, hotspot, origin, mouse);
+	debug_info(hotspot, result);
+	return result;
+}
+
+static variant render_area_v2(const point origin) {
+	point hotspot; variant result;
+	auto mouse = hot.mouse;
+	rect rc = {0, 0, draw::getwidth(), draw::getheight()};
+	if(game.zoom)
+		result = render_area_scale(rc, hotspot, origin, mouse);
+	else
+		result = render_area_noscale(rc, hotspot, origin, mouse);
+	debug_info(hotspot, result);
+	return result;
 }
 
 static void render_shifter(animation& e, cursorset& cur) {
@@ -410,7 +440,8 @@ static void render_shifter(animation& e, cursorset& cur) {
 	}
 }
 
-static void create_shifer(const rect& screen, animation& d, point& camera) {
+static void create_shifer(animation& d, point& camera) {
+	rect screen = {0, 0, getwidth(), getheight()};
 	int index;
 	const int cmx = screen.x2 - 1;
 	const int cmy = screen.y2 - 1;
@@ -446,7 +477,7 @@ static void create_shifer(const rect& screen, animation& d, point& camera) {
 static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
 	auto combat_mode = creature::iscombatmode();
 	auto player = creature::getactive();
-	targetreaction react = render_area(rc, origin);
+	targetreaction react = render_area(rc, origin, hot.mouse);
 	switch(react.target.type) {
 	case Container:
 	case ItemGround:
@@ -551,11 +582,28 @@ static void render_footer(rect& rcs, bool show_buttons = true) {
 	rcs.y2 -= 107;
 }
 
+static variant render_screen(bool active_buttons, bool show_actions, bool show_players, bool show_background, bool change_players) {
+	rect rcs = {0, 0, getwidth(), getheight()};
+	if(game.panel == setting::PanelFull)
+		render_footer(rcs, active_buttons);
+	if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
+		render_panel(rcs, show_actions, 0, show_players, show_background, change_players);
+	return render_area(rcs, camera, hot.mouse);
+}
+
+static targetreaction render_screen(bool active_buttons, bool show_actions, bool show_players, bool show_background, bool change_players, cursorset& cur) {
+	rect rcs = {0, 0, getwidth(), getheight()};
+	if(game.panel == setting::PanelFull)
+		render_footer(rcs, active_buttons);
+	if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
+		render_panel(rcs, show_actions, 0, show_players, show_background, change_players);
+	return render_area(rcs, camera, cur);
+}
+
 void draw::menumodal(bool use_keys, itemdrag* pd) {
 	rect rcs = {0, 0, getwidth(), getheight()};
 	render_footer(rcs);
 	render_panel(rcs, false);
-	correct_camera(rcs, camera);
 	domodal();
 	if(use_keys)
 		translate(menu_keys);
@@ -590,13 +638,7 @@ void actor::wait(char percent) {
 			break;
 		if(stop_frame && frame >= stop_frame)
 			break;
-		rect rcs = {0, 0, getwidth(), getheight()};
-		if(game.panel == setting::PanelFull)
-			render_footer(rcs, false);
-		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
-			render_panel(rcs, false, 0, false, false);
-		correct_camera(rcs, camera);
-		render_area(rcs, camera);
+		render_screen(false, false, false, false, true);
 		domodal();
 	}
 }
@@ -606,13 +648,7 @@ void moveable::wait() {
 	while(ismodal()) {
 		if(!(*this))
 			break;
-		rect rcs = {0, 0, getwidth(), getheight()};
-		if(game.panel == setting::PanelFull)
-			render_footer(rcs, false);
-		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
-			render_panel(rcs, false, 0, false, false);
-		correct_camera(rcs, camera);
-		render_area(rcs, camera);
+		render_screen(false, false, false, false, false);
 		domodal();
 	}
 }
@@ -625,14 +661,8 @@ variant creature::choose_target(int cursor, short unsigned start, short unsigned
 	map::createwave(start, 1, max_cost);
 	while(ismodal()) {
 		cur.set(res::CURSORS, cursor);
-		rect rcs = {0, 0, getwidth(), getheight()};
-		create_shifer(rcs, shifter, camera);
-		if(game.panel == setting::PanelFull)
-			render_footer(rcs, false);
-		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, false);
-		correct_camera(rcs, camera);
-		tg = render_area(rcs, camera);
+		create_shifer(shifter, camera);
+		tg = render_screen(false, true, true, true, false);
 		switch(tg.type) {
 		case Position:
 			if(map::getcost(map::getindex(tg.getposition())) == Blocked)
@@ -785,8 +815,7 @@ static void getin_container() {
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
-		rect rcs = {0, 0, getwidth(), getheight()};
-		create_shifer(rcs, shifter, camera);
+		create_shifer(shifter, camera);
 		auto container_frame = 10;
 		switch(current_target.type) {
 		case Container:
@@ -797,8 +826,8 @@ static void getin_container() {
 			container.update(current_index, 5);
 			break;
 		}
+		rect rcs = {0, 0, getwidth(), getheight()};
 		render_container(rcs, container_frame, container, backpack);
-		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
 		render_shifter(shifter, cur);
 		domodal();
@@ -824,14 +853,8 @@ void creature::adventure() {
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
-		rect rcs = {0, 0, getwidth(), getheight()};
-		create_shifer(rcs, shifter, camera);
-		if(game.panel == setting::PanelFull)
-			render_footer(rcs, true);
-		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, true);
-		correct_camera(rcs, camera);
-		auto tg = render_area(rcs, camera, cur);
+		create_shifer(shifter, camera);
+		auto tg = render_screen(true, true, true, true, true, cur);
 		render_shifter(shifter, cur);
 		domodal();
 		translate(movement_keys);
@@ -849,14 +872,8 @@ void creature::adventure_combat() {
 	while(ismodal()) {
 		cur.set(res::CURSORS);
 		auto player = creature::getactive();
-		rect rcs = {0, 0, getwidth(), getheight()};
-		create_shifer(rcs, shifter, camera);
-		if(game.panel == setting::PanelFull)
-			render_footer(rcs, true);
-		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, false);
-		correct_camera(rcs, camera);
-		auto tg = render_area(rcs, camera, cur);
+		create_shifer(shifter, camera);
+		auto tg = render_screen(true, true, true, true, false, cur);
 		render_shifter(shifter, cur);
 		domodal();
 		translate(movement_keys);
@@ -877,9 +894,17 @@ void creature::choose_action() {
 }
 
 void actor::setcamera(point value) {
-	camera.x = value.x - camera_size.x / 2;
-	camera.y = value.y - camera_size.y / 2;
-	correct_camera({0, 0, camera_size.x, camera_size.y}, camera);
+	camera = value;
+	if(camera.x < 0)
+		camera.x = 0;
+	if(camera.y < 0)
+		camera.y = 0;
+	auto mx = map::width * 16;
+	auto my = map::height * 12;
+	if(camera.x >= mx)
+		camera.x = mx - 1;
+	if(camera.y >= my)
+		camera.y = my - 1;
 }
 
 point actor::getcamera() {
@@ -901,9 +926,8 @@ void actor::slide(const point position) {
 		return;
 	point start, destination;
 	start = camera;
-	destination.x = position.x - camera_size.x / 2;
-	destination.y = position.y - camera_size.y / 2;
-	correct_camera({0, 0, camera_size.x, camera_size.y}, destination);
+	destination = position;
+	//setcamera(destination);
 	auto range = 0;
 	auto step = 4;
 	auto range_maximum = distance(start, destination);
@@ -911,15 +935,11 @@ void actor::slide(const point position) {
 	auto dy = destination.y - start.y;
 	while(ismodal() && range < range_maximum) {
 		update_timestamp();
-		camera.x = start.x + dx * range / range_maximum;
-		camera.y = start.y + dy * range / range_maximum;
-		rect rcs = {0, 0, getwidth(), getheight()};
-		if(game.panel == setting::PanelFull)
-			render_footer(rcs, true);
-		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
-			render_panel(rcs, true, 0, true, true, false);
-		correct_camera(rcs, camera);
-		render_area(rcs, camera);
+		point p1;
+		p1.x = start.x + dx * range / range_maximum;
+		p1.y = start.y + dy * range / range_maximum;
+		setcamera(p1);
+		render_screen(true, true, true, true, false);
 		sysredraw();
 		range += step;
 	}

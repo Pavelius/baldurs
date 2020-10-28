@@ -741,7 +741,7 @@ short unsigned creature::getreach() const {
 }
 
 void creature::makecombat() {
-	msdbg("Началась битва");
+	msdbg("Start combat");
 	adat<creature*, 264> elements;
 	for(auto& e : players) {
 		if(!e)
@@ -797,7 +797,7 @@ void creature::makecombat() {
 			p->stop();
 		}
 	}
-	msdbg("Битва закончилась");
+	msdbg("End combat");
 }
 
 bool creature::isplayer() const {

@@ -193,6 +193,7 @@
     <ClCompile Include="resources.cpp" />
     <ClCompile Include="resource_dynamic.cpp" />
     <ClCompile Include="save.cpp" />
+    <ClCompile Include="scale_2x.cpp" />
     <ClCompile Include="school.cpp" />
     <ClCompile Include="screenshoot.cpp" />
     <ClCompile Include="selectable.cpp" />
@@ -251,9 +252,18 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\locale\ru\Ability.txt" />
     <Text Include="..\locale\ru\Alignment.txt" />
+    <Text Include="..\locale\ru\Class.txt" />
+    <Text Include="..\locale\ru\Diety.txt" />
+    <Text Include="..\locale\ru\Feat.txt" />
+    <Text Include="..\locale\ru\Gender.txt" />
     <Text Include="..\locale\ru\item.txt" />
     <Text Include="..\locale\ru\Race.txt" />
+    <Text Include="..\locale\ru\School.txt" />
+    <Text Include="..\locale\ru\Skills.txt" />
+    <Text Include="..\locale\ru\Spells.txt" />
+    <Text Include="..\locale\ru\Variant.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

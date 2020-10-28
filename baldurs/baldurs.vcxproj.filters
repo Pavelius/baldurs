@@ -262,6 +262,9 @@
     <ClCompile Include="crt_locale.cpp">
       <Filter>Библиотека\Ядро</Filter>
     </ClCompile>
+    <ClCompile Include="scale_2x.cpp">
+      <Filter>Инструменты</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">
@@ -355,6 +358,33 @@
       <Filter>Локализация</Filter>
     </Text>
     <Text Include="..\locale\ru\Race.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Ability.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Class.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Diety.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Feat.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Gender.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\School.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Skills.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Spells.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Variant.txt">
       <Filter>Локализация</Filter>
     </Text>
   </ItemGroup>

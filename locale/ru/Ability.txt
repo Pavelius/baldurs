@@ -1,4 +1,4 @@
-﻿Charisma: Харизма. 
+﻿Charisma: Обаяние. 
 Constitution: Телосложение. 
 Dexterity: Ловкость. 
 Intellegence: Интеллект. 

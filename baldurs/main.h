@@ -846,11 +846,15 @@ struct setting {
 	};
 	formation_s			formation;
 	mode_s				panel;
-	bool				show_search;
+	bool				show_movement;
 	bool				show_path;
+	bool				show_search;
+	bool				zoom;
 };
 struct gamei : setting {
+	adat<creature*, 8>	party;
 	adat<creature*, 8>	selected;
+	static void			checklocalization();
 	static void			localization(const char* locale_id, bool writemode);
 };
 extern gamei			game;
@@ -863,7 +867,8 @@ struct targetreaction {
 	void				clear();
 };
 struct treasure {
-	int					cp, sp, gp, pp, gems, arts, mundane, minor, medium, major;
+	int					cp, sp, gp, pp, gems, arts;
+	int					mundane, minor, medium, major;
 	treasure();
 	void				clear();
 	void				generate(int level);
@@ -1236,10 +1241,10 @@ int								labell(int x, int y, int width, int height, const char* name, int hea
 int								labelr(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
 void							menumodal(bool use_keys = true, itemdrag* pd = 0);
 void							mslog(const char* format, ...);
-void							mslogv(const char* temp);
 void							mspaint(const rect& rc, const rect& rcs);
 extern surface					pallette;
 bool							picker(int x, int y, unsigned char index, int type);
+void							scale2x(void* void_dst, unsigned dst_slice, const void* void_src, unsigned src_slice, unsigned width, unsigned height);
 void							set(color * dest, unsigned char index, int start = 4, int count = 12);
 void							textblend(point pos, const char* text, unsigned duration);
 void							translate(hotkey* keys);

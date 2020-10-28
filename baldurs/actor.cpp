@@ -142,21 +142,6 @@ const sprite* actor::getsprite(res::tokens id, int wi) {
 	return gres((res::tokens)(id + wi));
 }
 
-void actor::say(const char* format, ...) const {
-	char temp[4096]; stringbuilder sb(temp);
-	sb.add("[%1]: ", getname());
-	sb.addv(format, xva_start(format));
-	mslogv(temp);
-}
-
-void actor::act(int player, const char* format, ...) {
-	char temp[4096]; stringbuilder sb(temp);
-	sb.add("%1 ", getname());
-	sb.addv(format, xva_start(format));
-	sb.add(".");
-	mslogv(temp);
-}
-
 void actor::clearcolors() {
 	memset(&colors, 0, sizeof(colors));
 }
