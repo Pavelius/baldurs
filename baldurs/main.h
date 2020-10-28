@@ -74,7 +74,7 @@ enum skill_s : unsigned char {
 	FirstSkill = Appraise, LastSkill = UseRope,
 };
 enum tag_s : unsigned char {
-	ArmorCheck, Balanced, Precise, Deadly, Light, Trained,
+	ArmorCheck, Balanced, Precise, Deadly, Light, Trained, TwoHanded,
 };
 enum feat_s : unsigned char {
 	Alertness,
@@ -468,7 +468,6 @@ public:
 	bool					isreach() const;
 	bool					isshield() const { return geti().feat[0] == ShieldProfeciency; }
 	bool					isthrown() const;
-	bool					istwohand() const;
 	bool					isxbow() const;
 	void					setcount(int value);
 };
@@ -850,10 +849,11 @@ struct setting {
 	bool				show_search;
 	bool				show_path;
 };
-class gamei {
+class gamei : public setting {
 public:
 	static void			localization(const char* locale_id, bool writemode);
 };
+extern gamei			game;
 struct targetreaction {
 	variant				target;
 	void				(creature::*method)(const variant& e);
@@ -1249,7 +1249,6 @@ void							view(rect rc, rect rcs, const char* text, ctext& e);
 int								compare_variant(const void* v1, const void* v2);
 template<class T> const char*	getstr(T e) { return bsdata<T>::elements[e].name; }
 extern creature					players[6];
-extern setting					settings;
 
 inline int d100() { return rand() % 100; }
 

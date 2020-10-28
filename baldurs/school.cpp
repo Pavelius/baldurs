@@ -1,12 +1,12 @@
 #include "main.h"
 
-BSDATA(schooli) = {{"Abjuration", "Оберегание"},
-{"Conjuration", "Вызов"},
-{"Divination", "Предсказание"},
-{"Enchantment", "Очарование"},
-{"Evocation", "Воплощение"},
-{"Illusion", "Иллюзия"},
-{"Necromancy", "Некромантия"},
-{"Transmutation", "Преобразование"},
+BSDATA(schooli) = {{"Abjuration"},
+{"Conjuration"},
+{"Divination"},
+{"Enchantment"},
+{"Evocation"},
+{"Illusion"},
+{"Necromancy"},
+{"Transmutation"},
 };
 assert_enum(schooli, Transmutation)

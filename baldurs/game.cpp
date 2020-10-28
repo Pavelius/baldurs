@@ -1,5 +1,7 @@
 #include "main.h"
 
+gamei game;
+
 const int maximum_strings = 32;
 
 static const char* read_string_v1(const char* p, char* ps, const char* pe) {

@@ -118,9 +118,6 @@
     <ClCompile Include="save.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="setting.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="feature.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -352,6 +349,9 @@
       <Filter>Локализация</Filter>
     </Text>
     <Text Include="..\locale\ru\Alignment.txt">
+      <Filter>Локализация</Filter>
+    </Text>
+    <Text Include="..\locale\ru\Race.txt">
       <Filter>Локализация</Filter>
     </Text>
   </ItemGroup>

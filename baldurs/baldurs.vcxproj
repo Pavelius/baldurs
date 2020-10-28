@@ -195,7 +195,6 @@
     <ClCompile Include="school.cpp" />
     <ClCompile Include="screenshoot.cpp" />
     <ClCompile Include="selectable.cpp" />
-    <ClCompile Include="setting.cpp" />
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="control_spellbook.cpp" />
     <ClCompile Include="spells.cpp" />
@@ -253,6 +252,7 @@
   <ItemGroup>
     <Text Include="..\locale\ru\Alignment.txt" />
     <Text Include="..\locale\ru\item.txt" />
+    <Text Include="..\locale\ru\Race.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

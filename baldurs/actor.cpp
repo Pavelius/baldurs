@@ -217,7 +217,7 @@ int actor::getcicle() const {
 void actor::stop() {
 	action = AnimateStand;
 	if(is(ReadyToBattle)) {
-		if(getwear(QuickWeapon)->istwohand())
+		if(getwear(QuickWeapon)->is(TwoHanded))
 			action = AnimateCombatStanceTwoHanded;
 		else
 			action = AnimateCombatStance;
@@ -547,7 +547,7 @@ animate_s actor::getattackanimate(int number) const {
 		return AnimateShootXBow;
 	else if(w1->isthrown())
 		return AnimateShootSling;
-	else if(w1->istwohand())
+	else if(w1->is(TwoHanded))
 		return animate_s(AnimateMeleeTwoHanded + number);
 	return animate_s(AnimateMeleeOneHanded + number);
 }

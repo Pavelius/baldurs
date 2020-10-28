@@ -52,7 +52,7 @@ void creature::setactive() {
 
 static void nothing() {}
 static void choose_action() { current_action = (action_s)hot.param; }
-static void choose_formation() { settings.formation = (formation_s)hot.param; }
+static void choose_formation() { game.formation = (formation_s)hot.param; }
 static void choose_player() { ((creature*)hot.param)->setactive(); }
 static void move_left() { camera.x -= camera_step; }
 static void move_right() { camera.x += camera_step; }
@@ -64,13 +64,14 @@ static void character_spellbook() { choose_menu(&creature::spellbook); }
 static void game_option() { choose_menu(creature::options); }
 static void game_minimap() { choose_menu(creature::minimap); }
 static void game_journal() { choose_menu(creature::journal); }
-static void layer_search() { settings.show_search = !settings.show_search; }
-static void layer_path() { settings.show_path = !settings.show_path; }
+static void layer_search() { game.show_search = !game.show_search; }
+static void layer_path() { game.show_path = !game.show_path; }
 
 static void character_test() {
 	auto player = creature::getactive();
 	if(!player)
 		return;
+	player->slide(player->getposition());
 	player->render_attack(0, {1030, 2220});
 	player->wait(70);
 	auto pos = player->getposition(85);
@@ -80,9 +81,9 @@ static void character_test() {
 }
 
 static void change_mode() {
-	settings.panel = (setting::mode_s)(settings.panel + 1);
-	if(settings.panel > setting::NoPanel)
-		settings.panel = setting::PanelFull;
+	game.panel = (setting::mode_s)(game.panel + 1);
+	if(game.panel > setting::NoPanel)
+		game.panel = setting::PanelFull;
 }
 
 void creature::select_all() {
@@ -143,7 +144,7 @@ static bool act(int& x, int y, item& it) {
 
 static bool act(int& x, int y, formation_s id) {
 	unsigned flags = 0;
-	if(id == settings.formation)
+	if(id == game.formation)
 		flags |= Checked;
 	auto i = id * 4;
 	button_states state;
@@ -158,7 +159,7 @@ static bool act(int& x, int y, formation_s id) {
 	return r;
 }
 
-static int act(int& x, int y, creature& player, itemdrag* pd, bool change_player = true) {
+static bool act(int& x, int y, creature& player, itemdrag* pd, bool change_player = true) {
 	color s0 = colors::green;
 	unsigned flags = 0;
 	auto result = false;
@@ -308,7 +309,7 @@ static variant render_area(rect rc, const point origin) {
 	hotspot.y = hot.mouse.y - rc.y1 + origin.y;
 	// Нарисуем тайлы
 	render_tiles(rc, screen.x1, screen.y1);
-	if(settings.show_search)
+	if(game.show_search)
 		render_search(rc, screen.x1, screen.y1);
 	//if(show_movement)
 	//	render_movement(rc, screen.x1, screen.y1);
@@ -316,7 +317,7 @@ static variant render_area(rect rc, const point origin) {
 	for(auto& e : players) {
 		if(e) {
 			e.render_marker(rc, screen.x1, screen.y1);
-			if(settings.show_path)
+			if(game.show_path)
 				e.render_path(rc, screen.x1, screen.y1);
 		}
 	}
@@ -578,7 +579,7 @@ static void party_interact(point destination) {
 		auto start = current_selected[0]->getposition();
 		auto index = 0;
 		for(auto p : current_selected)
-			p->move(map::getfree(p->getposition(start, destination, settings.formation, index++), p->getsize()));
+			p->move(map::getfree(p->getposition(start, destination, game.formation, index++), p->getsize()));
 	}
 }
 
@@ -593,9 +594,9 @@ void actor::wait(char percent) {
 		if(stop_frame && frame >= stop_frame)
 			break;
 		rect rcs = {0, 0, getwidth(), getheight()};
-		if(settings.panel == setting::PanelFull)
+		if(game.panel == setting::PanelFull)
 			render_footer(rcs, false);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 			render_panel(rcs, false, 0, false, false);
 		correct_camera(rcs, camera);
 		render_area(rcs, camera);
@@ -609,9 +610,9 @@ void moveable::wait() {
 		if(!(*this))
 			break;
 		rect rcs = {0, 0, getwidth(), getheight()};
-		if(settings.panel == setting::PanelFull)
+		if(game.panel == setting::PanelFull)
 			render_footer(rcs, false);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 			render_panel(rcs, false, 0, false, false);
 		correct_camera(rcs, camera);
 		render_area(rcs, camera);
@@ -629,9 +630,9 @@ variant creature::choose_target(int cursor, short unsigned start, short unsigned
 		cur.set(res::CURSORS, cursor);
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		if(settings.panel == setting::PanelFull)
+		if(game.panel == setting::PanelFull)
 			render_footer(rcs, false);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, false);
 		correct_camera(rcs, camera);
 		tg = render_area(rcs, camera);
@@ -828,9 +829,9 @@ void creature::adventure() {
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		if(settings.panel == setting::PanelFull)
+		if(game.panel == setting::PanelFull)
 			render_footer(rcs, true);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, true);
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
@@ -853,9 +854,9 @@ void creature::adventure_combat() {
 		auto player = creature::getactive();
 		rect rcs = {0, 0, getwidth(), getheight()};
 		create_shifer(rcs, shifter, camera);
-		if(settings.panel == setting::PanelFull)
+		if(game.panel == setting::PanelFull)
 			render_footer(rcs, true);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, false);
 		correct_camera(rcs, camera);
 		auto tg = render_area(rcs, camera, cur);
@@ -916,9 +917,9 @@ void actor::slide(const point position) {
 		camera.x = start.x + dx * range / range_maximum;
 		camera.y = start.y + dy * range / range_maximum;
 		rect rcs = {0, 0, getwidth(), getheight()};
-		if(settings.panel == setting::PanelFull)
+		if(game.panel == setting::PanelFull)
 			render_footer(rcs, true);
-		if(settings.panel == setting::PanelFull || settings.panel == setting::PanelActions)
+		if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 			render_panel(rcs, true, 0, true, true, false);
 		correct_camera(rcs, camera);
 		render_area(rcs, camera);

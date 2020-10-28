@@ -6,7 +6,9 @@ static item ammunition_arrow(Arrow);
 static itemi::poweri sword_powers[] = {{},
 {Minor, 1},
 {Minor, 2},
+{Medium, 3},
 {Medium, 2, "%1 поджигания", Fire},
+{Medium, 2, "%1 обморожения", Cold},
 };
 
 BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},
@@ -14,20 +16,20 @@ BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},
 {"Hammer", {"IHAMMB1", "GHAMM01", res::WQSWH}, QuickOffhand, {ProficiencyMace, FocusMaces}, {}, {{Bludgeon, 1, 6}}},
 {"Mace", {"IMACEB1", "GBLUN06", res::WQSMC}, QuickOffhand, {ProficiencyMace, FocusMaces}, {}, {{Bludgeon, 1, 6, 1}}},
 {"Spear", {"ISPERB1", "GSPER01", res::WQSSP}, QuickWeapon, {ProficiencySpear, FocusPolearm}, {}, {{Pierce, 1, 8}}},
-{"Staff", {"ISTAFB1", "GSTAF01", res::WQSQS}, QuickWeapon, {ProficiencySimple, FocusPolearm}, {}, {{Bludgeon, 1, 6}}},
+{"Staff", {"ISTAFB1", "GSTAF01", res::WQSQS}, QuickWeapon, {ProficiencySimple, FocusPolearm}, {TwoHanded}, {{Bludgeon, 1, 6}}},
 {"Crossbow",  {"IXBOWL01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyCrossbow, FocusShooting}, {}, {{Pierce, 1, 8}}},
 {"HeavyCrossbow", {"IXBOWH01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyHeavyCrossbow, FocusShooting}, {}, {{Pierce, 1, 10}}},
 {"Sling", {"ISLNGB1", "GSLNG01", res::WQSSL}, QuickWeapon, {ProficiencySimple}, {}, {{Bludgeon, 1, 4}}},
 
 {"BattleAxe", {"IAX1HB2", "GAX1H01", res::WQSAX}, QuickWeapon, {ProficiencyAxe, FocusAxes}, {}, {{Slashing, 1, 8}}, 0, 0, 0, {}},
 {"Dagger", {"IDAGGB1", "GDAGG01", res::WQSDD}, QuickOffhand, {ProficiencyDagger, FocusDaggers}, {}, {{Pierce, 1, 4}}},
-{"Greataxe", {"IAX2HB1", "GHALB01", res::WQSHB}, QuickWeapon, {ProficiencyGreatweapon, FocusAxes}, {}, {{Slashing, 1, 12}}, 0, 0, 0, {}},
-{"Halberd", {"IHALBB1", "GHALB01", res::WQSHB}, QuickWeapon, {ProficiencyGreatweapon, FocusPolearm}, {}, {{Slashing, 1, 10}}},
+{"Greataxe", {"IAX2HB1", "GHALB01", res::WQSHB}, QuickWeapon, {ProficiencyGreatweapon, FocusAxes}, {TwoHanded}, {{Slashing, 1, 12}}, 0, 0, 0, {}},
+{"Halberd", {"IHALBB1", "GHALB01", res::WQSHB}, QuickWeapon, {ProficiencyGreatweapon, FocusPolearm}, {TwoHanded}, {{Slashing, 1, 10}}},
 {"Handaxe", {"IAX1HB1", "GAX1H01", res::WQSAX}, QuickOffhand, {ProficiencyAxe, FocusAxes}, {}, {{Slashing, 1, 6}}},
 {"Scimitar", {"ISWDCB2", "GSW1H07", res::WQSSS}, QuickOffhand, {ProficiencyScimitar, FocusSwords}, {}, {{Slashing, 1, 6}}, 0, 0, 0, {}},
-{"Longsword", {"ISWDLB1", "GSW1H01", res::WQSS1}, QuickWeapon, {ProficiencyLongsword, FocusSwords}, {}, {{Slashing, 1, 8}}, 0, 0, 0, {}},
+{"Longsword", {"ISWDLB1", "GSW1H01", res::WQSS1}, QuickWeapon, {ProficiencyLongsword, FocusSwords}, {}, {{Slashing, 1, 8}}, 0, 0, 0, sword_powers},
 {"Shortsword", {"ISWDSB1", "GSW1H07", res::WQSSS}, QuickOffhand, {ProficiencyShortsword, FocusSwords}, {}, {{Slashing, 1, 6}}},
-{"TwoHandedSword", {"ISWDTB1", "GSW2H01", res::WQSS2}, QuickWeapon, {ProficiencyGreatweapon, FocusSwords}, {}, {{Slashing, 2, 6}}},
+{"TwoHandedSword", {"ISWDTB1", "GSW2H01", res::WQSS2}, QuickWeapon, {ProficiencyGreatweapon, FocusSwords}, {TwoHanded}, {{Slashing, 2, 6}}},
 {"Rapier", {"ISWDSB1", "GSW1H07", res::WQSSS}, QuickWeapon, {ProficiencyShortsword, FocusDaggers}, {}, {{Pierce, 1, 6}}},
 {"ShortBow", {"IBOWSB1", "GBOW01", res::WQSBW, res::ARARROW}, QuickWeapon, {ProficiencyShortbow, FocusShooting}, {}, {{Pierce, 1, 6}}},
 {"LongBow", {"IBOWLB1", "GBOW01", res::WQSBW, res::ARARROW}, QuickWeapon, {ProficiencyLongbow, FocusShooting}, {}, {{Pierce, 1, 8}}},
@@ -70,18 +72,6 @@ void item::clear() {
 
 int	item::getbonus() const {
 	return 0;
-}
-
-bool item::istwohand() const {
-	switch(type) {
-	case Staff:
-	case Greataxe:
-	case Greatsword:
-	case Halberd:
-		return true;
-	default:
-		return false;
-	}
 }
 
 bool item::isreach() const {

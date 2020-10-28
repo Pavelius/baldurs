@@ -5,7 +5,7 @@ BattleAxe: Боевой топор. Боевой топор, наиболее р
 BlueQuarz: Голубой кварц. 
 Breastplate: Нагрудник. 
 CarvedStone: Резной камень. 
-ChainShirt: . 
+ChainShirt: Кольчужная рубаха. 
 Chainmail: Кольчуга. 
 Club: Дубина. 
 CooperPieces: Медь. 

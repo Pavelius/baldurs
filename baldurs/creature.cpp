@@ -309,11 +309,11 @@ void creature::moveto(const char* location, const char* entrance) {
 	auto pe = map::find(move_to_entrance);
 	if(pe)
 		creature::setcamera(pe->position);
-	if(!settings.formation)
-		settings.formation = Formation3by2;
+	if(!game.formation)
+		game.formation = Formation3by2;
 	auto index = 0;
 	auto start = actor::getbackward(pe->position, 5, pe->orientation);
-	auto formation = settings.formation;
+	auto formation = game.formation;
 	for(auto& e : players) {
 		if(!e)
 			continue;
