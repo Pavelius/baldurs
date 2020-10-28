@@ -312,6 +312,8 @@ struct serializer {
 	virtual void					set(const char* id, const char* v, type_s type = Text) = 0;
 	virtual void					close(const char* id, type_s type = Text) = 0;
 };
+bool								readl(const char* url, array& source, unsigned* fields, int fields_count, unsigned* special, int special_count);
+bool								savel(const char* url, array& source, unsigned* fields, int fields_count, unsigned* special, int special_count);
 // Get base type
 template<class T> struct meta_decoy { typedef T value; };
 template<> struct meta_decoy<const char*> { typedef const char* value; };

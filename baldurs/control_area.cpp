@@ -7,7 +7,6 @@ static variant					current_target;
 static point					camera;
 static point					camera_size = {800, 600};
 static action_s					current_action = ActionGuard;
-static adat<creature*, 8>		current_selected;
 static void						(creature::*creature_proc)();
 const int						camera_step = 16;
 
@@ -46,8 +45,8 @@ void choose_menu(void(*proc)()) {
 }
 
 void creature::setactive() {
-	current_selected.clear();
-	current_selected.add(this);
+	game.selected.clear();
+	game.selected.add(this);
 }
 
 static void nothing() {}
@@ -88,8 +87,8 @@ static void change_mode() {
 
 void creature::select_all() {
 	for(auto& e : players) {
-		if(!current_selected.is(&e))
-			current_selected.add(&e);
+		if(!game.selected.is(&e))
+			game.selected.add(&e);
 	}
 }
 
@@ -163,7 +162,7 @@ static bool act(int& x, int y, creature& player, itemdrag* pd, bool change_playe
 	color s0 = colors::green;
 	unsigned flags = 0;
 	auto result = false;
-	if(current_selected.is(&player))
+	if(game.selected.is(&player))
 		flags |= Checked;
 	int hp = player.gethits();
 	int mhp = player.gethitsmax();
@@ -285,13 +284,13 @@ static int compare_zorder(const void* p1, const void* p2) {
 }
 
 creature* creature::getactive() {
-	if(!current_selected)
+	if(!game.selected)
 		return 0;
-	return current_selected[0];
+	return game.selected[0];
 }
 
 bool creature::isselected() const {
-	return current_selected.is((creature* const)this);
+	return game.selected.is((creature* const)this);
 }
 
 static variant render_area(rect rc, const point origin) {
@@ -497,7 +496,7 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 		draw::image(x, y, res::GACTN, show_actions ? 0 : 1);
 	if(show_actions) {
 		auto x1 = x + 6, y1 = y + 12;
-		if(current_selected.getcount() > 1) {
+		if(game.selected.getcount() > 1) {
 			for(auto e : actions) {
 				if(act(x1, y1, e, current_action))
 					execute(choose_action, e);
@@ -573,12 +572,10 @@ static void combat_movement(point destination) {
 static void party_interact(point destination) {
 	if(creature::iscombatmode())
 		combat_movement(destination);
-	else {
-		if(!current_selected)
-			return;
-		auto start = current_selected[0]->getposition();
+	else if(game.selected) {
+		auto start = game.selected[0]->getposition();
 		auto index = 0;
-		for(auto p : current_selected)
+		for(auto p : game.selected)
 			p->move(map::getfree(p->getposition(start, destination, game.formation, index++), p->getsize()));
 	}
 }

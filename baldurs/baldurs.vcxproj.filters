@@ -259,6 +259,9 @@
     <ClCompile Include="game.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="crt_locale.cpp">
+      <Filter>Библиотека\Ядро</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

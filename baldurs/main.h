@@ -849,8 +849,8 @@ struct setting {
 	bool				show_search;
 	bool				show_path;
 };
-class gamei : public setting {
-public:
+struct gamei : setting {
+	adat<creature*, 8>	selected;
 	static void			localization(const char* locale_id, bool writemode);
 };
 extern gamei			game;
