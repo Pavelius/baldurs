@@ -4,13 +4,8 @@
 #pragma once
 
 enum draw_event_s {
-	// common controls
-	NoField,
-	Text, Number, Check, Radio, Button, Image,
-	Tabs, Group,
-	ControlMask = 0xF,
 	// input events
-	InputSymbol = 0xED00, InputUpdate, InputTimer, InputExecute,
+	InputSymbol = 0xED00, InputTimer, InputUpdate,
 	// Keyboard and mouse input (can be overrided by flags)
 	MouseLeft = 0xEE00, MouseLeftDBL, MouseRight,
 	MouseMove, MouseWheelUp, MouseWheelDown,
@@ -122,7 +117,6 @@ struct sprite : pma {
 	int					store(const unsigned char* p, int width, int w, int h, int ox, int oy, sprite::encodes mode, unsigned char shadow_index = 1, color* pallette = 0, int frame_index = -1, unsigned char transparent_index = 0);
 	void				write(const char* url);
 };
-typedef const char* (*proctext)(char* result, const char* result_maximum, void* object);
 namespace colors {
 extern color			active;
 extern color			button;
@@ -130,14 +124,6 @@ extern color			form;
 extern color			window;
 extern color			border;
 extern color			text, edit, h1, h2, h3, special;
-namespace tips {
-extern color			back;
-extern color			text;
-}
-namespace tabs {
-extern color			back;
-extern color			text;
-}
 }
 namespace metrics {
 extern rect				edit;
@@ -235,14 +221,13 @@ void					circle(int x, int y, int radius, const color c1);
 void					circlef(int x, int y, int radius, const color c1, unsigned char alpha = 0xFF);
 void					create(int x, int y, int width, int height, unsigned flags, int bpp);
 void					decortext(unsigned flags);
-void					domodal();
+extern fnevent			domodal;
 void					execute(void(*callback)(), int value = 0, void* object = 0);
 void					execute(const hotinfo& id);
 fnevent					getlayout();
 int						getbpp();
 color					getcolor(color normal, unsigned flags);
 color					getcolor(rect rc, color normal, color hilite, unsigned flags);
-inline draw_event_s		getcontrol(unsigned flags) { return (draw_event_s)(flags&ControlMask); }
 int						getheight();
 int						getresult();
 const sprite*			gres(const char* name, const char* folder);
@@ -284,7 +269,6 @@ void					set(void(*proc)(int& x, int& y, int x0, int x2, int* max_width, int& w,
 void					setcaption(const char* string);
 void					setclip(rect rc);
 inline void				setclip() { clipping.set(0, 0, getwidth(), getheight()); }
-void					setfocus(int id, bool instant = false);
 void					setlayout(fnevent proc);
 void					setpage();
 void					setpage(fnevent proc);
@@ -311,10 +295,5 @@ int						textw(rect& rc, const char* string);
 int						textw(sprite* font);
 void					updatewindow();
 void					write(const char* url, unsigned char* bits, int width, int height, int bpp, int scanline, color* pallette);
-}
-namespace draw {
-void					tooltips(const char* format, ...);
-void					tooltips(int x, int y, int width, const char* format, ...);
-void					tooltipsv(int x, int y, int width, const char* format, const char* format_param);
 }
 int						distance(point p1, point p2);

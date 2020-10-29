@@ -24,10 +24,6 @@ color colors::h1;
 color colors::h2;
 color colors::h3;
 color colors::special;
-color colors::tips::text;
-color colors::tips::back;
-color colors::tabs::text;
-color colors::tabs::back;
 // Color context and font context
 color				draw::fore;
 color				draw::fore_stroke;
@@ -38,6 +34,7 @@ color*				draw::palt;
 rect				draw::clipping;
 char				draw::link[4096];
 hotinfo				draw::hot;
+fnevent				draw::domodal;
 // Locale draw variables
 static draw::surface default_surface;
 draw::surface*		draw::canvas = &default_surface;
@@ -84,46 +81,6 @@ static bool correct(int& x1, int& y1, int& x2, int& y2, const rect& clip, bool i
 			y2 = clip.y2 - 1;
 	}
 	return true;
-}
-
-char* key2str(char* result, int key) {
-	result[0] = 0;
-	if(key&Ctrl)
-		zcat(result, "Ctrl+");
-	if(key&Alt)
-		zcat(result, "Alt+");
-	if(key&Shift)
-		zcat(result, "Shift+");
-	key = key & 0xFFFF;
-	switch(key) {
-	case KeyDown: zcat(result, "Down"); break;
-	case KeyDelete: zcat(result, "Del"); break;
-	case KeyEnd: zcat(result, "End"); break;
-	case KeyEnter: zcat(result, "Enter"); break;
-	case KeyHome: zcat(result, "Home"); break;
-	case KeyLeft: zcat(result, "Left"); break;
-	case KeyPageDown: zcat(result, "Page Down"); break;
-	case KeyPageUp: zcat(result, "Page Up"); break;
-	case KeyRight: zcat(result, "Right"); break;
-	case KeyUp: zcat(result, "Up"); break;
-	case F1: zcat(result, "F1"); break;
-	case F2: zcat(result, "F2"); break;
-	case F3: zcat(result, "F3"); break;
-	case F4: zcat(result, "F4"); break;
-	case F5: zcat(result, "F5"); break;
-	case F6: zcat(result, "F6"); break;
-	case F7: zcat(result, "F7"); break;
-	case F8: zcat(result, "F8"); break;
-	case F9: zcat(result, "F9"); break;
-	case F10: zcat(result, "F10"); break;
-	case F11: zcat(result, "F11"); break;
-	case F12: zcat(result, "F12"); break;
-	case KeySpace: zcat(result, "Space"); break;
-	default:
-		zcat(result, char(szupper(key - Alpha)));
-		break;
-	}
-	return result;
 }
 
 bool draw::inside(point t, point* points, int count) {
@@ -2048,56 +2005,4 @@ void draw::buttonparam() {
 	h.param = 0;
 	h.pressed = false;
 	execute(h);
-}
-
-struct layout_info {
-	int					id;
-	layout_info*		previous;
-	fnevent		proc;
-	fnevent		def_proc;
-	static layout_info*	current;
-	layout_info(void(*proc)()) : proc(proc), def_proc(proc) {
-		previous = current;
-		current = this;
-	}
-	~layout_info() {
-		current = previous;
-	}
-};
-layout_info* layout_info::current;
-
-fnevent draw::getlayout() {
-	return layout_info::current ? layout_info::current->def_proc : 0;
-}
-
-void draw::setlayout(fnevent proc) {
-	layout_info e(proc);
-	while(e.proc)
-		e.proc();
-}
-
-void draw::setpage(fnevent proc) {
-	if(!layout_info::current)
-		return;
-	layout_info::current->proc = proc;
-	breakmodal(1);
-}
-
-void draw::setpagedef(fnevent proc) {
-	if(!layout_info::current)
-		return;
-	layout_info::current->def_proc = proc;
-}
-
-void draw::setpage() {
-	if(!layout_info::current)
-		return;
-	layout_info::current->proc = layout_info::current->def_proc;
-	breakmodal(1);
-}
-
-bool draw::isnext(fnevent proc) {
-	if(!layout_info::current)
-		return false;
-	return layout_info::current->proc == proc;
 }

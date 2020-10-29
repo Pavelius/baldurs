@@ -265,6 +265,9 @@
     <ClCompile Include="scale_2x.cpp">
       <Filter>Инструменты</Filter>
     </ClCompile>
+    <ClCompile Include="draw_layout.cpp">
+      <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

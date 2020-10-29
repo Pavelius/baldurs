@@ -67,19 +67,6 @@ static void game_zoom() { game.zoom = !game.zoom; }
 static void layer_search() { game.show_search = !game.show_search; }
 static void layer_path() { game.show_path = !game.show_path; }
 
-static void character_test() {
-	auto player = creature::getactive();
-	if(!player)
-		return;
-	player->slide(player->getposition());
-	player->render_attack(0, {1030, 2220});
-	player->wait(70);
-	auto pos = player->getposition(85);
-	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 300);
-	pa->set(player->getcolors());
-	pa->wait();
-}
-
 static void change_mode() {
 	game.panel = (setting::mode_s)(game.panel + 1);
 	if(game.panel > setting::NoPanel)
@@ -92,27 +79,6 @@ void creature::select_all() {
 			game.selected.add(&e);
 	}
 }
-
-static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
-{move_right, KeyRight, "Двигать вправо"},
-{move_up, KeyUp, "Двигать вверх"},
-{move_down, KeyDown, "Двигать вниз"},
-{change_mode, Alpha + 'G', "Изменить режим панелей"},
-{}};
-
-static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвентаря"},
-{character_sheet, Alpha + 'C', "Листок персонажа"},
-{character_spellbook, Alpha + 'S', "Заклинания персонажа"},
-{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
-{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
-{creature::select_all, Alpha + '=', "Выбрать всех"},
-{character_test, Alpha + 'T', "Тестирование анимации"},
-{game_minimap, Alpha + 'M', "Карта местности"},
-{game_option, Alpha + 'O', "Опции"},
-{game_journal, Alpha + 'J', "Журнал заданий"},
-{game_zoom, Alpha + 'Z', "Увеличенный режим"},
-{adventure_step, KeyEscape, "Вернуться в режим приключений"},
-{}};
 
 static void hitpoints(int x, int y, int width, int height, int hp, int mhp) {
 	if(!mhp || hp < 0)
@@ -409,21 +375,8 @@ static void debug_info(point hotspot, const variant& result) {
 #endif
 }
 
-static variant render_area(rect rc, const point origin, point mouse) {
-	point hotspot;
-	variant result;
-	if(game.zoom)
-		result = render_area_scale(rc, hotspot, origin, mouse);
-	else
-		result = render_area_noscale(rc, hotspot, origin, mouse);
-	debug_info(hotspot, result);
-	return result;
-}
-
-static variant render_area_v2(const point origin) {
+static variant render_area(const rect& rc, const point origin, point mouse) {
 	point hotspot; variant result;
-	auto mouse = hot.mouse;
-	rect rc = {0, 0, draw::getwidth(), draw::getheight()};
 	if(game.zoom)
 		result = render_area_scale(rc, hotspot, origin, mouse);
 	else
@@ -599,6 +552,40 @@ static targetreaction render_screen(bool active_buttons, bool show_actions, bool
 		render_panel(rcs, show_actions, 0, show_players, show_background, change_players);
 	return render_area(rcs, camera, cur);
 }
+
+static void character_test() {
+	auto player = creature::getactive();
+	if(!player)
+		return;
+	player->slide(player->getposition());
+	player->render_attack(0, {1030, 2220});
+	player->wait(70);
+	auto pos = player->getposition(85);
+	auto pa = new moveable(pos, {1030, 2220}, res::ARARROW, 300);
+	pa->set(player->getcolors());
+	pa->wait();
+}
+
+static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
+{move_right, KeyRight, "Двигать вправо"},
+{move_up, KeyUp, "Двигать вверх"},
+{move_down, KeyDown, "Двигать вниз"},
+{change_mode, Alpha + 'G', "Изменить режим панелей"},
+{}};
+
+static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвентаря"},
+{character_sheet, Alpha + 'C', "Листок персонажа"},
+{character_spellbook, Alpha + 'S', "Заклинания персонажа"},
+{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
+{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
+{creature::select_all, Alpha + '=', "Выбрать всех"},
+{character_test, Alpha + 'T', "Тестирование анимации"},
+{game_minimap, Alpha + 'M', "Карта местности"},
+{game_option, Alpha + 'O', "Опции"},
+{game_journal, Alpha + 'J', "Журнал заданий"},
+{game_zoom, Alpha + 'Z', "Увеличенный режим"},
+{adventure_step, KeyEscape, "Вернуться в режим приключений"},
+{}};
 
 void draw::menumodal(bool use_keys, itemdrag* pd) {
 	rect rcs = {0, 0, getwidth(), getheight()};
@@ -927,7 +914,6 @@ void actor::slide(const point position) {
 	point start, destination;
 	start = camera;
 	destination = position;
-	//setcamera(destination);
 	auto range = 0;
 	auto step = 4;
 	auto range_maximum = distance(start, destination);

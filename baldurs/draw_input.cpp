@@ -3,8 +3,6 @@
 using namespace draw;
 
 static unsigned		timestamp;
-static int			current_command;
-static void(*current_execute)();
 static bool			keep_hot;
 static hotinfo		keep_hot_value;
 static res::tokens	cursor_sprite = res::CURSORS;
@@ -56,10 +54,9 @@ res::tokens	cursorset::getres() {
 }
 
 void draw::execute(void(*proc)(), int param, void* object) {
-	current_execute = proc;
+	domodal = proc;
 	hot.param = param;
 	hot.object = object;
-	hot.key = InputExecute;
 }
 
 void draw::execute(const hotinfo& value) {
@@ -95,43 +92,21 @@ void update_timestamp() {
 		e.update();
 }
 
-static void before_render() {
-	current_command = 0;
-	current_execute = 0;
-}
-
-static void after_render() {
+static void standart_domodal() {
 	auto press_frame = cursor_frame + 1;
 	if(cursor_single)
 		press_frame = cursor_frame;
 	draw::image(hot.mouse.x, hot.mouse.y, gres(cursor_sprite), hot.pressed ? press_frame : cursor_frame, 0);
+	hot.key = draw::rawinput();
+	update_timestamp();
+	if(!hot.key)
+		exit(0);
 }
 
 bool draw::ismodal() {
-	before_render();
+	domodal = standart_domodal;
 	if(!break_modal)
 		return true;
 	break_modal = false;
 	return false;
-}
-
-void draw::domodal() {
-	if(current_execute) {
-		auto proc = current_execute;
-		before_render();
-		proc();
-		before_render();
-		hot.key = InputUpdate;
-		return;
-	}
-	if(hot.key == InputUpdate && keep_hot) {
-		keep_hot = false;
-		hot = keep_hot_value;
-	} else {
-		after_render();
-		hot.key = draw::rawinput();
-	}
-	update_timestamp();
-	if(!hot.key)
-		exit(0);
 }
