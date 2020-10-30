@@ -293,7 +293,7 @@ enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Container, Creature,
 	Diety, Door, Gender, Feat, Item, ItemCont, ItemGround, Name,
-	Position, Race, Region, School, Skill, Spell,
+	Position, Race, Reaction, Region, School, Skill, Spell,
 	Finish, Variant,
 };
 enum magic_s : unsigned char {
@@ -321,6 +321,7 @@ enum range_s : unsigned char {
 };
 typedef void (*fnitem)();
 typedef cflags<tag_s>		taga;
+typedef cflags<feat_s>		feata;
 class creature;
 class item;
 struct container;
@@ -342,6 +343,7 @@ union variant {
 	constexpr variant(gender_s v) : variant(Gender, v) {}
 	constexpr variant(feat_s v) : variant(Feat, v) {}
 	constexpr variant(race_s v) : variant(Race, v) {}
+	constexpr variant(reaction_s v) : variant(Reaction, v) {}
 	constexpr variant(skill_s v) : variant(Skill, v) {}
 	constexpr variant(spell_s v) : variant(Spell, v) {}
 	constexpr variant(item_s v) : variant(Item, v) {}
@@ -366,6 +368,7 @@ union variant {
 struct varianta : adat<variant, 512> {
 	void					addu(variant v1, variant v2);
 	void					addu(variant v1, variant v2, creature& e);
+	void					creatures(variant v1, bool ispresent);
 	void					match(const creature& e, bool ispresent = true);
 	void					select(const variant v1, const variant v2);
 	void					select(const variant v1, const variant v2, const creature& player, bool required_feats = true);
@@ -393,6 +396,10 @@ struct rolli {
 	bool					iscritical(int modifier) const { return rolled >= (20 - modifier); }
 };
 struct damagei {
+	const char*				id;
+	const char*				name;
+};
+struct reactioni {
 	const char*				id;
 	const char*				name;
 };
@@ -755,19 +762,19 @@ struct schooli {
 	const char*				name;
 	const char*				text;
 };
-struct portrait_info {
+struct portraiti {
 	const char*				name;
 	unsigned char			skin;
 	unsigned char			hair;
 	unsigned char			major;
 	unsigned char			minor;
 	gender_s				gender;
-	race_s					races[4];
-	class_s					perks[8];
+	std::initializer_list<race_s> races;
+	std::initializer_list<class_s> perks;
 	bool					is(gender_s id) const;
 	bool					is(race_s id) const;
 	bool					is(class_s id) const;
-	static aref<portrait_info> getelements();
+	static aref<portraiti> getelements();
 };
 struct racei {
 	const char*				id;
@@ -984,7 +991,6 @@ public:
 	void				pickcolors(const point skin, const point hair, const point major, const point minor);
 	static void			pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
 	short unsigned		random_portrait() const;
-	static short unsigned random_portrait(gender_s gender, race_s race, class_s type);
 	void				render_attack(int number, point position);
 	void				render_hit(bool fatal);
 	void				render_path(const rect& rc, int mx, int my) const;
@@ -1015,7 +1021,7 @@ struct monsteri {
 	alignment_s					alignment;
 	classi						classes[3];
 	char						ability[Charisma + 1];
-	item_s						equipment[8];
+	std::initializer_list<item_s> equipment;
 	skilla						skills;
 	cflags<feat_s>				feats;
 };

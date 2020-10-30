@@ -1,6 +1,6 @@
 #include "main.h"
 
-portrait_info portrait_data[] = {{"NOPORT"},
+portraiti portrait_data[] = {{"NOPORT"},
 {"DFF", 12, 2, 41, 65, Female, {Dwarf, Halfling, Gnome}, {Fighter}},
 {"DMC", 84, 2, 39, 27, Male, {Dwarf}, {Cleric, Paladin, Fighter}},
 {"DMF", 84, 3, 38, 27, Male, {Dwarf}, {Fighter}},
@@ -46,7 +46,7 @@ portrait_info portrait_data[] = {{"NOPORT"},
 {"HMC3", 12, 79, 94, 91, Male, {Human}, {Cleric, Fighter}},
 {"HMF5", 12, 3, 41, 66, Male, {Human}, {Fighter, Barbarian}},
 {"HMB2", 84, 2, 39, 47, Male, {Human}, {Barbarian}},
-{"DMF2", 12, 3, 66, 58, Male, {Human}, {Fighter}},
+{"DMF2", 12, 3, 66, 58, Male, {Human, Dwarf}, {Fighter}},
 {"HFT2", 12, 2, 39, 63, Female, {Human, HalfElf}, {Rogue}},
 {"HFD", 12, 2, 41, 49, Female, {Human}, {Druid, Cleric, Sorcerer}},
 {"HFF2", 12, 2, 41, 37, Female, {Human}, {Fighter}},
@@ -86,7 +86,7 @@ portrait_info portrait_data[] = {{"NOPORT"},
 {"2MHUM7", 8, 0, 39, 66, Male, {HalfOrc, Human}, {Fighter}}
 };
 
-bool portrait_info::is(race_s id) const {
+bool portraiti::is(race_s id) const {
 	for(auto e : races) {
 		if(id == e)
 			return true;
@@ -94,7 +94,7 @@ bool portrait_info::is(race_s id) const {
 	return false;
 }
 
-bool portrait_info::is(class_s id) const {
+bool portraiti::is(class_s id) const {
 	for(auto e : races) {
 		if(id == e)
 			return true;
@@ -102,7 +102,7 @@ bool portrait_info::is(class_s id) const {
 	return false;
 }
 
-bool portrait_info::is(gender_s id) const {
+bool portraiti::is(gender_s id) const {
 	return gender==id;
 }
 
@@ -113,21 +113,38 @@ void coloration::set(short unsigned portrait) {
 	hair = portrait_data[portrait].hair;
 }
 
-aref<portrait_info> portrait_info::getelements() {
+aref<portraiti> portraiti::getelements() {
 	return portrait_data;
 }
 
-short unsigned actor::random_portrait(gender_s gender, race_s race, class_s type) {
+static short unsigned random(gender_s gender, race_s race, class_s type) {
 	const auto maximum = sizeof(portrait_data) / sizeof(portrait_data[0]);
 	short unsigned data[maximum + 1];
 	auto pb = data;
-	for(short unsigned i = 0; i < maximum; i++) {
+	for(short unsigned i = 1; i < maximum; i++) {
+		auto& e = portrait_data[i];
+		if(e.gender != gender)
+			continue;
+		if(!e.is(race))
+			continue;
+		if(!e.is(type))
+			continue;
+		*pb++ = i;
+	}
+	if(pb == data)
+		return 0;
+	return data[rand() % (pb - data)];
+}
+
+short unsigned random(gender_s gender, race_s race) {
+	const auto maximum = sizeof(portrait_data) / sizeof(portrait_data[0]);
+	short unsigned data[maximum + 1];
+	auto pb = data;
+	for(short unsigned i = 1; i < maximum; i++) {
 		auto& e = portrait_data[i];
 		if(e.gender != gender)
 			continue;
 		if(race && !e.is(race))
-			continue;
-		if(type && !e.is(type))
 			continue;
 		*pb++ = i;
 	}
@@ -140,8 +157,8 @@ short unsigned actor::random_portrait() const {
 	auto race = getrace();
 	auto gender = getgender();
 	auto type = getclass();
-	auto result = random_portrait(gender, race, type);
+	auto result = random(gender, race, type);
 	if(result)
 		return result;
-	return random_portrait(gender, race, Commoner);
+	return random(gender, race);
 }

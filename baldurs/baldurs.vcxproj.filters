@@ -274,6 +274,9 @@
     <ClCompile Include="boost.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="reaction.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

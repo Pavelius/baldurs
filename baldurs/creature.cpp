@@ -947,6 +947,7 @@ bool creature::have(variant id) const {
 	case Gender: return gender == id.value;
 	case Feat: return is((feat_s)id.value);
 	case Race: return race == id.value;
+	case Reaction: return reaction == id.value;
 	case Skill: return skills[id.value]!=0;
 	default: return false;
 	}

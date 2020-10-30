@@ -568,7 +568,13 @@ static void character_test_v2() {
 }
 
 static void character_test() {
-	auto player = creature::getactive();
+	//auto player = creature::getactive();
+	//if(!player)
+	//	return;
+	varianta creatures; creatures.creatures(Hostile, true);
+	if(!creatures)
+		return;
+	auto player = creatures[0].getcreature();
 	if(!player)
 		return;
 	player->testground();
@@ -580,6 +586,11 @@ static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
 {move_up, KeyUp, "Двигать вверх"},
 {move_down, KeyDown, "Двигать вниз"},
 {change_mode, Alpha + 'G', "Изменить режим панелей"},
+#ifdef _DEBUG
+{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
+{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
+{character_test, Alpha + 'T', "Тестирование анимации"},
+#endif
 {}};
 
 static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвентаря"},

@@ -3,6 +3,7 @@ Attack: Атака.
 Charisma: Обаяние. 
 Constitution: Телосложение. 
 Damage: Урон. 
+DeflectCritical: Отражение критических ударов. 
 Dexterity: Ловкость. 
 Fortitude: Стойкост. 
 HitPoints: Очки здоровья. 

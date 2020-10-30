@@ -193,6 +193,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="portraits.cpp" />
     <ClCompile Include="range.cpp" />
+    <ClCompile Include="reaction.cpp" />
     <ClCompile Include="region.cpp" />
     <ClCompile Include="resources.cpp" />
     <ClCompile Include="resource_dynamic.cpp" />

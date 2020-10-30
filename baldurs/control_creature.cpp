@@ -110,7 +110,7 @@ variant creature::choose(const char* title, const char* step_title, varianta& el
 static int choose_portrait(const char* title, const char* step_title, gender_s gender) {
 	adat<short, 128> portrait_indicies;
 	portrait_indicies.clear();
-	auto col = portrait_info::getelements();
+	auto col = portraiti::getelements();
 	for(auto& e : col) {
 		if(e.is(gender))
 			portrait_indicies.add(col.indexof(&e));

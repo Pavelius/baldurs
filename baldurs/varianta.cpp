@@ -36,6 +36,17 @@ void varianta::shuffle() {
 	zshuffle(data, count);
 }
 
+void varianta::creatures(variant v1, bool ispresent) {
+	auto pb = data;
+	for(auto& e : bsdata<creature>()) {
+		if(!e)
+			continue;
+		if(e.have(v1) != ispresent)
+			continue;
+		add(variant(&e));
+	}
+}
+
 void varianta::match(const creature& player, bool ispresent) {
 	auto pb = data;
 	for(auto e : *this) {

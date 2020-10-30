@@ -236,6 +236,19 @@ void creature::addinfo(stringbuilder& sb, variant_s step) const {
 	}
 }
 
+static void addm(stringbuilder& sb, const char* header, const feata& feats) {
+	auto p = sb.get();
+	for(auto i = FirstFeat; i <= LastFeat; i = (feat_s)(i + 1)) {
+		if(!feats.is(i))
+			continue;
+		if(sb.ispos(p))
+			sb.addn("%1: ", header);
+		else
+			sb.add(", ");
+		sb.add(getstr(i));
+	}
+}
+
 void item::addinfo(stringbuilder& sb) const {
 	auto& ei = bsdata<itemi>::elements[type];
 	if(ei.text && ei.text[0])
@@ -251,6 +264,8 @@ void item::addinfo(stringbuilder& sb) const {
 	auto ac = getac();
 	if(ac)
 		addm(sb, getstr(ArmorClass), "%+1i", ac);
+	if(ei.feat[0])
+		addm(sb, "Требует", getstr(ei.feat[0]));
 	addm(sb, "Вес", "%1i фунтов", ei.weight);
 }
 
