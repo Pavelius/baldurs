@@ -244,8 +244,13 @@ void item::addinfo(stringbuilder& sb) const {
 		sb.add("Необходимо добавить описание предмета.");
 	auto bonus = getbonus();
 	sb.add("\n\n[Характеристики]");
+	if(ei.ai.deflect_critical)
+		sb.addn("Шанс %1i%% превратить критический удар по вам в обычный удар.", ei.ai.deflect_critical);
 	attacki ai = {}; apply(ai);
 	addm(sb, ai.damage);
+	auto ac = getac();
+	if(ac)
+		addm(sb, getstr(ArmorClass), "%+1i", ac);
 	addm(sb, "Вес", "%1i фунтов", ei.weight);
 }
 

@@ -115,9 +115,6 @@
     <ClCompile Include="resource_dynamic.cpp">
       <Filter>Библиотека\Графика</Filter>
     </ClCompile>
-    <ClCompile Include="save.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="feature.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -267,6 +264,15 @@
     </ClCompile>
     <ClCompile Include="draw_layout.cpp">
       <Filter>Библиотека\Графика</Filter>
+    </ClCompile>
+    <ClCompile Include="duration.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="range.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="boost.cpp">
+      <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

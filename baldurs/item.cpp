@@ -19,7 +19,7 @@ BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},
 {"Staff", {"ISTAFB1", "GSTAF01", res::WQSQS}, QuickWeapon, {ProficiencySimple, FocusPolearm}, {TwoHanded}, {{Bludgeon, 1, 6}}},
 {"Crossbow",  {"IXBOWL01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyCrossbow, FocusShooting}, {}, {{Pierce, 1, 8}}},
 {"HeavyCrossbow", {"IXBOWH01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyHeavyCrossbow, FocusShooting}, {}, {{Pierce, 1, 10}}},
-{"Sling", {"ISLNGB1", "GSLNG01", res::WQSSL}, QuickWeapon, {ProficiencySimple}, {}, {{Bludgeon, 1, 4}}},
+{"Sling", {"ISLNGB1", "GSLNG01", res::WQSSL}, QuickWeapon, {ProficiencySimple}, {}, {{Bludgeon, 1, 4}, 0, Range50}},
 
 {"BattleAxe", {"IAX1HB2", "GAX1H01", res::WQSAX}, QuickWeapon, {ProficiencyAxe, FocusAxes}, {}, {{Slashing, 1, 8}}, 0, 0, 0, {}},
 {"Dagger", {"IDAGGB1", "GDAGG01", res::WQSDD}, QuickOffhand, {ProficiencyDagger, FocusDaggers}, {}, {{Pierce, 1, 4}}},
@@ -31,8 +31,8 @@ BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},
 {"Shortsword", {"ISWDSB1", "GSW1H07", res::WQSSS}, QuickOffhand, {ProficiencyShortsword, FocusSwords}, {}, {{Slashing, 1, 6}}},
 {"TwoHandedSword", {"ISWDTB1", "GSW2H01", res::WQSS2}, QuickWeapon, {ProficiencyGreatweapon, FocusSwords}, {TwoHanded}, {{Slashing, 2, 6}}},
 {"Rapier", {"ISWDSB1", "GSW1H07", res::WQSSS}, QuickWeapon, {ProficiencyShortsword, FocusDaggers}, {}, {{Pierce, 1, 6}}},
-{"ShortBow", {"IBOWSB1", "GBOW01", res::WQSBW, res::ARARROW}, QuickWeapon, {ProficiencyShortbow, FocusShooting}, {}, {{Pierce, 1, 6}}},
-{"LongBow", {"IBOWLB1", "GBOW01", res::WQSBW, res::ARARROW}, QuickWeapon, {ProficiencyLongbow, FocusShooting}, {}, {{Pierce, 1, 8}}},
+{"ShortBow", {"IBOWSB1", "GBOW01", res::WQSBW, res::ARARROW}, QuickWeapon, {ProficiencyShortbow, FocusShooting}, {}, {{Pierce, 1, 6}, 0, Range60}},
+{"LongBow", {"IBOWLB1", "GBOW01", res::WQSBW, res::ARARROW}, QuickWeapon, {ProficiencyLongbow, FocusShooting}, {}, {{Pierce, 1, 8}, 0, Range100}},
 
 {"Waraxe", {"IAX1HBB", "GHAMM01", res::WQSAX}, QuickWeapon, {ProficiencyWaraxe, FocusAxes}, {}, {{Slashing, 1, 10}}},
 {"BastardSword", {"ISWDBB1", "GSW1H01", res::WQSS1}, QuickWeapon, {ProficiencyBastardsword, FocusSwords}, {}, {{Slashing, 1, 10}}},
@@ -48,11 +48,11 @@ BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},
 {"BandedMail", {"IARMPM1", "GPLAT01"}, Body, {ArmorProfeciencyHeavy}, {}, {{}, 7}},
 {"PlateMail", {"IARMFM1", "GPLAT01"}, Body, {ArmorProfeciencyHeavy}, {}, {{}, 8}},
 
-{"SmallShield", {"ISHDSB1", "GSHLD01", res::WQSD1}, QuickOffhand, {ShieldProfeciency}},
-{"LargeShield", {"ISHDLB1", "GSHLD03", res::WQSD3}, QuickOffhand, {ShieldProfeciency}},
-{"TowerShield", {"ISHDTB1", "GSHLD05", res::WQSD4}, QuickOffhand, {ShieldProfeciency}},
+{"SmallShield", {"ISHDSB1", "GSHLD01", res::WQSD1}, QuickOffhand, {ShieldProfeciency}, {}, {{}, 2}},
+{"LargeShield", {"ISHDLB1", "GSHLD03", res::WQSD3}, QuickOffhand, {ShieldProfeciency}, {}, {{}, 2}},
+{"TowerShield", {"ISHDTB1", "GSHLD05", res::WQSD4}, QuickOffhand, {ShieldProfeciency}, {}, {{}, 3}},
 
-{"Helm", {"IHELMB1", "GHELM01", res::WQSH1}, Head, {ArmorProfeciencyMedium}, {}},
+{"Helm", {"IHELMB1", "GHELM01", res::WQSH1}, Head, {ArmorProfeciencyMedium}, {}, {{}, 0, Touch, 40}},
 
 {"Arrow", {"IAROWB1", "GAROW01"}, Quiver},
 
@@ -86,10 +86,7 @@ bool item::isreach() const {
 }
 
 int	item::getac() const {
-	auto r = 0;
-	if(r)
-		r += getbonus();
-	return r;
+	return geti().ai.ac;
 }
 
 int item::getframe() const {
@@ -145,6 +142,10 @@ bool item::is(slot_s v) const {
 	}
 }
 
+bool item::isranged() const {
+	return geti().ai.range > Touch;
+}
+
 bool item::isbow() const {
 	return type == Longbow || type == Shortbow;
 }
@@ -193,4 +194,31 @@ void item::apply(attacki& e) const {
 
 const int itemi::poweri::getweight() const {
 	return 1;
+}
+
+creature* item::getowner() const {
+	if(this >= (item*)players && this < (item*)((char*)players + sizeof(players)))
+		return players + ((char*)this - (char*)players) / sizeof(creature);
+	auto index = bsdata<creature>::source.indexof(this);
+	if(index == -1)
+		return 0;
+	return bsdata<creature>::elements + index;
+}
+
+void item::equip(const item& it) {
+	auto p = getowner();
+	if(p)
+		p->dressoff();
+	*this = it;
+	if(p)
+		p->dresson();
+}
+
+void item::remove() {
+	auto p = getowner();
+	if(p)
+		p->dressoff();
+	clear();
+	if(p)
+		p->dresson();
 }

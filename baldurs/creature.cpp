@@ -3,6 +3,7 @@
 BSDATAC(creature, 256)
 creature				players[6];
 static int				party_money;
+static ability_s		calculating_ability[] = {Attack, Fortitude, Reflexes, Will};
 
 static char	good_save[] = {2,
 2, 3, 3, 4, 4, 5, 5, 6, 6, 7,
@@ -48,7 +49,17 @@ void targetreaction::clear() {
 }
 
 int	creature::get(ability_s id) const {
-	return ability[id] / 2 - 5;
+	switch(id) {
+	case Strenght:
+	case Constitution:
+	case Dexterity:
+	case Intellegence:
+	case Wisdow:
+	case Charisma:
+		return ability[id] / 2 - 5;
+	default:
+		return ability[id];
+	}
 }
 
 int	creature::getcharlevel() const {
@@ -76,22 +87,6 @@ int	creature::getcasterlevel() const {
 	return result;
 }
 
-int creature::get(save_s id) const {
-	int r, result = 0;
-	for(auto i = FirstClass; i <= LastClass; i = (class_s)(i + 1)) {
-		if(!classes[i])
-			continue;
-		if(isgood(i, id))
-			r = maptbl(good_save, classes[i]);
-		else
-			r = maptbl(bad_save, classes[i]);
-		if(result < r)
-			result = r;
-	}
-	result += get(getability(id));
-	return result;
-}
-
 int	creature::get(spell_s id) const {
 	for(auto& e : powers) {
 		if(e.id == id)
@@ -105,10 +100,8 @@ int	creature::getmaxcarry() const {
 	return maptbl(carrying_capacity, value)[2];
 }
 
-int creature::getbab() const {
-	return classes[Barbarian] + classes[Fighter] + classes[Paladin] + classes[Ranger]
-		+ ((classes[Bard] + classes[Cleric] + classes[Druid] + classes[Monk] + classes[Rogue]) * 3) / 4
-		+ (classes[Sorcerer] + classes[Wizard]) / 2;
+void creature::set(feat_s v) {
+	feats[v / 32] |= (1 << (v % 32));
 }
 
 void creature::apply(race_s id) {
@@ -141,15 +134,11 @@ int creature::get(skill_s id) const {
 }
 
 int creature::getac(bool flatfooted) const {
-	int r = 10;
+	auto r = get(ArmorClass);
 	if(!flatfooted) {
 		r += get(Dexterity);
 		r += get(Dodge);
 	}
-	r += wears[Body].getac();
-	r += wears[Head].getac();;
-	r += getweapon().getac();
-	r += getoffhand().getac();
 	return r;
 }
 
@@ -254,7 +243,7 @@ void creature::addinfo(stringbuilder& sb) const {
 	sb.addh("Мировозрение");
 	sb.addn(getstr(alignment));
 	sb.addh("Спас-броски");
-	for(auto e = Fortitude; e <= Will; e = (save_s)(e + 1))
+	for(auto e = Fortitude; e <= Will; e = (ability_s)(e + 1))
 		sb.addn("%1: %+2i", getstr(e), get(e));
 	sb.addh("Способности атрибутов");
 	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
@@ -265,6 +254,10 @@ int	creature::getskillpoints() const {
 	for(auto e : skills)
 		result += e;
 	return result;
+}
+
+short unsigned creature::getid() const {
+	return this - bsdata<creature>::elements;
 }
 
 int	creature::getfeats() const {
@@ -338,7 +331,8 @@ void creature::updategame() {
 	}
 }
 
-void creature::update_levels() {
+void creature::finish() {
+	dresson();
 	hits = gethitsmax();
 }
 
@@ -419,7 +413,7 @@ bool creature::equip(const item it) {
 			continue;
 		if(!it.is(e))
 			continue;
-		wears[e] = it;
+		wears[e].equip(it);
 		return true;
 	}
 	return false;
@@ -452,43 +446,10 @@ const item* creature::getwear(slot_s id) const {
 	}
 }
 
-//aref<variant> creature::selecth(const aref<variant>& source, const variant v1, const variant v2, bool sort_by_name) const {
-//	auto pb = source.data;
-//	auto pe = pb + source.count;
-//	auto result = source; result.count = 0;
-//	switch(v1.type) {
-//	case Skill:
-//		if(!getskillpoints())
-//			return result;
-//		break;
-//	}
-//	for(auto e = v1; e.value <= v2.value; e.value++) {
-//		switch(e.type) {
-//		case Feat:
-//			if(!is((feat_s)e.value))
-//				continue;
-//			break;
-//		case Skill:
-//			if(!skills[e.value])
-//				continue;
-//			break;
-//		case Ability:
-//			if(ability[e.value] == 0)
-//				continue;
-//			break;
-//		}
-//		if(pb < pe)
-//			*pb++ = e;
-//	}
-//	result.count = pb - source.data;
-//	if(sort_by_name)
-//		qsort(result.data, result.count, sizeof(result.data[0]), compare_variant);
-//	return result;
-//}
-
 bool creature::choose_skills(const char* title, varianta& elements, bool interactive) {
 	auto type = getclass();
 	auto race = getrace();
+	ability[ArmorClass] += 10;
 	apply(race);
 	apply(type);
 	apply(race, 1, interactive);
@@ -529,10 +490,10 @@ void creature::create(class_s type, race_s race, gender_s gender, reaction_s rea
 		ability[a] = roll_4d6();
 	varianta elements;
 	choose_skills("Случайная генерация", elements, false);
-	update_levels();
 	portrait = random_portrait();
 	update_portrait();
 	random_name();
+	finish();
 }
 
 creature* creature::create(monster_s type, reaction_s reaction, point postition) {
@@ -947,7 +908,7 @@ bool creature::isallow(feat_s id, bool test_feats) const {
 				return false;
 		}
 	}
-	if(ei.base_attack && getbab() < ei.base_attack)
+	if(ei.base_attack && getraw(Attack) < ei.base_attack)
 		return false;
 	if(ei.character_level && getcharlevel() < ei.character_level)
 		return false;
@@ -988,5 +949,63 @@ bool creature::have(variant id) const {
 	case Race: return race == id.value;
 	case Skill: return skills[id.value]!=0;
 	default: return false;
+	}
+}
+
+void creature::addvar(variant id, char bonus) {
+}
+
+int creature::getraw(ability_s id) const {
+	int r, n;
+	switch(id) {
+	case Attack:
+		return classes[Barbarian] + classes[Fighter] + classes[Paladin] + classes[Ranger]
+			+ ((classes[Bard] + classes[Cleric] + classes[Druid] + classes[Monk] + classes[Rogue]) * 3) / 4
+			+ (classes[Sorcerer] + classes[Wizard]) / 2;
+	case Reflexes:
+	case Fortitude:
+	case Will:
+		r = ability[id];
+		for(auto i = FirstClass; i <= LastClass; i = (class_s)(i + 1)) {
+			if(!classes[i])
+				continue;
+			if(isgood(i, id))
+				n = maptbl(good_save, classes[i]);
+			else
+				n = maptbl(bad_save, classes[i]);
+			if(r < n)
+				r = n;
+		}
+		r += get(getability(id));
+		switch(id) {
+		case Fortitude:
+			if(is(GreateFortitude))
+				r += 2;
+			break;
+		case Will:
+			if(is(IronWill))
+				r += 2;
+			break;
+		case Reflexes:
+			if(is(LightingReflexes))
+				r += 2;
+			break;
+		}
+		return r;
+	default:
+		return 0;
+	}
+}
+
+void creature::dress(int m) {
+	// Abilities
+	for(auto a : calculating_ability)
+		ability[a] += getraw(a)*m;
+	// Equipment
+	for(auto s = Head; s <= LastQuickItem; s = (slot_s)(s+1)) {
+		if(!wears[s])
+			continue;
+		ability[ArmorClass] += wears[s].getac() * m;
+		ability[DeflectCritical] += wears[s].geti().ai.deflect_critical * m;
 	}
 }

@@ -161,6 +161,8 @@
     <ClCompile Include="draw_layout.cpp" />
     <ClCompile Include="draw_text.cpp" />
     <ClCompile Include="draw_textf.cpp" />
+    <ClCompile Include="duration.cpp" />
+    <ClCompile Include="boost.cpp" />
     <ClCompile Include="entrance.cpp" />
     <ClCompile Include="feats.cpp" />
     <ClCompile Include="feature.cpp" />
@@ -190,10 +192,10 @@
     <ClCompile Include="pack.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="portraits.cpp" />
+    <ClCompile Include="range.cpp" />
     <ClCompile Include="region.cpp" />
     <ClCompile Include="resources.cpp" />
     <ClCompile Include="resource_dynamic.cpp" />
-    <ClCompile Include="save.cpp" />
     <ClCompile Include="scale_2x.cpp" />
     <ClCompile Include="school.cpp" />
     <ClCompile Include="screenshoot.cpp" />

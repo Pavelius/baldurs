@@ -4,7 +4,7 @@ BSDATA(spelli) = {{"NoSpell", "SPWI104C"},
 //
 {"ArmorOfFaith", "SPPR115C", Abjuration, {{Cleric, 1}}},
 {"Bane", "SPPR111C", Enchantment, {{Cleric, 1}}},
-{"Bless", "SPPR101C", Conjuration, {{Cleric, 1}}},
+{"Bless", "SPPR101C", Conjuration, {{Cleric, 1}}, Range50, Minute1p},
 {"Command", "SPPR102C", Enchantment, {{Cleric, 1}}},
 {"CureLightWounds", "SPPR103C", Conjuration, {{Cleric, 1}}},
 {"Doom", "SPPR114C", Enchantment, {{Cleric, 1}}},
@@ -35,7 +35,7 @@ BSDATA(spelli) = {{"NoSpell", "SPWI104C"},
 {"IceDagger", "SPWI122C", Evocation, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Identify", "SPWI110C", Divination, {{Sorcerer, 1}, {Wizard, 1}}},
 {"LarlochsMinorDrain", "SPWI119C", Necromancy, {{Sorcerer, 1}, {Wizard, 1}}},
-{"MageArmor", "SPWI102C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}},
+{"MageArmor", "SPWI102C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}, Touch, Hour1p},
 {"MagicMissile", "SPWI112C", Evocation, {{Sorcerer, 1}, {Wizard, 1}}},
 {"MinorMirrorImage", "SPWI120C", Illusion, {{Sorcerer, 1}, {Wizard, 1}}},
 {"ProtectionFromPetrification", "SPWI108C", Abjuration, {{Sorcerer, 1}, {Wizard, 1}}},
@@ -43,9 +43,20 @@ BSDATA(spelli) = {{"NoSpell", "SPWI104C"},
 {"ShockingGrasp", "SPWI115C", Transmutation, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Sleep", "SPWI116C", Enchantment, {{Sorcerer, 1}, {Wizard, 1}}},
 {"Spook", "SPWI121C", Illusion, {{Sorcerer, 1}, {Wizard, 1}}},
-{"SummonMonsterI", "SPWI124C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}}, };
+{"SummonMonsterI", "SPWI124C", Conjuration, {{Sorcerer, 1}, {Wizard, 1}}},
+};
 assert_enum(spelli, LastSpell)
 
 bool creature::is(spell_s id, class_s cls, int level) {
 	return bsdata<spelli>::elements[id].levels[cls] >= level;
+}
+
+bool creature::affect(spell_s id, int level, bool run) {
+	switch(id) {
+	case Bless:
+		if(run) {
+		}
+		break;
+	}
+	return true;
 }

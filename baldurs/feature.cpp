@@ -55,15 +55,9 @@ static void apply_values(creature& player, featurei& f, bool interactive) {
 	}
 }
 
-featurei feature_data[] = {{Barbarian, 1, 0, apply_values, {FastMovement, Illiteracy}},
+static featurei feature_data[] = {{Barbarian, 1, 0, apply_values, {FastMovement, Illiteracy}},
 {Cleric, 1, 0, known_all_spells},
-{Cleric, 1, 0, apply_values, {Mace}},
-{Fighter, 1, 0, apply_values, {Longsword, LeatherArmor, ShieldLarge, Helm}},
-{Paladin, 1, 0, apply_values, {Longsword, BandedMail, Helm}},
-{Ranger, 1, 0, apply_values, {Shortbow, LeatherArmor}},
-{Rogue, 1, 0, apply_values, {Shortsword}},
 {Wizard, 1, 0, known_some_spells},
-{Wizard, 1, 0, apply_values, {Staff}},
 {Cleric, 3, 0, known_all_spells},
 {Cleric, 5, 0, known_all_spells},
 {Cleric, 7, 0, known_all_spells},
@@ -78,5 +72,24 @@ void creature::apply(variant type, char level, bool interactive) {
 	for(auto& e : feature_data) {
 		if(e.type == type && e.level == level)
 			e.proc(*this, e, interactive);
+	}
+}
+
+static featurei equip_data[] = {{Cleric, 1, 0, apply_values, {Mace}},
+{Fighter, 1, 0, apply_values, {Longsword, LeatherArmor, ShieldLarge, Helm}},
+{Paladin, 1, 0, apply_values, {Longsword, BandedMail, Helm}},
+{Ranger, 1, 0, apply_values, {Shortbow, LeatherArmor}},
+{Rogue, 1, 0, apply_values, {Shortsword}},
+{Wizard, 1, 0, apply_values, {Staff}},
+};
+
+void creature::random_equip(bool interactive) {
+	auto level = getlevel();
+	for(auto& e : equip_data) {
+		if(e.level != level)
+			continue;
+		if(!have(e.type))
+			continue;
+		e.proc(*this, e, interactive);
 	}
 }

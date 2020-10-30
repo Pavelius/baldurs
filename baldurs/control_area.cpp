@@ -585,10 +585,10 @@ static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
 static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвентаря"},
 {character_sheet, Alpha + 'C', "Листок персонажа"},
 {character_spellbook, Alpha + 'S', "Заклинания персонажа"},
-{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
-{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
 {creature::select_all, Alpha + '=', "Выбрать всех"},
 #ifdef _DEBUG
+{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
+{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
 {character_test, Alpha + 'T', "Тестирование анимации"},
 #endif
 {game_minimap, Alpha + 'M', "Карта местности"},

@@ -285,6 +285,7 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 	if(!points)
 		return true;
 	if(!interactive) {
+		elements.shuffle();
 		for(auto v : elements) {
 			if(!isallow(v))
 				continue;
@@ -404,7 +405,7 @@ bool creature::choose_ability(const char* title, const char* step_title, bool ad
 	return true;
 }
 
-static genstepi* find(variant_s value) {
+static genstepi* findstep(variant_s value) {
 	for(auto& e : bsdata<genstepi>()) {
 		if(e.step == value)
 			return &e;
@@ -489,7 +490,7 @@ void creature::generate(const char* title) {
 	varianta elements;
 	auto step = nextstep(NoVariant);
 	while(true) {
-		auto si = find(step);
+		auto si = findstep(step);
 		auto e1 = choose_step(*this, title, "Главное меню", step);
 		if(e1 == step) {
 			switch(e1) {

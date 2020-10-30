@@ -30,7 +30,7 @@ BSDATA(varianti) = {{"NoVariant", "Нет"},
 };
 assert_enum(varianti, Variant)
 
-template<> const char* getstr<variant>(variant id) {
+const char* getstr(variant id) {
 	auto& ei = bsdata<varianti>::elements[id.type];
 	if(!ei.locale[0] || !ei.source)
 		return "Нет имени";

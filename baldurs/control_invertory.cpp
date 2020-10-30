@@ -103,7 +103,7 @@ static void choose_item() {
 	if(!di.source || !*di.source)
 		return;
 	di.value = *di.source;
-	di.source->clear();
+	di.source->remove();
 	auto enable = get_drag_target(player, di);
 	if(enable && di.target_slot >= Head && di.target_slot <= Legs) {
 		enable = di.value.is(di.target_slot);
@@ -114,11 +114,11 @@ static void choose_item() {
 		if(di.target_slot == LastBackpack)
 			map::drop(player->getindex(), di.value);
 		else if(di.target)
-			*di.target = di.value;
+			di.target->equip(di.value);
 		else
-			*di.source = di.value;
+			di.source->equip(di.value);
 	} else
-		*di.source = di.value;
+		di.source->equip(di.value);
 }
 
 static void choose_weapon() {

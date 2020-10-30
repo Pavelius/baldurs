@@ -26,6 +26,8 @@ static void quick_load() {
 	players[3].create(Ranger, HalfElf, Female, Helpful);
 	players[4].create(Rogue, Elf, Female, Helpful);
 	players[5].create(Wizard, Human, Male, Helpful);
+	for(auto& e : players)
+		e.random_equip(false);
 	creature::moveto("AR4000");
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
@@ -86,11 +88,12 @@ static void test_generate() {
 }
 
 int main(int argc, char* argv[]) {
+	//srand(clock());
+	srand(1000002);
 	gamei::localization("ru", false);
 	gamei::localization("debug", true);
 	if(!test_variant_position())
 		return -1;
-	srand(clock());
 	draw::initialize();
 	if(!draw::pallette)
 		return -1;

@@ -221,7 +221,6 @@ void actor::set(animate_s id) {
 	action = id;
 	frame = 0;
 	duration = draw::getframe() + 1000 / getfps();
-	//duration = draw::getframe();
 	if(id == AnimateStand)
 		clearpath();
 }
@@ -417,15 +416,6 @@ void actor::painting(point screen) const {
 		auto cicle_frame = p->getanim(cicle_index, getframe());
 		image(x, y, p, cicle_frame, cicle_flags, 0xFF, pallette);
 	}
-	//for(auto i = 0; i < 4; i++) {
-	//	if(!sprites[i])
-	//		continue;
-	//	auto cicle_frame = sprites[i]->getanim(cicle_index, getframe());
-	//	if(i >= 2
-	//		&& ((action==AnimateMeleeOneHanded) || (action == AnimateMeleeOneHandedThrust) || (action == AnimateMeleeOneHandedSwing)))
-	//		cicle_frame = sprites[i]->getanim(cicle_index-1, getframe()-1);
-	//	image(x, y, sprites[i], cicle_frame, cicle_flags, 0xFF, pallette);
-	//}
 }
 
 static void painting_equipment(int x, int y, item equipment, int ws, int frame, unsigned flags, color* pallette) {

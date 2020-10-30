@@ -79,7 +79,6 @@ struct pma {
 	const char*			getstring(int id) const;
 };
 struct sprite : pma {
-	enum flagse { NoIndex = 1 };
 	enum encodes { Auto, RAW, RLE, ALC, RAW8, RLE8 };
 	struct frame {
 		short int		sx, sy;
@@ -110,7 +109,6 @@ struct sprite : pma {
 	const frame&		get(int id) const { return frames[(id >= count) ? 0 : id]; }
 	int					getanim(int index, int tick) const;
 	const cicle*		getcicle(int index) const { return (cicle*)offs(cicles_offset) + index; }
-	inline int			getindex(int index) const { return *((short unsigned*)((cicle*)offs(cicles_offset) + cicles) + index); }
 	int					glyph(unsigned sym) const;
 	const unsigned char* offs(unsigned o) const { return (unsigned char*)this + o; }
 	void				setup(int count, int pallette_count = 0, int cicles = 0, int cicles_indexes = 0);

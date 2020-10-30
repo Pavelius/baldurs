@@ -32,5 +32,5 @@ void creature::create(monster_s type, reaction_s reaction) {
 		add(it);
 	}
 	this->name = ei.name;
-	update_levels();
+	finish();
 }
