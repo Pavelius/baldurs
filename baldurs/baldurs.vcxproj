@@ -233,6 +233,7 @@
     <ClInclude Include="crt.h" />
     <ClInclude Include="draw.h" />
     <ClInclude Include="io.h" />
+    <ClInclude Include="mail_util.h" />
     <ClInclude Include="main.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>

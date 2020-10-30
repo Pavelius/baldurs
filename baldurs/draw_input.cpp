@@ -57,6 +57,7 @@ void draw::execute(void(*proc)(), int param, void* object) {
 	domodal = proc;
 	hot.param = param;
 	hot.object = object;
+	hot.key = InputUpdate;
 }
 
 void draw::execute(const hotinfo& value) {

@@ -553,7 +553,8 @@ static targetreaction render_screen(bool active_buttons, bool show_actions, bool
 	return render_area(rcs, camera, cur);
 }
 
-static void character_test() {
+#ifdef _DEBUG
+static void character_test_v2() {
 	auto player = creature::getactive();
 	if(!player)
 		return;
@@ -565,6 +566,14 @@ static void character_test() {
 	pa->set(player->getcolors());
 	pa->wait();
 }
+
+static void character_test() {
+	auto player = creature::getactive();
+	if(!player)
+		return;
+	player->testground();
+}
+#endif
 
 static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
 {move_right, KeyRight, "Двигать вправо"},
@@ -579,7 +588,9 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
 {creature::select_all, Alpha + '=', "Выбрать всех"},
+#ifdef _DEBUG
 {character_test, Alpha + 'T', "Тестирование анимации"},
+#endif
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {game_journal, Alpha + 'J', "Журнал заданий"},

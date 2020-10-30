@@ -888,9 +888,7 @@ class actor : public drawable {
 	targetreaction		action_target;
 	//
 	void				clearpath();
-	animate_s			getattackanimate(int number) const;
 	bool				isready() const;
-	void				set(animate_s value);
 public:
 	void				act(int player, const char* format, ...);
 	virtual void		blockimpassable() const {}
@@ -898,6 +896,7 @@ public:
 	void				clear();
 	void				clearcolors();
 	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
+	animate_s			getattackanimate(int number) const;
 	static point		getbackward(point start, int step, int orientation);
 	static point		getcamera();
 	static point		getcamerasize();
@@ -915,6 +914,7 @@ public:
 	int					getmovedistance(point destination, short unsigned minimum_reach) const;
 	virtual const char* getname() const { return ""; }
 	virtual monster_s	getkind() const { return Character; }
+	int					getorientation() const { return orientation; }
 	virtual int			getportrait() const { return 0; }
 	point				getposition() const override { return position; }
 	point				getposition(int percent) const;
@@ -950,6 +950,7 @@ public:
 	void				render_path(const rect& rc, int mx, int my) const;
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
+	void				set(animate_s value);
 	virtual void		set(gender_s value) {}
 	virtual void		set(state_s value) {}
 	void				set(const targetreaction& e) { action_target = e; }
@@ -958,6 +959,7 @@ public:
 	void				setposition(point newpos);
 	static void			slide(const point camera);
 	void				stop();
+	void				testground();
 	void				update() override;
 	void				update_portrait();
 	void				wait(char percent = 0);

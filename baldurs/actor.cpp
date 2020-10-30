@@ -220,7 +220,8 @@ void actor::set(animate_s id) {
 	}
 	action = id;
 	frame = 0;
-	duration = draw::getframe();
+	duration = draw::getframe() + 1000 / getfps();
+	//duration = draw::getframe();
 	if(id == AnimateStand)
 		clearpath();
 }
@@ -555,3 +556,46 @@ point actor::getposition(int percent) const {
 	auto height = position.y - (getbodyheight() * percent) / 100;
 	return {position.x, (short)height};
 }
+
+#ifdef _DEBUG
+void actor::testground() {
+	int v;
+	rect rc = {0, 0, getwidth(), getheight()};
+	surface bm(rc.width() / 2, rc.height() / 2, 32);
+	point screen = getposition();
+	screen.x -= rc.width() / 4;
+	screen.y -= rc.height() / 4;
+	while(ismodal()) {
+		auto push_canvas = canvas; canvas = &bm;
+		rectf({0, 0, getwidth(), getheight()}, colors::gray);
+		painting(screen);
+		canvas = push_canvas;
+		scale2x(canvas->ptr(0, 0), canvas->scanline, bm.ptr(0, 0), bm.scanline, bm.width, bm.height);
+		domodal();
+		switch(hot.key) {
+		case KeyEscape: breakmodal(0); break;
+		case KeyLeft:
+			v = getorientation() - 1;
+			if(v < 0)
+				v = 15;
+			setorientation(v);
+			break;
+		case KeyRight:
+			v = getorientation() + 1;
+			if(v > 15)
+				v = 0;
+			setorientation(v);
+			break;
+		case Alpha + 'A': set(getattackanimate(0)); break;
+		case Alpha + 'S': set(getattackanimate(1)); break;
+		case Alpha + 'D': set(getattackanimate(2)); break;
+		case Alpha + 'Z': set(AnimateCombatStance); break;
+		case Alpha + 'X': set(AnimateGetHit); break;
+		case Alpha + 'C': set(AnimateGetHitAndDrop); break;
+		case Alpha + 'Q': set(AnimateGetUp); break;
+		case Alpha + 'W': set(AnimateShootBow); break;
+		case Alpha + 'E': set(AnimateCast); break;
+		}
+	}
+}
+#endif

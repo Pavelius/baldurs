@@ -318,6 +318,9 @@
     <ClInclude Include="stringbuilder.h">
       <Filter>Библиотека\Классы</Filter>
     </ClInclude>
+    <ClInclude Include="mail_util.h">
+      <Filter>Инструменты</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Инструменты">

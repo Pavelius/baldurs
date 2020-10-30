@@ -283,7 +283,6 @@ void					text(int x, int y, const char* string, int count = -1, unsigned flags =
 int						text(rect rc, const char* string, unsigned state = 0, int* max_width = 0);
 int						textc(int x, int y, int width, const char* string, int count = -1, unsigned flags = 0);
 int						textbc(const char* string, int width);
-int						textlb(const char* string, int index, int width, int* line_index = 0, int* line_count = 0);
 int						texte(rect rc, const char* string, unsigned flags, int i1, int i2);
 int						textf(int x, int y, int width, const char* text, int* max_width = 0, int min_height = 0, int* cashe_height = 0, const char** cashe_string = 0, int tab_width = 0);
 int						textf(rect& rc, const char* string, int tab_width = 0);

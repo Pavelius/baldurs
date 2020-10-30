@@ -58,7 +58,7 @@ static void apply_values(creature& player, featurei& f, bool interactive) {
 featurei feature_data[] = {{Barbarian, 1, 0, apply_values, {FastMovement, Illiteracy}},
 {Cleric, 1, 0, known_all_spells},
 {Cleric, 1, 0, apply_values, {Mace}},
-{Fighter, 1, 0, apply_values, {Longsword, LeatherArmor, Helm}},
+{Fighter, 1, 0, apply_values, {Longsword, LeatherArmor, ShieldLarge, Helm}},
 {Paladin, 1, 0, apply_values, {Longsword, BandedMail, Helm}},
 {Ranger, 1, 0, apply_values, {Shortbow, LeatherArmor}},
 {Rogue, 1, 0, apply_values, {Shortsword}},

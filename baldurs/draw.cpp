@@ -1440,30 +1440,6 @@ int	draw::text(rect rc, const char* string, unsigned state, int* max_width) {
 	}
 }
 
-int draw::textlb(const char* string, int index, int width, int* line_index, int* line_count) {
-	auto dy = texth();
-	auto p = string;
-	if(line_index)
-		*line_index = 0;
-	if(line_count)
-		*line_count = 0;
-	while(true) {
-		int c = textbc(p, width);
-		if(!c)
-			break;
-		if(index < c || p[c] == 0) {
-			if(line_count)
-				*line_count = c;
-			break;
-		}
-		index -= c;
-		if(line_index)
-			*line_index = *line_index + 1;
-		p = skiptr(p + c);
-	}
-	return p - string;
-}
-
 static void hilite_text_line(int x, int y, int width, int height, const char* string, int count, unsigned state, int i1, int i2) {
 	int w = draw::textw(string, count);
 	auto x0 = draw::aligned(x, width, state, w);
