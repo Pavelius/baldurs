@@ -18,7 +18,7 @@ BSDATA(animatei) = {{"AnimateMove"},
 {"AnimateCombatStance", false, true}, {"AnimateCombatStanceTwoHanded", false, true},
 {"AnimateGetHit"}, {"AnimateGetHitAndDrop"},
 {"AnimateAgony", false, true},
-{"AnimateGetUp", true},
+{"AnimateGetUp", false},
 {"AnimateMeleeOneHanded"}, {"AnimateMeleeOneHandedSwing"}, {"AnimateMeleeOneHandedThrust"},
 {"AnimateMeleeTwoHanded"}, {"AnimateMeleeTwoHandedSwing"}, {"AnimateMeleeTwoHandedThrust"},
 {"AnimateMeleeTwoWeapon"}, {"AnimateMeleeTwoWeaponSwing"}, {"AnimateMeleeTwoWeaponThrust"},
@@ -116,7 +116,7 @@ res::tokens actor::getanimation(race_s race, gender_s gender, class_s type, int 
 			ws = 1; // верно для людей
 			icn = res::CHFB1;
 		} else {
-			ws = 3; // верно для людей, но не для оружия
+			ws = 3; // верно для людей
 			icn = res::CHMB1;
 		}
 		break;
@@ -383,7 +383,7 @@ void actor::painting(point screen) const {
 	int x = position.x - screen.x;
 	int y = position.y - screen.y;
 	int cicle_index = getcicle();
-		int cicle_flags = getflags();
+	int cicle_flags = getflags();
 	colors.upload(pallette);
 	if(isselected())
 		marker(x, y, getsize(), colors::green, false, true);
@@ -393,8 +393,8 @@ void actor::painting(point screen) const {
 	auto& ei = bsdata<monsteri>::elements[kind];
 	switch(ei.sptype) {
 	case CID1:
+		sprites[1] = getsprite(item::getanwear(getwear(Head)->gettype()), wi);
 		if(!bsdata<animatei>::elements[action].disable_overlay) {
-			sprites[1] = getsprite(item::getanwear(getwear(Head)->gettype()), wi);
 			sprites[2] = getsprite(item::getanwear(getwear(QuickWeapon)->gettype()), wi);
 			sprites[3] = getsprite(item::getanwear(getwear(QuickOffhand)->gettype()), wi);
 		}
@@ -411,11 +411,20 @@ void actor::painting(point screen) const {
 		e.g = (e.g * shadow.g) >> 8;
 		e.b = (e.b * shadow.b) >> 8;
 	}
-	for(auto p : sprites) {
-		if(!p)
+	//for(auto p : sprites) {
+	//	if(!p)
+	//		continue;
+	//	auto cicle_frame = p->getanim(cicle_index, getframe());
+	//	image(x, y, p, cicle_frame, cicle_flags, 0xFF, pallette);
+	//}
+	for(auto i = 0; i < 4; i++) {
+		if(!sprites[i])
 			continue;
-		auto cicle_frame = p->getanim(cicle_index, getframe());
-		image(x, y, p, cicle_frame, cicle_flags, 0xFF, pallette);
+		auto cicle_frame = sprites[i]->getanim(cicle_index, getframe());
+		if(i >= 2
+			&& ((action==AnimateMeleeOneHanded) || (action == AnimateMeleeOneHandedThrust) || (action == AnimateMeleeOneHandedSwing)))
+			cicle_frame = sprites[i]->getanim(cicle_index-1, getframe()-1);
+		image(x, y, sprites[i], cicle_frame, cicle_flags, 0xFF, pallette);
 	}
 }
 
