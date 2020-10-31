@@ -85,8 +85,6 @@ void draw::buttonok() {
 void update_timestamp() {
 	auto previous = timestamp;
 	timestamp = clock();
-	for(auto& e : players)
-		e.update();
 	for(auto& e : bsdata<creature>())
 		e.update();
 	for(auto& e : bsdata<moveable>())

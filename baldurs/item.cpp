@@ -197,8 +197,6 @@ const int itemi::poweri::getweight() const {
 }
 
 creature* item::getowner() const {
-	if(this >= (item*)players && this < (item*)((char*)players + sizeof(players)))
-		return players + ((char*)this - (char*)players) / sizeof(creature);
 	auto index = bsdata<creature>::source.indexof(this);
 	if(index == -1)
 		return 0;

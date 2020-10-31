@@ -901,6 +901,7 @@ struct setting {
 struct gamei : setting {
 	adat<creature*, 8>	party;
 	adat<creature*, 8>	selected;
+	int					money;
 	static void			checklocalization();
 	static void			localization(const char* locale_id, bool writemode);
 };
@@ -1312,7 +1313,6 @@ void							view(rect rc, rect rcs, const char* text, ctext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
 extern const char*				getstr(variant e);
-extern creature					players[6];
 
 inline int d100() { return rand() % 100; }
 

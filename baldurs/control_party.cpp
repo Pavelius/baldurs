@@ -3,16 +3,20 @@
 using namespace draw;
 
 static void choose_character() {
-	auto& player = players[hot.param];
+	auto player_index = hot.param;
+	auto player = game.party[player_index];
 	if(player) {
 		int r = dlgcho("Что сделать с персонажем?", "Изменить", "Удалить");
 		switch(r) {
-		case 1: player.generate("Генерация персонажа"); break;
-		case 2: player.clear(); break;
+		case 1: player->generate("Генерация персонажа"); break;
+		case 2: player->clear(); game.party[player_index] = 0; break;
 		}
 	} else {
-		player.clear();
-		player.generate("Генерация персонажа");
+		auto pp = game.party.add();
+		if(pp) {
+			*pp = bsdata<creature>::add();
+			(*pp)->generate("Генерация персонажа");
+		}
 	}
 }
 
@@ -24,10 +28,10 @@ void creature::create_party() {
 		auto x = 428;
 		auto y = 80;
 		for(int i = 0; i < 6; i++) {
-			auto& e = players[i];
-			if(e) {
-				button(x, y + 1, choose_character, i, 0, res::GBTNBFRM, e.getname());
-				draw::image(647, y, res::PORTS, e.getportrait());
+			auto p = game.party[i];
+			if(p) {
+				button(x, y + 1, choose_character, i, 0, res::GBTNBFRM, p->getname());
+				draw::image(647, y, res::PORTS, p->getportrait());
 				all_done = true;
 			} else {
 				button(x, y + 1, choose_character, i, 0, res::GBTNBFRM, "Создать персонажа");

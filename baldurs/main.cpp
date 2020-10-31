@@ -18,17 +18,24 @@ static void generate_treasure() {
 	e.place();
 }
 
+static creature* create(class_s type, race_s race, gender_s gender, reaction_s reaction = Helpful) {
+	auto p = bsdata<creature>::add();
+	p->create(type, race, gender, reaction);
+	game.party.add(p);
+	return p;
+}
+
 static void quick_load() {
 	msdbg("Создание партии персонажей...");
-	players[0].create(Fighter, Human, Male, Helpful);
-	players[1].create(Cleric, Dwarf, Male, Helpful);
-	players[2].create(Paladin, Human, Male, Helpful);
-	players[3].create(Ranger, HalfElf, Female, Helpful);
-	players[4].create(Rogue, Elf, Female, Helpful);
-	players[5].create(Wizard, Human, Male, Helpful);
-	for(auto& e : players)
-		e.random_equip(false);
-	creature::moveto("AR4000");
+	create(Fighter, Human, Male);
+	create(Cleric, Dwarf, Male);
+	create(Paladin, Human, Male);
+	create(Ranger, HalfElf, Female);
+	create(Rogue, Elf, Female);
+	create(Wizard, Human, Male);
+	for(auto p : game.party)
+		p->random_equip(false);
+	creature::moveto("AR1000");
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
 	//creature::create(Goblin, Hostile, {1376, 2800}, 6, 4);

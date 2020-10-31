@@ -74,9 +74,9 @@ static void change_mode() {
 }
 
 void creature::select_all() {
-	for(auto& e : players) {
-		if(!game.selected.is(&e))
-			game.selected.add(&e);
+	for(auto p : game.party) {
+		if(!game.selected.is(p))
+			game.selected.add(p);
 	}
 }
 
@@ -269,11 +269,11 @@ static variant render_area_noscale(const rect& rc, point& hotspot, const point o
 	if(game.show_movement)
 		render_movement(rc, screen.x1, screen.y1);
 	// Нарисуем маркеры движения
-	for(auto& e : players) {
-		if(e) {
-			e.render_marker(rc, screen.x1, screen.y1);
+	for(auto p : game.party) {
+		if(p) {
+			p->render_marker(rc, screen.x1, screen.y1);
 			if(game.show_path)
-				e.render_path(rc, screen.x1, screen.y1);
+				p->render_path(rc, screen.x1, screen.y1);
 		}
 	}
 	// Получим объекты
@@ -285,8 +285,6 @@ static variant render_area_noscale(const rect& rc, point& hotspot, const point o
 	for(auto& e : bsdata<container>())
 		add(screen, drawables, e);
 	for(auto& e : bsdata<creature>())
-		add(screen, drawables, e);
-	for(auto& e : players)
 		add(screen, drawables, e);
 	for(auto& e : bsdata<animation>())
 		add(screen, drawables, e);
@@ -302,16 +300,6 @@ static variant render_area_noscale(const rect& rc, point& hotspot, const point o
 	}
 	drawable* result = 0;
 	if(drawables) {
-		// Отсечем только те, которые видимы при выборе
-		auto pp = drawables.data;
-		for(auto p : drawables) {
-			if(p->isvisibleactive()) {
-				if(p != result)
-					continue;
-			}
-			*pp++ = p;
-		}
-		drawables.count = pp - drawables.data;
 		qsort(drawables.data, drawables.count, sizeof(drawables.data[0]), compare_zorder);
 		if(hotspot.in(screen)) {
 			for(auto pp = drawables.data + drawables.count - 1; pp >= drawables.data; pp--) {
@@ -322,6 +310,16 @@ static variant render_area_noscale(const rect& rc, point& hotspot, const point o
 				}
 			}
 		}
+		// Отсечем только те, которые видимы при выборе
+		auto pp = drawables.data;
+		for(auto p : drawables) {
+			if(p->isvisibleactive()) {
+				if(p != result)
+					continue;
+			}
+			*pp++ = p;
+		}
+		drawables.count = pp - drawables.data;
 		// Выведем на экран все что надо
 		point origin;
 		origin.x = screen.x1 - rc.x1;
@@ -496,9 +494,9 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 	}
 	auto x1 = 506, y1 = y + 4;
 	if(show_players) {
-		for(auto& e : players) {
-			if(act(x1, y1, e, pd, change_players))
-				execute(choose_player, (int)&e);
+		for(auto p : game.party) {
+			if(act(x1, y1, *p, pd, change_players))
+				execute(choose_player, (int)p);
 		}
 	}
 	rcs.y2 = y;
@@ -703,13 +701,15 @@ static void checkcombat(unsigned& counter) {
 	if(draw::getframe() < counter)
 		return;
 	counter += 1000;
-	for(auto& e : players) {
-		if(!e.isready())
+	for(auto p : game.party) {
+		if(!p->isready())
 			continue;
 		for(auto& m : bsdata<creature>()) {
+			if(p == &m)
+				continue;
 			if(!m.isready())
 				continue;
-			if(m.isenemy(e)) {
+			if(m.isenemy(*p)) {
 				creature::makecombat();
 				return;
 			}
@@ -857,7 +857,7 @@ void creature::adventure() {
 	cursorset cur;
 	animation shifter;
 	if(!getactive())
-		players[0].setactive();
+		game.party[0]->setactive();
 	unsigned counter = draw::getframe();
 	while(ismodal()) {
 		cur.set(res::CURSORS);

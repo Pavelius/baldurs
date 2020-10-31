@@ -129,10 +129,8 @@ void creature::minimap() {
 		rectb({x2m(camera.x), y2m(camera.y),
 			x2m(camera.x + camera_size.x), y2m(camera.y + camera_size.y)},
 			colors::white);
-		for(auto& e : players) {
-			if(!e)
-				continue;
-			auto position = e.getposition();
+		for(auto p : game.party) {
+			auto position = p->getposition();
 			auto x1 = x2m(position.x);
 			auto y1 = y2m(position.y);
 			circle(x1, y1, 2, colors::green);

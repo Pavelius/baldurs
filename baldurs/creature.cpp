@@ -1,8 +1,6 @@
 #include "main.h"
 
 BSDATAC(creature, 256)
-creature				players[6];
-static int				party_money;
 static ability_s		calculating_ability[] = {Attack, Fortitude, Reflexes, Will};
 
 static char	good_save[] = {2,
@@ -298,7 +296,15 @@ void creature::moveto(const char* location, const char* entrance) {
 	char move_to_entrance[32]; move_to_entrance[0] = 0;
 	if(entrance)
 		zcpy(move_to_entrance, entrance);
+	adat<creature, 6> players;
+	for(auto p : game.party)
+		players.add(*p);
+	game.party.clear();
 	map::load(move_to_location);
+	for(auto& e : players) {
+		auto p = bsdata<creature>::add();
+		*p = e; game.party.add(p);
+	}
 	auto pe = map::find(move_to_entrance);
 	if(pe)
 		creature::setcamera(pe->position);
@@ -307,12 +313,12 @@ void creature::moveto(const char* location, const char* entrance) {
 	auto index = 0;
 	auto start = actor::getbackward(pe->position, 5, pe->orientation);
 	auto formation = game.formation;
-	for(auto& e : players) {
-		if(!e)
+	for(auto p : game.party) {
+		if(!(*p))
 			continue;
-		e.stop();
-		e.setorientation(pe->orientation);
-		e.setposition(map::getfree(e.getposition(start, pe->position, formation, index++), e.getsize()));
+		p->stop();
+		p->setorientation(pe->orientation);
+		p->setposition(map::getfree(p->getposition(start, pe->position, formation, index++), p->getsize()));
 	}
 	select_all();
 	msdbg("Зашли в область [%1]", move_to_location);
@@ -528,13 +534,6 @@ creature* creature::getcreature(point position) {
 }
 
 creature* creature::getcreature(short unsigned index) {
-	for(auto& e : players) {
-		if(!e)
-			continue;
-		auto i = map::getindex(e.getposition(), e.getsize());
-		if(index == i)
-			return &e;
-	}
 	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
@@ -555,10 +554,10 @@ bool creature::isblock(point value) const {
 
 int creature::getpartymaxdistance(point position) {
 	auto result = 0;
-	for(auto& e : players) {
-		if(!e)
+	for(auto p : game.party) {
+		if(!(*p))
 			continue;
-		auto pt = e.getposition();
+		auto pt = p->getposition();
 		auto ds = distance(pt, position);
 		if(ds > result)
 			result = ds;
@@ -704,11 +703,6 @@ short unsigned creature::getreach() const {
 void creature::makecombat() {
 	msdbg("Start combat");
 	adat<creature*, 264> elements;
-	for(auto& e : players) {
-		if(!e)
-			continue;
-		elements.add(&e);
-	}
 	for(auto& e : bsdata<creature>()) {
 		if(!e)
 			continue;
@@ -762,8 +756,7 @@ void creature::makecombat() {
 }
 
 bool creature::isplayer() const {
-	return this >= players
-		&& this <= players + sizeof(players) / sizeof(players[0]);
+	return game.party.is(const_cast<creature*>(this));
 }
 
 bool creature::isenemy(const creature& opponent) const {
@@ -779,10 +772,6 @@ int creature::getinitiative() const {
 }
 
 void creature::blockimpassable() const {
-	for(auto& e : players) {
-		if(e)
-			map::setcost(e.getindex(), Blocked);
-	}
 	for(auto& e : bsdata<creature>()) {
 		if(e)
 			map::setcost(e.getindex(), Blocked);
@@ -872,11 +861,11 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 }
 
 int	creature::getmoney() {
-	return party_money;
+	return game.money;
 }
 
 void creature::setmoney(int value) {
-	party_money = value;
+	game.money = value;
 }
 
 int creature::getmovement() const {
@@ -954,6 +943,10 @@ bool creature::have(variant id) const {
 }
 
 void creature::addvar(variant id, char bonus) {
+	switch(id.type) {
+	case Ability: ability[id.value] += bonus; break;
+	default: break;
+	}
 }
 
 int creature::getraw(ability_s id) const {
