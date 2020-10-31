@@ -126,9 +126,12 @@ void creature::minimap() {
 		image(mview.x1, mview.y1, mm, 0, 0);
 		auto camera = getcamera();
 		auto camera_size = getcamerasize();
-		rectb({x2m(camera.x), y2m(camera.y),
-			x2m(camera.x + camera_size.x), y2m(camera.y + camera_size.y)},
-			colors::white);
+		rect rm;
+		rm.x1 = x2m(camera.x - camera_size.x / 2);
+		rm.y1 = y2m(camera.y - camera_size.y / 2);
+		rm.x2 = x2m(camera.x + camera_size.x / 2);
+		rm.y2 = y2m(camera.y + camera_size.y / 2);
+		rectb(rm, colors::white);
 		for(auto p : game.party) {
 			auto position = p->getposition();
 			auto x1 = x2m(position.x);

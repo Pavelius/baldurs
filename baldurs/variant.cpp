@@ -32,6 +32,10 @@ BSDATA(varianti) = {{"NoVariant", "Нет"},
 assert_enum(varianti, Variant)
 
 const char* getstr(variant id) {
+	switch(id.type) {
+	case Creature: return id.getcreature()->getname();
+	case Door: return "Door";
+	}
 	auto& ei = bsdata<varianti>::elements[id.type];
 	if(!ei.locale[0] || !ei.source)
 		return "Нет имени";

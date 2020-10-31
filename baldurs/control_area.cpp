@@ -53,10 +53,31 @@ static void nothing() {}
 static void choose_action() { current_action = (action_s)hot.param; }
 static void choose_formation() { game.formation = (formation_s)hot.param; }
 static void choose_player() { ((creature*)hot.param)->setactive(); }
-static void move_left() { camera.x -= camera_step; }
-static void move_right() { camera.x += camera_step; }
-static void move_up() { camera.y -= camera_step; }
-static void move_down() { camera.y += camera_step; }
+
+static void move_left() {
+	point pt = camera;
+	pt.x -= camera_step;
+	actor::setcamera(pt);
+}
+
+static void move_right() {
+	point pt = camera;
+	pt.x += camera_step;
+	actor::setcamera(pt);
+}
+
+static void move_up() {
+	point pt = camera;
+	pt.y -= camera_step;
+	actor::setcamera(pt);
+}
+
+static void move_down() {
+	point pt = camera;
+	pt.y += camera_step;
+	actor::setcamera(pt);
+}
+
 static void character_invertory() { choose_menu(&creature::invertory); }
 static void character_sheet() { choose_menu(&creature::sheet); }
 static void character_spellbook() { choose_menu(&creature::spellbook); }
@@ -246,6 +267,19 @@ bool creature::isselected() const {
 	return game.selected.is((creature* const)this);
 }
 
+static void correct_camera() {
+	if(camera.x < camera_size.x / 2)
+		camera.x = camera_size.x / 2;
+	if(camera.y < camera_size.y / 2)
+		camera.y = camera_size.y / 2;
+	auto mx = map::width * 16 - camera_size.x / 2;
+	auto my = map::height * 12 - camera_size.y / 2;
+	if(camera.x >= mx)
+		camera.x = mx;
+	if(camera.y >= my)
+		camera.y = my;
+}
+
 static variant render_area_noscale(const rect& rc, point& hotspot, const point origin, point mouse) {
 	draw::state push;
 	draw::setclip(rc);
@@ -358,27 +392,29 @@ static void debug_info(point hotspot, const variant& result) {
 		hot.mouse.x, hot.mouse.y,
 		map::getx(map_index), map::gety(map_index), map_index);
 	if(result) {
-		//	if(bsdata<region>::source.indexof(static_cast<region*>(result)) != -1) {
-		//		auto p = static_cast<region*>(result);
-		//		if(p->type == RegionTravel)
-		//			sb.addn("Region lead to %1, %2", p->move_to_area, p->move_to_entrance);
-		//		else if(p->type == RegionTriger)
-		//			sb.addn("Trigger");
-		//		else
-		//			sb.addn("Region info in %1i, %2i", p->launch.x, p->launch.y);
-		//	} else
-		sb.addn("Object"/*, result->getposition().x, result->getposition().y*/);
+		if(result.getregion()) {
+			auto p = result.getregion();
+			if(p->type == RegionTravel)
+				sb.addn("Region lead to %1, %2", p->move_to_area, p->move_to_entrance);
+			else if(p->type == RegionTriger)
+				sb.addn("Trigger");
+			else
+				sb.addn("Region info in %1i, %2i", p->launch.x, p->launch.y);
+		} else if(result.type!=Position)
+			sb.addn("Object %1", getstr(result));
 	}
 	textf(0, 0, draw::getwidth(), temp);
 #endif
 }
 
-static variant render_area(const rect& rc, const point origin, point mouse) {
+static variant render_area(const rect& rc, point mouse) {
 	point hotspot; variant result;
+	camera_size.x = rc.width(); camera_size.y = rc.height();
+	correct_camera();
 	if(game.zoom)
-		result = render_area_scale(rc, hotspot, origin, mouse);
+		result = render_area_scale(rc, hotspot, camera, mouse);
 	else
-		result = render_area_noscale(rc, hotspot, origin, mouse);
+		result = render_area_noscale(rc, hotspot, camera, mouse);
 	debug_info(hotspot, result);
 	return result;
 }
@@ -425,10 +461,10 @@ static void create_shifer(animation& d, point& camera) {
 		d.rsname[0] = 0;
 }
 
-static targetreaction render_area(rect rc, const point origin, cursorset& cur) {
+static targetreaction render_area(rect rc, cursorset& cur) {
 	auto combat_mode = creature::iscombatmode();
 	auto player = creature::getactive();
-	targetreaction react = render_area(rc, origin, hot.mouse);
+	targetreaction react = render_area(rc, hot.mouse);
 	switch(react.target.type) {
 	case Container:
 	case ItemGround:
@@ -539,7 +575,7 @@ static variant render_screen(bool active_buttons, bool show_actions, bool show_p
 		render_footer(rcs, active_buttons);
 	if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 		render_panel(rcs, show_actions, 0, show_players, show_background, change_players);
-	return render_area(rcs, camera, hot.mouse);
+	return render_area(rcs, hot.mouse);
 }
 
 static targetreaction render_screen(bool active_buttons, bool show_actions, bool show_players, bool show_background, bool change_players, cursorset& cur) {
@@ -548,7 +584,7 @@ static targetreaction render_screen(bool active_buttons, bool show_actions, bool
 		render_footer(rcs, active_buttons);
 	if(game.panel == setting::PanelFull || game.panel == setting::PanelActions)
 		render_panel(rcs, show_actions, 0, show_players, show_background, change_players);
-	return render_area(rcs, camera, cur);
+	return render_area(rcs, cur);
 }
 
 #ifdef _DEBUG
@@ -837,7 +873,7 @@ static void getin_container() {
 		}
 		rect rcs = {0, 0, getwidth(), getheight()};
 		render_container(rcs, container_frame, container, backpack);
-		auto tg = render_area(rcs, camera, cur);
+		auto tg = render_area(rcs, cur);
 		render_shifter(shifter, cur);
 		domodal();
 		translate(movement_keys);
@@ -904,16 +940,7 @@ void creature::choose_action() {
 
 void actor::setcamera(point value) {
 	camera = value;
-	if(camera.x < 0)
-		camera.x = 0;
-	if(camera.y < 0)
-		camera.y = 0;
-	auto mx = map::width * 16;
-	auto my = map::height * 12;
-	if(camera.x >= mx)
-		camera.x = mx - 1;
-	if(camera.y >= my)
-		camera.y = my - 1;
+	correct_camera();
 }
 
 point actor::getcamera() {
@@ -927,8 +954,8 @@ point actor::getcamerasize() {
 void actor::slide(const point position) {
 	cursorset cur(res::NONE);
 	rect rc;
-	rc.x1 = camera.x;
-	rc.y1 = camera.y;
+	rc.x1 = camera.x - camera_size.x / 2;
+	rc.y1 = camera.y - camera_size.y / 2;
 	rc.x2 = rc.x1 + camera_size.x;
 	rc.y2 = rc.y1 + camera_size.y;
 	if(position.in(rc))
