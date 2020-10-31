@@ -302,16 +302,6 @@ static variant render_area_noscale(const rect& rc, point& hotspot, const point o
 	}
 	drawable* result = 0;
 	if(drawables) {
-		qsort(drawables.data, drawables.count, sizeof(drawables.data[0]), compare_zorder);
-		if(hotspot.in(screen)) {
-			for(auto pp = drawables.data + drawables.count - 1; pp >= drawables.data; pp--) {
-				auto p = *pp;
-				if(p->hittest(hotspot)) {
-					result = p;
-					break;
-				}
-			}
-		}
 		// Отсечем только те, которые видимы при выборе
 		auto pp = drawables.data;
 		for(auto p : drawables) {
@@ -322,6 +312,16 @@ static variant render_area_noscale(const rect& rc, point& hotspot, const point o
 			*pp++ = p;
 		}
 		drawables.count = pp - drawables.data;
+		qsort(drawables.data, drawables.count, sizeof(drawables.data[0]), compare_zorder);
+		if(hotspot.in(screen)) {
+			for(auto pp = drawables.data + drawables.count - 1; pp >= drawables.data; pp--) {
+				auto p = *pp;
+				if(p->hittest(hotspot)) {
+					result = p;
+					break;
+				}
+			}
+		}
 		// Выведем на экран все что надо
 		point origin;
 		origin.x = screen.x1 - rc.x1;
