@@ -103,7 +103,7 @@ void creature::set(feat_s v) {
 }
 
 void creature::apply(race_s id) {
-	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1))
+	for(auto i = Strenght; i <= LastAbility; i = (ability_s)(i + 1))
 		ability[i] += bsdata<racei>::elements[id].abilities[i];
 	for(auto e : bsdata<racei>::elements[id].feats)
 		set(e);
@@ -544,6 +544,14 @@ creature* creature::getcreature(short unsigned index) {
 	return 0;
 }
 
+void creature::blockallcreatures() {
+	for(auto& e : bsdata<creature>()) {
+		if(!e || !e.isready())
+			continue;
+		e.blockimpassable();
+	}
+}
+
 bool creature::isblock(point value) const {
 	if(!value)
 		return true;
@@ -818,7 +826,6 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 		break;
 	case Creature:
 		position = e.target.getcreature()->getposition();
-		reach = e.reach;
 		if(e.method == &creature::attack) {
 			attacki ai; get(ai, QuickWeapon, *e.target.getcreature());
 			if(ai.range)
@@ -1002,4 +1009,12 @@ void creature::dress(int m) {
 		ability[ArmorClass] += wears[s].getac() * m;
 		ability[DeflectCritical] += wears[s].geti().ai.deflect_critical * m;
 	}
+}
+
+variant creature::choose_target() const {
+	auto max_cost = rangei::getsquare(get(Movement));
+	map::blockimpassable(0);
+	blockallcreatures();
+	map::createwave(map::getindex(getposition(), getsize()), 1, max_cost);
+	return choose_position(0, max_cost);
 }

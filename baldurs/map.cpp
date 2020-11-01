@@ -205,9 +205,10 @@ void map::createwave(short unsigned start, int size) {
 	path_cost[start] = 1;
 	while(path_push != path_pop) {
 		auto n = path_stack[path_pop++];
-		auto w = path_cost[n] + 1;
-		if(w >= (Blocked-1))
+		auto w = path_cost[n];
+		if(w == Blocked)
 			break;
+		w += 1;
 		for(auto d : all_aroud) {
 			auto i = to(n, d);
 			if(path_cost[i] == Blocked)
@@ -227,9 +228,10 @@ void map::createwave(short unsigned start, int size, short unsigned max_cost) {
 	path_cost[start] = 1;
 	while(path_push != path_pop) {
 		auto n = path_stack[path_pop++];
-		auto w = path_cost[n] + 1;
-		if(w >= (Blocked - 1))
+		auto w = path_cost[n];
+		if(w >= Blocked)
 			break;
+		w += 1;
 		if(w > max_cost)
 			continue;
 		for(auto d : all_aroud) {

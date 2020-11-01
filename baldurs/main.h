@@ -51,6 +51,7 @@ enum ability_s : unsigned char {
 	ArmorClass, Attack, Damage, MeleeAttack, MeleeDamage, RangeAttack, RangeDamage, DeflectCritical,
 	Fortitude, Reflexes, Will,
 	HitPoints, Movement,
+	LastAbility = Movement
 };
 enum class_s : unsigned char {
 	// Classes
@@ -319,9 +320,6 @@ enum range_s : unsigned char {
 	Range100,
 	Range120,
 };
-typedef void (*fnitem)();
-typedef cflags<tag_s>		taga;
-typedef cflags<feat_s>		feata;
 class creature;
 class item;
 struct container;
@@ -389,6 +387,10 @@ struct aset {
 	}
 	constexpr DT& operator[](unsigned i) { return data[i]; }
 };
+typedef void(*fnitem)();
+typedef cflags<tag_s>		taga;
+typedef cflags<feat_s>		feata;
+typedef aset<ability_s, LastAbility> abilitya;
 typedef aset<skill_s, LastSkill> skilla;
 typedef aset<class_s, LastClass> classa;
 struct rolli {
@@ -415,7 +417,7 @@ struct rangei {
 	const char*				id;
 	unsigned				feets;
 	int						get(int level) const;
-	int						getsquare(int level) const { return get(level) / 5; }
+	static int				getsquare(int value) { return value * 2 / 5; }
 };
 struct dicei {
 	damage_s				type;
@@ -430,7 +432,7 @@ struct attacki : rolli {
 	short					range;
 	item*					weapon;
 	item*					ammunition;
-	constexpr explicit operator bool() const { return damage.c!=0; }
+	constexpr explicit operator bool() const { return damage.c != 0; }
 };
 struct itemi {
 	struct animationi {
@@ -778,7 +780,7 @@ struct portraiti {
 };
 struct racei {
 	const char*				id;
-	char					abilities[6];
+	abilitya				abilities;
 	class_s					favorite;
 	skilla					skills;
 	std::initializer_list<feat_s> feats;
@@ -821,19 +823,19 @@ struct entrance {
 	point					position;
 };
 struct region : selectable {
-	region_type_s		type;
-	const char*			name;
-	point				launch;
-	point				use;
-	rect				box;
-	char				move_to_area[8];
-	char				move_to_entrance[32];
-	aref<point>			points;
-	rect				getrect() const override { return box; }
-	int					getcursor() const override;
-	aref<point>			getpoints() const override { return points; }
-	virtual bool		isvisible() const { return type != RegionTriger; }
-	void				painting(point screen) const {}
+	region_type_s			type;
+	const char*				name;
+	point					launch;
+	point					use;
+	rect					box;
+	char					move_to_area[8];
+	char					move_to_entrance[32];
+	aref<point>				points;
+	rect					getrect() const override { return box; }
+	int						getcursor() const override;
+	aref<point>				getpoints() const override { return points; }
+	virtual bool			isvisible() const { return type != RegionTriger; }
+	void					painting(point screen) const {}
 };
 struct container : selectable {
 	enum type_s : unsigned char {
@@ -909,9 +911,8 @@ extern gamei			game;
 struct targetreaction {
 	variant				target;
 	void				(creature::*method)(const variant& e);
-	short unsigned		reach;
-	constexpr targetreaction() : target(), method(0), reach(0) {}
-	constexpr targetreaction(const variant& e) : target(e), method(0), reach(0) {}
+	constexpr targetreaction() : target(), method(0) {}
+	constexpr targetreaction(const variant& e) : target(e), method(0) {}
 	void				clear();
 };
 struct treasure {
@@ -1041,7 +1042,7 @@ class creature : public actor {
 	diety_s						diety;
 	reaction_s					reaction;
 	const char*					name;
-	char						ability[Movement + 1];
+	char						ability[LastAbility + 1];
 	char						classes[LastClass + 1];
 	char						skills[LastSkill + 1];
 	unsigned					feats[LastFeat / 32 + 1];
@@ -1082,6 +1083,7 @@ public:
 	void						apply(race_s id);
 	void						apply(class_s id);
 	void						apply(variant type, char level, bool interactive);
+	static void					blockallcreatures();
 	void						blockimpassable() const override;
 	void						clear();
 	void						clear(variant_s value);
@@ -1090,9 +1092,10 @@ public:
 	void						choose_action();
 	bool						choose_ability(const char* title, const char* step_title, bool add_race);
 	bool						choose_feats(const char* title, const char* step_title, varianta& elements, const unsigned* minimal, char points, bool interactive);
+	static variant				choose_position(int cursor, short unsigned max_cost);
 	bool						choose_skills(const char* title, const char* step_title, varianta& elements, char points, char points_per_skill, bool interactive);
 	bool						choose_skills(const char* title, varianta& elements, bool interactive);
-	static variant				choose_target(int cursor, short unsigned start, short unsigned max_cost);
+	variant						choose_target() const;
 	void						create(monster_s type, reaction_s reaction);
 	static creature*			create(monster_s type, reaction_s reaction, point postition);
 	static void					create(monster_s type, reaction_s reaction, point postition, unsigned char orientation, int count);
@@ -1178,7 +1181,7 @@ public:
 	static bool					isgood(class_s id, ability_s value);
 	bool						isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32))) != 0; }
 	bool						isplayer() const;
-	bool						isready() const { return ability[0] > 0 && hits > 0; }
+	bool						isready() const { return ability[Strenght] > 0 && hits > 0; }
 	void						invertory();
 	void						invertory(itemdrag* pd);
 	static void					journal();
@@ -1299,7 +1302,7 @@ bool							isnext(void(*proc)());
 int								label(int x, int y, int width, int height, const char* name, int header = 0, int color = 0, bool border = false);
 int								labell(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
 int								labelr(int x, int y, int width, int height, const char* name, int header = 0, int color = 0);
-void							menumodal(bool use_keys = true, itemdrag* pd = 0);
+void							menumodal(bool use_keys = true);
 void							mslog(const char* format, ...);
 void							mspaint(const rect& rc, const rect& rcs);
 extern surface					pallette;
@@ -1312,7 +1315,7 @@ void							view(rect rc, rect rcs, int pixels_per_line, clist& e);
 void							view(rect rc, rect rcs, const char* text, ctext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
-extern const char*				getstr(variant e);
+extern const char*				getstr(const variant& e);
 
 inline int d100() { return rand() % 100; }
 
