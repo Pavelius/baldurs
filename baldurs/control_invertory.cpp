@@ -138,10 +138,10 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc
 		pd->target_slot = id;
 	}
 	auto enabled = pi && *pi && isallow(*pi);
-	auto hilite = pd && pd->value.is(id);
-	if(hilite)
-		hilite = isallow(pd->value);
 	if(show_background) {
+		auto hilite = pd && pd->value.is(id);
+		if(hilite)
+			hilite = isallow(pd->value);
 		if(hilite) {
 			if(pd->target == pi)
 				draw::image(x, y, res::STONSLOT, 4 + m, 0);

@@ -185,6 +185,7 @@
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="moveable.cpp" />
     <ClCompile Include="mslog.cpp" />
+    <ClCompile Include="nameable.cpp" />
     <ClCompile Include="names.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="control_party.cpp" />

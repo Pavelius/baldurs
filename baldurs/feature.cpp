@@ -25,7 +25,7 @@ static spell_s random_spell(creature& player, class_s type, char level) {
 			elements.add(e);
 	}
 	if(!elements)
-		return NoSpell;
+		return Doom;
 	return elements.data[rand() % elements.count];
 }
 
@@ -35,8 +35,7 @@ static void known_some_spells(creature& player, featurei& f, bool interactive) {
 	} else {
 		for(auto i = 0; i < 4; i++) {
 			auto e = random_spell(player, (class_s)f.type.value, f.level);
-			if(e)
-				player.setknown(e);
+			player.setknown(e);
 		}
 	}
 }

@@ -10,7 +10,7 @@ enum generation_event_s {
 using namespace draw;
 
 BSDATA(genstepi) = {{Gender, "Выбирайте пол", Male, Female},
-{Race, "Выбирайте расу", FirstRace, LastRace},
+{Race, "Выбирайте расу", Dwarf, Human},
 {Class, "Выбирайте класс", FirstClass, LastClass},
 {Alignment, "Выбирайте мировозрение", LawfulGood, ChaoticEvil},
 {Ability, "Способности"},
@@ -524,7 +524,7 @@ void creature::generate(const char* title) {
 				break;
 			default:
 				if(e1 == Class) {
-					auto random = bsdata<racei>::elements[race].favorite;
+					auto random = bsdata<racei>::elements[getrace()].favorite;
 					if(!random)
 						random = (class_s)xrand(Bard, Wizard);
 					hot.param = variant(random);

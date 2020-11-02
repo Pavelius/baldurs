@@ -1,8 +1,6 @@
 #include "main.h"
 
-BSDATA(spelli) = {{"NoSpell", "SPWI104C"},
-//
-{"ArmorOfFaith", "SPPR115C", Abjuration, {{Cleric, 1}}},
+BSDATA(spelli) = {{"ArmorOfFaith", "SPPR115C", Abjuration, {{Cleric, 1}}},
 {"Bane", "SPPR111C", Enchantment, {{Cleric, 1}}},
 {"Bless", "SPPR101C", Conjuration, {{Cleric, 1}}, Range50, Minute1p},
 {"Command", "SPPR102C", Enchantment, {{Cleric, 1}}},
@@ -22,7 +20,7 @@ BSDATA(spelli) = {{"NoSpell", "SPWI104C"},
 {"Sanctuary", "SPPR109C", Abjuration, {{Cleric, 1}}},
 {"Shillelagh", "SPPR110C", Transmutation, {{Druid, 1}}},
 {"Sunscorch", "SPPR113C", Evocation, {{Cleric, 1}}},
-{"Antichickenator", "SPPR302C", Transmutation, {{Sorcerer, 1}, {Wizard, 1}}},
+{"Antichickenator", "SPPR302C", Transmutation, {}},
 {"BurningHands", "SPWI103C", Transmutation, {{Sorcerer, 1}, {Wizard, 1}}},
 {"CharmPerson", "SPWI104C", Enchantment, {{Sorcerer, 1}, {Wizard, 1}}},
 {"ChillTouch", "SPWI117C", Necromancy, {{Sorcerer, 1}, {Wizard, 1}}},
@@ -59,4 +57,10 @@ bool creature::affect(spell_s id, int level, bool run) {
 		break;
 	}
 	return true;
+}
+
+bool creature::isready(spell_s id) const {
+	if(isreadypower(id))
+		return true;
+	return spells_prepared[id] != 0;
 }

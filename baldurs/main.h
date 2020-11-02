@@ -32,7 +32,6 @@ enum school_type_s : unsigned char {
 	Figmental, Glamour, Phantasmal, Shadowing,
 };
 enum spell_s : unsigned short {
-	NoSpell,
 	// Spells level 1
 	ArmorOfFaith, Bane, Bless, Command,
 	CureLightWounds, Doom, Entangle, FaerieFire, FlameStrike,
@@ -56,7 +55,7 @@ enum ability_s : unsigned char {
 enum class_s : unsigned char {
 	// Classes
 	Commoner,
-	Adept, Aristocrat, Beast, Monster, Undead, Warrior,
+	Adept, Aristocrat, Beast, MonsterRace, Undead, Warrior,
 	Barbarian, Bard, Cleric, Druid, Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Wizard,
 	FirstClass = Barbarian, LastClass = Wizard,
 };
@@ -115,7 +114,8 @@ enum feat_s : unsigned char {
 };
 enum race_s : unsigned char {
 	Dwarf, Elf, Gnome, HalfElf, HalfOrc, Halfling, Human,
-	FirstRace = Dwarf, LastRace = Human,
+	Goblinoid, Giant,
+	FirstRace = Dwarf, LastRace = Giant,
 };
 enum gender_s : unsigned char {
 	NoGender,
@@ -167,7 +167,6 @@ enum formation_s : unsigned char {
 	FormationT, FormationGather, Formation4and2, Formation3by2, FormationProtect,
 };
 enum monster_s : unsigned char {
-	Character,
 	Goblin, LargeSkeleton,
 	FirstMonster = Goblin, LastMonster = LargeSkeleton,
 };
@@ -293,7 +292,7 @@ enum tile_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Container, Creature,
-	Diety, Door, Gender, Feat, Item, ItemCont, ItemGround, Name,
+	Diety, Door, Gender, Feat, Item, ItemCont, ItemGround, Monster, Name,
 	Position, Race, Reaction, Region, School, Skill, Spell,
 	Finish, Variant,
 };
@@ -325,6 +324,7 @@ class item;
 struct container;
 struct door;
 struct itemground;
+struct monsteri;
 struct region;
 union variant {
 	struct {
@@ -360,6 +360,7 @@ union variant {
 	container*				getcontainer() const { return (container*)getpointer(Container); }
 	door*					getdoor() const { return (door*)getpointer(Door); }
 	itemground*				getitemground() const { return (itemground*)getpointer(ItemGround); }
+	monsteri*				getmonster() const { return (monsteri*)getpointer(Monster); }
 	region*					getregion() const { return (region*)getpointer(Region); }
 	point					getposition() const { return {(short)((integer >> 8) & 0xFFF), (short)((integer >> 20) & 0xFFF)}; }
 };
@@ -926,7 +927,23 @@ struct treasure {
 private:
 	void				place(item_s it, int count, int min, int max);
 };
-class actor : public drawable {
+class nameable {
+	variant				kind;
+	gender_s			gender;
+	const char*			name;
+public:
+	gender_s			getgender() const { return gender; }
+	variant_s			getkind() const { return kind.type; }
+	const char*			getname() const { return name; }
+	race_s				getrace() const;
+	int					getsubkind() const { return kind.value; }
+	void				random_name();
+	static const char*	random_name(gender_s gender, race_s race);
+	void				setgender(gender_s v) { gender = v; }
+	void				setkind(variant v) { kind = v; }
+	void				setname(const char* v) { name = szdup(v); }
+};
+class actor : public drawable, public nameable {
 	animate_s			action;
 	point				position, start, dest;
 	unsigned char		orientation; // What sight direction object have.
@@ -958,22 +975,19 @@ public:
 	unsigned			getfps() const override { return 12; }
 	static point		getforward(point start, int step, int orientation);
 	int					getframe() const { return frame; }
-	virtual gender_s	getgender() const { return Male; }
 	virtual int			gethits() const { return 0; }
 	virtual int			getbodyheight() const { return 40; }
 	int					getmovedistance(point destination, short unsigned minimum_reach) const;
-	virtual const char* getname() const { return ""; }
-	virtual monster_s	getkind() const { return Character; }
 	int					getorientation() const { return orientation; }
 	virtual int			getportrait() const { return 0; }
 	point				getposition() const override { return position; }
 	point				getposition(int percent) const;
 	static point		getposition(point start, point dst, formation_s formation, int pos);
-	virtual race_s		getrace() const { return Human; }
 	rect				getrect() const override;
 	virtual int			getsize() const { return 1; }
 	virtual int			getspeed() const { return 9; }
 	const sprite*		getsprite(int& wi) const;
+	sprite_type_s		getspritetype() const;
 	static const sprite* getsprite(res::tokens id, int wi);
 	virtual const item*	getwear(slot_s id) const { return 0; }
 	virtual int			getzorder() const override;
@@ -1000,7 +1014,6 @@ public:
 	void				render_marker(const rect& rc, int ox, int oy) const;
 	void				say(const char* format, ...) const;
 	void				set(animate_s value);
-	virtual void		set(gender_s value) {}
 	virtual void		set(state_s value) {}
 	void				set(const targetreaction& e) { action_target = e; }
 	static void			setcamera(point camera);
@@ -1014,19 +1027,18 @@ public:
 	void				wait(char percent = 0);
 };
 struct monsteri {
-	struct classi {
-		class_s					type;
-		unsigned char			level;
-	};
-	const char*					name;
+	const char*					id;
+	race_s						race;
 	sprite_type_s				sptype;
 	res::tokens					sprites[4];
 	alignment_s					alignment;
-	classi						classes[3];
+	classa						classes;
 	char						ability[Charisma + 1];
 	std::initializer_list<item_s> equipment;
 	skilla						skills;
 	cflags<feat_s>				feats;
+	const char*					name;
+	const char*					text;
 };
 class creature : public actor {
 	struct preparation {
@@ -1036,9 +1048,6 @@ class creature : public actor {
 		variant					type;
 		explicit operator bool() const { return count_maximum != 0; }
 	};
-	monster_s					kind;
-	gender_s					gender;
-	race_s						race;
 	alignment_s					alignment;
 	diety_s						diety;
 	reaction_s					reaction;
@@ -1049,8 +1058,9 @@ class creature : public actor {
 	unsigned					feats[LastFeat / 32 + 1];
 	unsigned					state;
 	short						hits, hits_rolled;
+	unsigned					powers_prepared[LastSpell / 32 + 1];
 	unsigned					spells_known[LastSpell / 32 + 1];
-	unsigned					spells_prepared[LastSpell / 32 + 1];
+	unsigned char				spells_prepared[LastSpell + 1];
 	unsigned char				sorcerers_used_powers[9];
 	item						wears[LastQuickItem + 1];
 	char						initiative;
@@ -1066,8 +1076,6 @@ class creature : public actor {
 	boosti*						find(variant id) const;
 	boosti*						finds(variant id) const;
 	void						recall(variant id, variant source, int modifier, unsigned rounds);
-	void						random_name();
-	static const char*			random_name(gender_s gender, race_s race);
 	void						finish();
 public:
 	explicit operator bool() const { return ability[0] != 0; }
@@ -1130,17 +1138,14 @@ public:
 	static creature*			getcreature(short unsigned index);
 	diety_s						getdiety() const { return diety; }
 	int							getfeats() const;
-	gender_s					getgender() const override { return gender; }
 	short unsigned				getid() const;
 	void						getin(const variant& e);
 	int							getinitiative() const;
 	int							getinitiativeroll() const { return initiative; }
 	int							gethits() const override { return hits; }
 	int							gethitsmax() const;
-	monster_s					getkind() const override { return kind; }
 	int							getlevel() const;
 	short unsigned				getindex() const;
-	const char*					getname() const override { return name; }
 	int							getmaxcarry() const;
 	static int					getmoney();
 	int							getmovement() const;
@@ -1151,7 +1156,6 @@ public:
 	int							getprepared(variant type) const;
 	int							getprepared(spell_s id, variant type) const;
 	int							getr(ability_s id) const { return ability[id]; }
-	race_s						getrace() const override { return race; }
 	short unsigned				getreach() const;
 	int							getskillpoints() const;
 	int							getspellslots(variant type, int spell_level) const;
@@ -1178,6 +1182,8 @@ public:
 	static bool					iscombatmode();
 	bool						isenemy(const creature& opponent) const;
 	bool						isranged() const { return wears[active_weapon].isranged(); }
+	bool						isready(spell_s id) const;
+	bool						isreadypower(spell_s id) const { return (powers_prepared[id / 32] & (1 << (id % 32))) != 0; }
 	bool						isselected() const override;
 	static bool					isgood(class_s id, ability_s value);
 	bool						isknown(spell_s id) const { return (spells_known[id / 32] & (1 << (id % 32))) != 0; }
@@ -1203,10 +1209,8 @@ public:
 	void						set(class_s v, int level) { classes[v] = level; }
 	void						set(feat_s id);
 	void						set(state_s id) override { state |= 1 << id; }
-	void						set(gender_s value) override { gender = value; }
 	void						set(coloration& value) const;
 	void						set(reaction_s value) { reaction = value; }
-	void						set(race_s value) { race = value; }
 	void						set(skill_s id, int value) { skills[id] = value; }
 	void						set(variant value);
 	void						setactive();
@@ -1263,7 +1267,7 @@ struct geographyi {
 };
 namespace map {
 void							clear();
-void							drop(short unsigned index, item it);
+void							drop(indext index, item it);
 entrance*						find(const char* id);
 const sprite*					getareasprite();
 int								getday(unsigned value);
@@ -1276,15 +1280,15 @@ const sprite*					getminimap();
 unsigned char					getorientation(point s, point d);
 color*							getpallette();
 void							getpassedtime(stringbuilder& sb, unsigned value);
-point							getposition(short unsigned index, int size);
+point							getposition(indext index, int size);
 inline int						getrange(int feets) { return (feets / 5) * 2; }
 color							getshadow(point position);
-unsigned char					getstate(short unsigned index);
-int								gettile(short unsigned index);
-bool							isblock(unsigned short index, int size);
+unsigned char					getstate(indext index);
+int								gettile(indext index);
+bool							isblock(indext index, int size);
 bool							load(const char* name);
 unsigned char*					ptr(const char* name);
-void							settile(short unsigned index, short unsigned tile);
+void							settile(indext index, short unsigned tile);
 }
 namespace draw {
 inline void						background(res::tokens token, int id = 0) { image(0, 0, gres(token), id, 0); }

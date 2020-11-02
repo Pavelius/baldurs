@@ -42,7 +42,7 @@ void creature::sheet() {
 	background(res::GUIREC);
 	draw::image(20, 79, gres(res::PORTL), getportrait(), 0);
 	label(22, 23, 206, 28, getname(), 2);
-	label(258, 23, 115, 28, getstr(race));
+	label(258, 23, 115, 28, getstr(getrace()));
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto y = 78 + 39 * i;
 		auto value = get(i);

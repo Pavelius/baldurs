@@ -38,11 +38,11 @@ int map::getnodecount() {
 	return result;
 }
 
-unsigned short map::getcost(unsigned short index) {
+unsigned short map::getcost(indext index) {
 	return path_cost[index];
 }
 
-void map::setcost(short unsigned index, short unsigned value) {
+void map::setcost(indext index, short unsigned value) {
 	path_cost[index] = value;
 }
 
@@ -78,7 +78,7 @@ move_directions map::to(move_directions d, move_directions d1) {
 	return Center;
 }
 
-short unsigned map::to(short unsigned index, move_directions d) {
+short unsigned map::to(indext index, move_directions d) {
 	switch(d) {
 	case Left:
 		if((index & 0xFF) == 0)
@@ -125,7 +125,7 @@ short unsigned map::to(short unsigned index, move_directions d) {
 	}
 }
 
-bool map::ispassable(unsigned short i0, unsigned short i1, int size) {
+bool map::ispassable(indext i0, indext i1, int size) {
 	int x0 = getx(i0); int y0 = gety(i0);
 	int x1 = getx(i1); int y1 = gety(i1);
 	int dx = iabs(x1 - x0), sx = x0 < x1 ? 1 : -1;
@@ -189,7 +189,7 @@ node* map::removeback(node* p) {
 	return start;
 }
 
-int map::getrange(unsigned short i0, unsigned short i1) {
+int map::getrange(indext i0, indext i1) {
 	int x0 = getx(i0); int y0 = gety(i0);
 	int x1 = getx(i1); int y1 = gety(i1);
 	return imax(iabs(x0 - x1), iabs(y0 - y1));
@@ -198,22 +198,19 @@ int map::getrange(unsigned short i0, unsigned short i1) {
 static move_directions all_aroud[] = {Left, Right, Up, Down, LeftUp, LeftDown, RightUp, RightDown};
 
 // First, make wave and see what cell on map is passable
-void map::createwave(short unsigned start, int size) {
+void map::createwave(indext start, int size) {
 	short unsigned path_push = 0;
 	short unsigned path_pop = 0;
 	path_stack[path_push++] = start;
 	path_cost[start] = 1;
 	while(path_push != path_pop) {
 		auto n = path_stack[path_pop++];
-		auto w = path_cost[n];
-		if(w == Blocked)
-			break;
-		w += 1;
+		auto w = path_cost[n] + 1;
 		for(auto d : all_aroud) {
 			auto i = to(n, d);
 			if(path_cost[i] == Blocked)
 				continue;
-			if(path_cost[i] > w) {
+			if(!path_cost[i] || path_cost[i] > w) {
 				path_cost[i] = w;
 				path_stack[path_push++] = i;
 			}
@@ -221,17 +218,14 @@ void map::createwave(short unsigned start, int size) {
 	}
 }
 
-void map::createwave(short unsigned start, int size, short unsigned max_cost) {
+void map::createwave(indext start, int size, short unsigned max_cost) {
 	short unsigned path_push = 0;
 	short unsigned path_pop = 0;
 	path_stack[path_push++] = start;
 	path_cost[start] = 1;
 	while(path_push != path_pop) {
 		auto n = path_stack[path_pop++];
-		auto w = path_cost[n];
-		if(w >= Blocked)
-			break;
-		w += 1;
+		auto w = path_cost[n] + 1;
 		if(w > max_cost)
 			continue;
 		for(auto d : all_aroud) {
@@ -246,7 +240,7 @@ void map::createwave(short unsigned start, int size, short unsigned max_cost) {
 	}
 }
 
-short unsigned map::stepto(short unsigned index) {
+indext map::stepto(indext index) {
 	auto current_index = Blocked;
 	auto current_value = Blocked;
 	for(auto d : all_aroud) {
@@ -261,7 +255,7 @@ short unsigned map::stepto(short unsigned index) {
 	return current_index;
 }
 
-short unsigned map::stepfrom(short unsigned index) {
+indext map::stepfrom(indext index) {
 	auto current_index = Blocked;
 	auto current_value = 0;
 	for(auto d : all_aroud) {
@@ -279,7 +273,7 @@ short unsigned map::stepfrom(short unsigned index) {
 // Calculate path step by step to any cell on map analizing create_wave result.
 // Go form goal to start and get lowest weight.
 // When function return 'path_stack' has step by step path and 'path_push' is top of this path.
-map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigned index), short unsigned maximum_range, short unsigned minimal_reach) {
+map::node* map::route(indext start, pget proc, short unsigned maximum_range, short unsigned minimal_reach) {
 	node* result = 0;
 	node* p = 0;
 	auto n = proc(start);
@@ -304,9 +298,9 @@ map::node* map::route(short unsigned start, short unsigned (*proc)(short unsigne
 }
 
 // Calculate path step by step to any cell on map analizing create_wave result.
-// Go form goal to start and get lowest weight.
+// Go from goal to start and get lowest weight.
 // When function return 'path_stack' has step by step path and 'path_push' is top of this path.
-int map::reachable(short unsigned start, short unsigned(*proc)(short unsigned index), short unsigned minimal_reach) {
+int map::reachable(indext start, pget proc, short unsigned minimal_reach) {
 	auto n = proc(start);
 	auto w = 0;
 	minimal_reach += 1; // Base cost is one
@@ -318,7 +312,7 @@ int map::reachable(short unsigned start, short unsigned(*proc)(short unsigned in
 	return w;
 }
 
-static bool get_free_space_x(short unsigned& index, int radius, int size) {
+static bool get_free_space_x(indext& index, int radius, int size) {
 	short unsigned px = index & 0xFF;
 	short unsigned py = index >> 8;
 	int minx = imax(px - radius, 0);
@@ -342,7 +336,7 @@ static bool get_free_space_x(short unsigned& index, int radius, int size) {
 	return false;
 }
 
-static bool get_free_space_y(short unsigned& index, int radius, int size) {
+static bool get_free_space_y(indext& index, int radius, int size) {
 	int px = index & 0xFF;
 	int py = index >> 8;
 	int miny = imax(py - radius, 0);
@@ -366,7 +360,7 @@ static bool get_free_space_y(short unsigned& index, int radius, int size) {
 	return false;
 }
 
-bool map::isblock(unsigned short index, int size) {
+bool map::isblock(indext index, int size) {
 	if(size <= 1)
 		return isblock(index);
 	auto xc = getx(index);
@@ -386,7 +380,41 @@ bool map::isblock(unsigned short index, int size) {
 	return false;
 }
 
-int map::getfree(short unsigned index, int radius, int size) {
+bool map::islineofsight(indext start, indext goal) {
+	return true;
+}
+
+indext map::getminimalcost(indext start, int maximum_range, bool need_line_of_sight) {
+	auto x1 = getx(start);
+	auto y1 = gety(start);
+	indext result = Blocked;
+	indext result_cost = Blocked;
+	for(auto r = 0; r < maximum_range; r++) {
+		auto x2 = x1 + r;
+		for(auto x = x1 - r; x <= x2; x++) {
+			if(x < 0 || x>=map::width)
+				continue;
+			auto y2 = y1 + r;
+			for(auto y = y1 - r; y <= y2; y++) {
+				if(y < 0 || y >= map::height)
+					continue;
+				auto i = getindex(x, y);
+				auto c = getcost(i);
+				if(c >= result_cost)
+					continue;
+				if(need_line_of_sight) {
+					if(!islineofsight(i, start))
+						continue;
+				}
+				result = i;
+				result_cost = c;
+			}
+		}
+	}
+	return result;
+}
+
+int map::getfree(indext index, int radius, int size) {
 	int maxr = map::width / 2;
 	if(maxr > map::height)
 		maxr = map::height;

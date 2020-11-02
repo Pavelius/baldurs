@@ -175,7 +175,7 @@ static aref<short unsigned> select_names(aref<short unsigned> result, gender_s g
 	return result;
 }
 
-const char* creature::random_name(gender_s gender, race_s race) {
+const char* nameable::random_name(gender_s gender, race_s race) {
 	short unsigned source[128];
 	if(race == HalfElf) {
 		if(d100() < 50)
@@ -185,8 +185,4 @@ const char* creature::random_name(gender_s gender, race_s race) {
 	}
 	auto result = select_names(source, gender, race);
 	return name_data[result.data[rand()%result.count]].name;
-}
-
-void creature::random_name() {
-	name = random_name(gender, race);
 }

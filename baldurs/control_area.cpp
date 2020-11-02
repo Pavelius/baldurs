@@ -124,8 +124,19 @@ static bool act(int& x, int y, action_s id, action_s id_selected) {
 }
 
 static bool act(int& x, int y, item& it) {
+	auto player = it.getowner();
+	if(!player)
+		return false;
+	if(!it)
+		return false;
 	button_s state;
-	auto r = button(x, y, 0, res::GUIBTBUT, 2, 1, 2, 1, 0, 0, &state);
+	auto r = button(x, y, 0, res::GUIBTBUT, 2, 0, 1, 1, 0, 0, &state);
+	auto x1 = x + 2; auto y1 = y;
+	if(state == ButtonPressed) {
+		x1 += 1;
+		y1 += 1;
+	}
+	player->icon(x1, y1, &it, QuickItem, 0, 0, false);
 	x += 41;
 	return r;
 }
@@ -573,13 +584,13 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 		} else {
 			if(act(x1, y1, ActionGuard, ActionAttack))
 				execute(choose_action, ActionGuard);
-			if(act(x1, y1, ActionGuard, ActionAttack))
-				execute(choose_action, ActionGuard);
 			for(auto i = 0; i < 4; i++) {
 				auto s1 = slot_s(QuickWeapon + i * 2 + 0);
 				auto s2 = slot_s(QuickWeapon + i * 2 + 1);
 				act(x1, y1, player, s1, s2);
 			}
+			for(auto i = QuickItem; i <= LastQuickItem; i = (slot_s)(i+1))
+				act(x1, y1, *((item*)player->getwear(i)));
 		}
 	}
 	auto x1 = 506, y1 = y + 4;

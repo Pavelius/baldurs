@@ -123,7 +123,7 @@ void creature::apply(class_s id) {
 int creature::get(skill_s id) const {
 	auto r = skills[id];
 	r += get(bsdata<skilli>::elements[id].ability);
-	r += bsdata<racei>::elements[race].skills[id];
+	r += bsdata<racei>::elements[getrace()].skills[id];
 	for(auto e : bsdata<skilli>::elements[id].synergy) {
 		if(e && skills[e] >= 5)
 			r += 2;
@@ -195,14 +195,14 @@ void creature::clear(variant_s value) {
 		memset(classes, 0, sizeof(classes));
 		break;
 	case Gender:
-		kind = Character;
-		gender = NoGender;
+		setkind(Human);
+		setgender(NoGender);
 		reaction = Undifferent;
 		portrait = 0;
 		initiative = 0;
 		break;
 	case Race:
-		race = Human;
+		setkind(Human);
 		break;
 	case Skill:
 		memset(skills, 0, sizeof(skills));
@@ -237,7 +237,7 @@ void creature::addinfo(stringbuilder& sb) const {
 	sb.addn("Текущий: %1i", experience);
 	sb.addn("Следующий уровень: %1i", 2000);
 	sb.addh("Раса");
-	sb.addn(getstr(race));
+	sb.addn(getstr(getrace()));
 	sb.addh("Мировозрение");
 	sb.addn(getstr(alignment));
 	sb.addh("Спас-броски");
@@ -284,7 +284,7 @@ int	creature::gethitsmax() const {
 
 int	creature::getpoints(class_s id) const {
 	auto result = bsdata<classi>::elements[id].skill_points;
-	result += bsdata<racei>::elements[race].quick_learn;
+	result += bsdata<racei>::elements[getrace()].quick_learn;
 	result += get(Intellegence);
 	if(result <= 0)
 		result = 0;
@@ -487,9 +487,8 @@ static int roll_4d6() {
 
 void creature::create(class_s type, race_s race, gender_s gender, reaction_s reaction) {
 	clear();
-	this->kind = Character;
-	this->gender = gender;
-	this->race = race;
+	setgender(gender);
+	setkind(race);
 	this->reaction = reaction;
 	this->classes[type] = 1;
 	for(auto a = Strenght; a <= Charisma; a = (ability_s)(a + 1))
@@ -883,7 +882,7 @@ int creature::getmovement() const {
 }
 
 int	creature::getbodyheight() const {
-	switch(race) {
+	switch(getrace()) {
 	case Elf:
 	case HalfElf: return 40;
 	case Gnome: case Dwarf: return 30;
@@ -940,9 +939,9 @@ bool creature::have(variant id) const {
 	switch(id.type) {
 	case Alignment: return alignment == id.value;
 	case Class: return classes[id.value] != 0;
-	case Gender: return gender == id.value;
+	case Gender: return getgender() == id.value;
 	case Feat: return is((feat_s)id.value);
-	case Race: return race == id.value;
+	case Race: return getrace() == id.value;
 	case Reaction: return reaction == id.value;
 	case Skill: return skills[id.value]!=0;
 	default: return false;
@@ -1015,6 +1014,6 @@ variant creature::choose_target() const {
 	auto max_cost = rangei::getsquare(get(Movement));
 	map::blockimpassable(0);
 	blockallcreatures();
-	map::createwave(map::getindex(getposition(), getsize()), 1, max_cost);
+	map::createwave(map::getindex(getposition(), getsize()), 1);
 	return choose_position(0, max_cost);
 }

@@ -157,24 +157,28 @@ int	actor::getzorder() const {
 	return 0;
 }
 
+sprite_type_s actor::getspritetype() const {
+	switch(getkind()) {
+	case Monster: return bsdata<monsteri>::elements[getsubkind()].sptype;
+	case Race: return CID1;
+	default: return CID1;
+	}
+}
+
 const sprite* actor::getsprite(int& wi) const {
-	auto kind = getkind();
-	auto& ei = bsdata<monsteri>::elements[kind];
-	switch(ei.sptype) {
+	switch(getspritetype()) {
 	case CID1:
 		return draw::gres(
 			getanimation(getrace(), getgender(), getclass(), getwear(Body)->getarmorindex(), wi));
 	case MID1:
-		return draw::gres(ei.sprites[0]);
+		return draw::gres(bsdata<monsteri>::elements[getsubkind()].sprites[0]);
 	default:
 		return 0;
 	}
 }
 
 int actor::getflags() const {
-	auto kind = getkind();
-	auto& ei = bsdata<monsteri>::elements[kind];
-	switch(ei.sptype) {
+	switch(getspritetype()) {
 	case CID1:
 		if(orientation >= 9)
 			return ImageMirrorH;
@@ -185,9 +189,7 @@ int actor::getflags() const {
 }
 
 int actor::getcicle() const {
-	auto kind = getkind();
-	auto& ei = bsdata<monsteri>::elements[kind];
-	switch(ei.sptype) {
+	switch(getspritetype()) {
 	case CID1:
 		if(orientation >= 9)
 			return action * 9 + ((9 - 1) * 2 - orientation);
@@ -388,9 +390,7 @@ void actor::painting(point screen) const {
 		marker(x, y, getsize(), colors::green, false, true);
 	int wi;
 	const sprite* sprites[4] = {getsprite(wi)};
-	auto kind = getkind();
-	auto& ei = bsdata<monsteri>::elements[kind];
-	switch(ei.sptype) {
+	switch(getspritetype()) {
 	case CID1:
 		sprites[1] = getsprite(item::getanwear(getwear(Head)->gettype()), wi);
 		if(!bsdata<animatei>::elements[action].disable_overlay) {
@@ -400,8 +400,8 @@ void actor::painting(point screen) const {
 		break;
 	case MID1:
 		memcpy(pallette, sprites[0]->offs(sprites[0]->get(0).pallette), sizeof(pallette));
-		for(auto i = 1; i < sizeof(ei.sprites) / sizeof(ei.sprites[0]); i++)
-			sprites[i] = draw::gres(ei.sprites[i]);
+		for(auto i = 1; i < sizeof(bsdata<monsteri>::elements[0].sprites) / sizeof(bsdata<monsteri>::elements[0].sprites[0]); i++)
+			sprites[i] = draw::gres(bsdata<monsteri>::elements[getsubkind()].sprites[i]);
 		break;
 	}
 	auto shadow = map::getshadow(position);

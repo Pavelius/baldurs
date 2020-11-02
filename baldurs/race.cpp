@@ -14,5 +14,7 @@ BSDATA(racei) = {{"Dwarf", {{Constitution, +2}, {Charisma, -2}, {Movement, 20}},
 {{Climb, 2}, {Jump, 2}, {MoveSilently, 2}, {Listen, 2}}, {Lucky, SaveBonusVsFear, PreciseThrower}},
 {"Human", {{Movement, 30}}, Commoner,
 {}, {}, 1},
+{"Goblinoid", {{Movement, 20}}, Commoner},
+{"Giant", {{Movement, 30}}, Commoner},
 };
-assert_enum(racei, Human)
+assert_enum(racei, LastRace)
