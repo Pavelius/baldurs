@@ -41,7 +41,7 @@ static void choose() {
 bool draw::picker(int x, int y, unsigned char index, int type) {
 	auto result = false;
 	color temp[256];
-	button_states state;
+	button_s state;
 	unsigned char ns = 0;
 	unsigned char ps = 1;
 	if(type == 0) {

@@ -129,7 +129,7 @@ void creature::icon(int x, int y, slot_s id, itemdrag* pd) {
 	icon(x, y, wears + id, id, pd, choose_item);
 }
 
-void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc) {
+void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background) {
 	int m = 0;
 	rect rc = {x + 2, y + 2, x + 34, y + 34};
 	auto ar = area(rc);
@@ -141,27 +141,33 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc
 	auto hilite = pd && pd->value.is(id);
 	if(hilite)
 		hilite = isallow(pd->value);
-	if(hilite) {
-		if(pd->target == pi)
-			draw::image(x, y, res::STONSLOT, 4 + m, 0);
-		else if(id == Backpack)
+	if(show_background) {
+		if(hilite) {
+			if(pd->target == pi)
+				draw::image(x, y, res::STONSLOT, 4 + m, 0);
+			else if(id == Backpack)
+				draw::image(x, y, res::STONSLOT, m, 0);
+			else
+				draw::image(x, y, res::STONSLOT, 17 + m, 0);
+		} else
 			draw::image(x, y, res::STONSLOT, m, 0);
-		else
-			draw::image(x, y, res::STONSLOT, 17 + m, 0);
-	} else
-		draw::image(x, y, res::STONSLOT, m, 0);
+	}
 	//draw::rectb(rc, colors::red);
-	if(hot.key == MouseLeft && ar == AreaHilitedPressed)
-		execute(proc, (int)pi, this);
-	else if(hot.key == MouseRight && ar == AreaHilitedPressed)
+	if(proc) {
+		if(hot.key == MouseLeft && ar == AreaHilitedPressed)
+			execute(proc, (int)pi, this);
+	}
+	if(hot.key == MouseRight && ar == AreaHilitedPressed)
 		execute(item_description, (int)pi, this);
-	if(!pi || !(*pi)) {
-		if(id >= Head && id <= Legs)
-			draw::image(x + 2, y + 2, gres(res::STON), id - Head, 0, 0x80);
-		else if(id == QuickWeapon)
-			draw::image(x + 2, y + 2, gres(res::STON), 17, 0);
-		else if(id == QuickOffhand)
-			draw::image(x + 2, y + 2, gres(res::STON), 13, 0);
+	if(show_background) {
+		if(!pi || !(*pi)) {
+			if(id >= Head && id <= Legs)
+				draw::image(x + 2, y + 2, gres(res::STON), id - Head, 0, 0x80);
+			else if(id == QuickWeapon)
+				draw::image(x + 2, y + 2, gres(res::STON), 17, 0);
+			else if(id == QuickOffhand)
+				draw::image(x + 2, y + 2, gres(res::STON), 13, 0);
+		}
 	}
 	if(pi && *pi) {
 		auto i = pi->getportrait();

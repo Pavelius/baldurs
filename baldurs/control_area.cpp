@@ -124,8 +124,29 @@ static bool act(int& x, int y, action_s id, action_s id_selected) {
 }
 
 static bool act(int& x, int y, item& it) {
-	button_states state;
+	button_s state;
 	auto r = button(x, y, 0, res::GUIBTBUT, 2, 1, 2, 1, 0, 0, &state);
+	x += 41;
+	return r;
+}
+
+static bool act(int& x, int y, creature* player, slot_s s1, slot_s s2) {
+	auto pi = player->get(s1);
+	if(!pi || !(*pi))
+		return false;
+	button_s state;
+	auto flags = 0;
+	auto active_slot = slot_s(player->getquick() * 2 + QuickWeapon);
+	if(active_slot == s1)
+		flags |= Checked;
+	auto r = button(x, y, flags, res::GUIBTBUT, 2, 0, 1, 0, 0, 0, &state);
+	auto x1 = x + 2; auto y1 = y;
+	if(state == ButtonPressed) {
+		x1 += 1;
+		y1 += 1;
+	}
+	player->icon(x1, y1, player->get(s2), s2, 0, 0, false);
+	player->icon(x1, y1, player->get(s1), s1, 0, 0, false);
 	x += 41;
 	return r;
 }
@@ -135,7 +156,7 @@ static bool act(int& x, int y, formation_s id) {
 	if(id == game.formation)
 		flags |= Checked;
 	auto i = id * 4;
-	button_states state;
+	button_s state;
 	auto r = button(x, y, id, flags, res::GUIBTBUT, 0, 0, &state);
 	auto x0 = x;
 	if(state == ButtonPressed) {
@@ -535,6 +556,9 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 	auto y = rcs.y2 - 60;
 	if(show_background)
 		draw::image(x, y, res::GACTN, show_actions ? 0 : 1);
+	auto player = creature::getactive();
+	if(!player)
+		return;
 	if(show_actions) {
 		auto x1 = x + 6, y1 = y + 12;
 		if(game.selected.getcount() > 1) {
@@ -549,6 +573,13 @@ static void render_panel(rect& rcs, bool show_actions = true, itemdrag* pd = 0, 
 		} else {
 			if(act(x1, y1, ActionGuard, ActionAttack))
 				execute(choose_action, ActionGuard);
+			if(act(x1, y1, ActionGuard, ActionAttack))
+				execute(choose_action, ActionGuard);
+			for(auto i = 0; i < 4; i++) {
+				auto s1 = slot_s(QuickWeapon + i * 2 + 0);
+				auto s2 = slot_s(QuickWeapon + i * 2 + 1);
+				act(x1, y1, player, s1, s2);
+			}
 		}
 	}
 	auto x1 = 506, y1 = y + 4;
@@ -633,11 +664,6 @@ static hotkey menu_keys[] = {{character_invertory, Alpha + 'I', "Предметы инвент
 {character_sheet, Alpha + 'C', "Листок персонажа"},
 {character_spellbook, Alpha + 'S', "Заклинания персонажа"},
 {creature::select_all, Alpha + '=', "Выбрать всех"},
-#ifdef _DEBUG
-{layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
-{layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
-{character_test, Alpha + 'T', "Тестирование анимации"},
-#endif
 {game_minimap, Alpha + 'M', "Карта местности"},
 {game_option, Alpha + 'O', "Опции"},
 {game_journal, Alpha + 'J', "Журнал заданий"},

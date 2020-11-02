@@ -274,7 +274,7 @@ enum tokens {
 enum region_type_s {
 	RegionTriger, RegionInfo, RegionTravel
 };
-enum button_states {
+enum button_s {
 	ButtonChecked, ButtonNormal, ButtonPressed, ButtonDisabled
 };
 enum reaction_s : unsigned char {
@@ -502,6 +502,7 @@ public:
 	int						getdragportrait() const { return type * 2 + 1; }
 	creature*				getowner() const;
 	item_s					gettype() const { return type; }
+	slot_s					getwear() const;
 	constexpr bool			is(feat_s v) const { return geti().feat[0] == v || geti().feat[1] == v; }
 	bool					is(slot_s v) const;
 	bool					is(tag_s v) const { return geti().flags.is(v); }
@@ -1160,7 +1161,7 @@ public:
 	const item*					getwear(slot_s id) const override;
 	bool						have(variant id) const;
 	static void					help();
-	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc);
+	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background = true);
 	void						icon(int x, int y, slot_s id, itemdrag* pd);
 	void						iconqw(int x, int y, int n, itemdrag* pd);
 	void						interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
@@ -1287,9 +1288,9 @@ void							settile(short unsigned index, short unsigned tile);
 }
 namespace draw {
 inline void						background(res::tokens token, int id = 0) { image(0, 0, gres(token), id, 0); }
-bool							button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute = false);
-bool							button(int x, int y, int m, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
-void							button(int x, int y, fnevent proc, int m, unsigned flags, res::tokens r, const char* name, int key = 0, button_states* state = 0);
+bool							button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_s* button_state, bool pressed_execute = false);
+bool							button(int x, int y, int m, unsigned flags, res::tokens r, const char* name, int key = 0, button_s* state = 0);
+void							button(int x, int y, fnevent proc, int m, unsigned flags, res::tokens r, const char* name, int key = 0, button_s* state = 0);
 bool							dlgask(const char* text);
 int								dlgcho(const char* text, const char* a1, const char* a2);
 void							dlgmsg(const char* text);

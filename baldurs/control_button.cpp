@@ -2,7 +2,7 @@
 
 using namespace draw;
 
-bool draw::button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_states* button_state, bool pressed_execute) {
+bool draw::button(int x, int y, unsigned flags, res::tokens r, int checked, int normal, int pressed, int disabled, const char* name, int key, button_s* button_state, bool pressed_execute) {
 	sprite* e = gres(res::tokens(r));
 	if(!e)
 		return 0;
@@ -59,7 +59,7 @@ bool draw::button(int x, int y, unsigned flags, res::tokens r, int checked, int 
 	return need_execute;
 }
 
-bool draw::button(int x, int y, int m, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
+bool draw::button(int x, int y, int m, unsigned flags, res::tokens r, const char* name, int key, button_s* state) {
 	char st[4];
 	sprite* f = gres(res::tokens(r));
 	int count;
@@ -109,7 +109,7 @@ bool draw::button(int x, int y, int m, unsigned flags, res::tokens r, const char
 	return button(x, y, flags, r, st[0], st[1], st[2], st[3], name, key, state, false);
 }
 
-void draw::button(int x, int y, fnevent event, int m, unsigned flags, res::tokens r, const char* name, int key, button_states* state) {
+void draw::button(int x, int y, fnevent event, int m, unsigned flags, res::tokens r, const char* name, int key, button_s* state) {
 	if(button(x, y, m, flags, r, name, key, state))
 		execute(event, m);
 }
