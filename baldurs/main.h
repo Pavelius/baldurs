@@ -932,6 +932,7 @@ class nameable {
 	gender_s			gender;
 	const char*			name;
 public:
+	void				act(const char* format, ...);
 	gender_s			getgender() const { return gender; }
 	variant_s			getkind() const { return kind.type; }
 	const char*			getname() const { return name; }
@@ -939,6 +940,7 @@ public:
 	int					getsubkind() const { return kind.value; }
 	void				random_name();
 	static const char*	random_name(gender_s gender, race_s race);
+	void				say(const char* format, ...) const;
 	void				setgender(gender_s v) { gender = v; }
 	void				setkind(variant v) { kind = v; }
 	void				setname(const char* v) { name = szdup(v); }
@@ -957,7 +959,6 @@ class actor : public drawable, public nameable {
 	void				clearpath();
 	bool				isready() const;
 public:
-	void				act(int player, const char* format, ...);
 	virtual void		blockimpassable() const {}
 	void				choose_apearance(const char* title, const char* step_title);
 	void				clear();
@@ -1012,7 +1013,6 @@ public:
 	void				render_hit(bool fatal);
 	void				render_path(const rect& rc, int mx, int my) const;
 	void				render_marker(const rect& rc, int ox, int oy) const;
-	void				say(const char* format, ...) const;
 	void				set(animate_s value);
 	virtual void		set(state_s value) {}
 	void				set(const targetreaction& e) { action_target = e; }
@@ -1201,7 +1201,6 @@ public:
 	void						remove(state_s id) { state &= ~(1 << id); }
 	bool						roll(rolli& e) const;
 	void						open(const variant& e);
-	void						say(const char* format, ...) const;
 	static aref<creature*>		select(const aref<creature*>& destination, const aref<creature*>& source, const creature* player, bool(creature::*proc)(const creature& e) const, short unsigned range_maximum = 0, short unsigned range_index = Blocked);
 	static void					select_all();
 	void						set(ability_s id, int value) { ability[id] = value; }

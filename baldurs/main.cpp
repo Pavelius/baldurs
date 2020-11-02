@@ -27,7 +27,7 @@ static creature* create(class_s type, race_s race, gender_s gender, reaction_s r
 
 static void quick_load() {
 	msdbg("Создание партии персонажей...");
-	create(Fighter, Human, Male);
+	auto p1 = create(Fighter, Human, Male);
 	create(Cleric, Dwarf, Male);
 	create(Paladin, Human, Male);
 	create(Ranger, HalfElf, Female);
@@ -39,6 +39,7 @@ static void quick_load() {
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
 	//creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
+	p1->say("Ну что? Надерем пару задниц?");
 }
 
 static void join_game() {}

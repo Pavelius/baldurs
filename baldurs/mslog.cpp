@@ -27,13 +27,13 @@ void draw::mspaint(const rect& rc, const rect& rcs) {
 	view(rc, rcs, textdata, scroll);
 }
 
-void actor::say(const char* format, ...) const {
+void nameable::say(const char* format, ...) const {
 	sb.addn("[%1]: ", getname());
 	sb.addv(format, xva_start(format));
 	update_log();
 }
 
-void actor::act(int player, const char* format, ...) {
+void nameable::act(const char* format, ...) {
 	sb.addn("%1 ", getname());
 	sb.addv(format, xva_start(format));
 	sb.add(".");
