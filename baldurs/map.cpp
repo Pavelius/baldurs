@@ -272,13 +272,13 @@ indext map::stepfrom(indext index) {
 // Calculate path step by step to any cell on map analizing create_wave result.
 // Go form goal to start and get lowest weight.
 // When function return 'path_stack' has step by step path and 'path_push' is top of this path.
-void map::route(short unsigned& ni, indext goal, pget proc, short unsigned minimum_range, short unsigned maximum_range) {
+void map::route(short unsigned& ni, indext goal, pget proc, short unsigned maximum_range) {
 	addnode(ni, goal);
 	for(auto n = proc(goal); n != Blocked && path_cost[n]; n = proc(n)) {
 		auto c = getcost(n);
 		if(maximum_range && c > maximum_range)
 			continue;
-		if(c <= minimum_range)
+		if(c <= 1)
 			break;
 		addnode(ni, n);
 	}
@@ -384,7 +384,7 @@ indext map::getminimalcost(indext start, int maximum_range, bool need_line_of_si
 	indext result = start;
 	indext result_cost = getcost(start);
 	if(result_cost == Blocked) {
-		for(auto r = 0; r < maximum_range; r++) {
+		for(auto r = maximum_range; r > 0; r--) {
 			auto x2 = x1 + r;
 			for(auto x = x1 - r; x <= x2; x++) {
 				if(x < 0 || x >= map::width)

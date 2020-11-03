@@ -607,17 +607,16 @@ void creature::attack(const variant& e) {
 void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
-	//auto reach = map::getrange(getreach());
 	attacki ai = {}; get(ai, QuickWeapon, enemy);
 	res::tokens thrown_res = res::NONE;
 	auto thrown_speed = 300;
 	if(ai.range && ai.weapon)
 		thrown_res = ai.weapon->getanthrown();
-	auto enemy_position = enemy.getposition(65);
-	render_attack(rand() % 3, enemy_position);
+	render_attack(rand() % 3, enemy.getposition());
 	wait(70);
 	if(thrown_res) {
-		auto pa = new moveable(getposition(85), enemy_position, thrown_res, thrown_speed);
+		auto hit_position = enemy.getposition(65);
+		auto pa = new moveable(getposition(85), hit_position, thrown_res, thrown_speed);
 		pa->wait();
 	}
 	if(!roll(ai))
@@ -831,6 +830,8 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 			attacki ai; get(ai, QuickWeapon, *e.target.getcreature());
 			if(ai.range)
 				reach = map::getrange(ai.range);
+			else
+				reach = map::getrange(getreach());
 		}
 		break;
 	case ItemGround:
@@ -857,7 +858,7 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	if(reach == 0xFFFF) {
 		if(e.method)
 			(this->*e.method)(e.target);
-	} else if(move(position, maximum_range, reach)) {
+	} else if(move(position, reach, maximum_range)) {
 		if(synchronized) {
 			wait();
 			if(e.method)

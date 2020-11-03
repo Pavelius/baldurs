@@ -39,7 +39,7 @@ static void quick_load() {
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
 	p1->say("Ну что? Надерем пару задниц?");
-	//creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
+	creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
 }
 
 static void join_game() {}

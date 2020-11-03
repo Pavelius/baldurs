@@ -234,7 +234,7 @@ int actor::getciclecount(int cicle) const {
 	return s->getcicle(cicle)->count;
 }
 
-bool actor::move(point destination, short unsigned maximum_range, short unsigned minimum_reach) {
+bool actor::move(point destination, short unsigned minimum_reach, short unsigned maximum_range) {
 	clearpath();
 	if(!destination)
 		return false;
@@ -250,7 +250,7 @@ bool actor::move(point destination, short unsigned maximum_range, short unsigned
 	if(goal == Blocked)
 		return false;
 	dest = map::getposition(goal, getsize());
-	map::route(path, goal, map::stepto, 1, maximum_range);
+	map::route(path, goal, map::stepto, maximum_range);
 	if(path == Blocked)
 		return false;
 	set(AnimateMove);
@@ -431,6 +431,10 @@ void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gende
 	paperdoll(x, y, colors, race, gender, type, AnimateStand, 2);
 }
 
+void actor::lookat(point destination) {
+	setorientation(map::getorientation(position, destination));
+}
+
 void actor::paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animate_s animation, int orientation, item armor, item weapon, item offhand, item helm) {
 	sprite* source;
 	unsigned flags;
@@ -532,9 +536,8 @@ animate_s actor::getattackanimate(int number) const {
 	return animate_s(AnimateMeleeOneHanded + number);
 }
 
-void actor::render_attack(int number, point destination) {
-	if(position != destination)
-		orientation = map::getorientation(position, destination);
+void actor::render_attack(int number, point position) {
+	lookat(position);
 	set(getattackanimate(number));
 }
 

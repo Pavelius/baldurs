@@ -1001,6 +1001,7 @@ public:
 	virtual bool				isstunned() const { return false; }
 	bool						isvisible() const { return position.x != 0 || position.y != 0; }
 	bool						iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
+	void						lookat(point newpos);
 	static void					marker(int x, int y, int size, color c, bool flicking, bool double_border);
 	bool						move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0);
 	void						painting(point screen) const override;

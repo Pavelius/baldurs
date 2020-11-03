@@ -691,18 +691,14 @@ void draw::menumodal(bool use_keys) {
 		translate(menu_keys);
 }
 
-static void combat_movement(point destination) {
-	auto player = creature::getactive();
-	if(!player)
-		return;
-	player->move(destination, map::getrange(player->getmovement()) + 1, player->getsize());
-	player->wait();
-}
-
 static void party_interact(point destination) {
-	if(creature::iscombatmode())
-		combat_movement(destination);
-	else if(game.selected) {
+	if(creature::iscombatmode()) {
+		auto player = creature::getactive();
+		if(player) {
+			player->move(destination, map::getrange(player->getmovement()));
+			player->wait();
+		}
+	} else if(game.selected) {
 		auto start = game.selected[0]->getposition();
 		auto index = 0;
 		for(auto p : game.selected)

@@ -30,7 +30,7 @@ bool					ispassable(indext i0, indext i1, int size);
 int						reachable(indext start, pget proc, short unsigned minimal_reach);
 void					removeall(short unsigned& ni);
 void					remove(short unsigned& ni);
-void					route(short unsigned& result, indext start, pget proc, short unsigned minimum_range, short unsigned maximum_range);
+void					route(short unsigned& result, indext start, pget proc, short unsigned maximum_range);
 extern void				set(indext index, bool isblock);
 void					set(indext index, bool isblock, int size);
 void					setcost(indext index, short unsigned value);
