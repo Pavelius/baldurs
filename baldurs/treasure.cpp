@@ -21,42 +21,43 @@ struct range {
 		return result;
 	}
 };
-struct treasure_coins {
-	char		chance;
-	range		dice;
-	item_s		type;
+struct treasurei {
+	struct coini {
+		char		chance;
+		range		dice;
+		item_s		type;
+	};
+	aref<coini>		coins;
+	aref<coini>		goods;
+	aref<coini>		items;
 };
-static treasure_coins coins_01[] = {{14},
+static treasurei::coini coins_01[] = {{14},
 {29, {1, 6, 1000}, CooperPieces},
 {52, {1, 8, 100}, SilverPieces},
 {95, {2, 8, 10}, GoldPieces},
 {100, {2, 4, 10}, PlatinumPieces},
 };
-static treasure_coins coins_02[] = {{13},
+static treasurei::coini coins_02[] = {{13},
 {23, {1, 10, 1000}, CooperPieces},
 {43, {2, 10, 100}, SilverPieces},
 {95, {4, 10, 10}, GoldPieces},
 {100, {2, 8, 10}, PlatinumPieces},
 };
-static treasure_coins coins_03[] = {{11},
+static treasurei::coini coins_03[] = {{11},
 {21, {2, 10, 1000}, CooperPieces},
 {41, {4, 8, 100}, SilverPieces},
 {95, {1, 4, 100}, GoldPieces},
 {100, {1, 10, 10}, PlatinumPieces},
 };
 //
-static treasure_coins goods_01[] = {{90}, {95, {1}, Gems}, {100, {1}, Arts}};
-static treasure_coins goods_02[] = {{81}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
-static treasure_coins goods_03[] = {{77}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
+static treasurei::coini goods_01[] = {{90}, {95, {1}, Gems}, {100, {1}, Arts}};
+static treasurei::coini goods_02[] = {{81}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
+static treasurei::coini goods_03[] = {{77}, {95, {1, 3}, Gems}, {100, {1, 3}, Arts}};
 //
-static treasure_coins items_01[] = {{71}, {95, {1}, MundaneItem}, {100, {1}, MinorMagicItem}};
-static treasure_coins items_02[] = {{49}, {85, {1}, MundaneItem}, {100, {1}, MinorMagicItem}};
-static treasure_coins items_03[] = {{49}, {79, {1, 3}, MundaneItem}, {100, {1}, MinorMagicItem}};
-static struct treasure_info {
-	aref<treasure_coins>	coins;
-	aref<treasure_coins>	goods;
-	aref<treasure_coins>	items;
-} treasure_data[] = {{},
+static treasurei::coini items_01[] = {{71}, {95, {1}, MundaneItem}, {100, {1}, MinorMagicItem}};
+static treasurei::coini items_02[] = {{49}, {85, {1}, MundaneItem}, {100, {1}, MinorMagicItem}};
+static treasurei::coini items_03[] = {{49}, {79, {1, 3}, MundaneItem}, {100, {1}, MinorMagicItem}};
+static treasurei treasure_data[] = {{},
 {coins_01, goods_01},
 {coins_02, goods_02},
 {coins_03, goods_03},

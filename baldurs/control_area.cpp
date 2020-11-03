@@ -872,6 +872,8 @@ static bool translate_mouse(const targetreaction& tg) {
 			if(!hot.pressed) {
 				if(creature::iscombatmode())
 					player->interact(tg, map::getrange(player->getmovement()) + 1, true);
+				else if(tg.target.type == Creature && tg.target.getcreature()->isplayer())
+					tg.target.getcreature()->setactive();
 				else
 					player->interact(tg, 0, false);
 				result = true;

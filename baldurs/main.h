@@ -55,7 +55,7 @@ enum ability_s : unsigned char {
 enum class_s : unsigned char {
 	// Classes
 	Commoner,
-	Adept, Aristocrat, Beast, MonsterRace, Undead, Warrior,
+	Adept, Aristocrat, Beast, MonsterClass, Undead, Warrior,
 	Barbarian, Bard, Cleric, Druid, Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Wizard,
 	FirstClass = Barbarian, LastClass = Wizard,
 };
@@ -339,12 +339,13 @@ union variant {
 	constexpr variant(alignment_s v) : variant(Alignment, v) {}
 	constexpr variant(class_s v) : variant(Class, v) {}
 	constexpr variant(gender_s v) : variant(Gender, v) {}
+	constexpr variant(item_s v) : variant(Item, v) {}
+	constexpr variant(monster_s v) : variant(Monster, v) {}
 	constexpr variant(feat_s v) : variant(Feat, v) {}
 	constexpr variant(race_s v) : variant(Race, v) {}
 	constexpr variant(reaction_s v) : variant(Reaction, v) {}
 	constexpr variant(skill_s v) : variant(Skill, v) {}
 	constexpr variant(spell_s v) : variant(Spell, v) {}
-	constexpr variant(item_s v) : variant(Item, v) {}
 	constexpr variant(variant_s v) : variant(Variant, v) {}
 	constexpr variant(const point& v) : integer(Position | ((v.y & 0xFFF) << 20) | ((v.x & 0xFFF) << 8)) {}
 	constexpr variant(int v) : integer(v) {}
@@ -918,113 +919,113 @@ struct targetreaction {
 	void				clear();
 };
 struct treasure {
-	int					cp, sp, gp, pp, gems, arts;
-	int					mundane, minor, medium, major;
+	int							cp, sp, gp, pp, gems, arts;
+	int							mundane, minor, medium, major;
 	treasure();
-	void				clear();
-	void				generate(int level);
-	void				place();
+	void						clear();
+	void						generate(int level);
+	void						place();
 private:
-	void				place(item_s it, int count, int min, int max);
+	void						place(item_s it, int count, int min, int max);
 };
 class nameable {
-	variant				kind;
-	gender_s			gender;
-	const char*			name;
+	variant						kind;
+	gender_s					gender;
+	const char*					name;
 public:
-	void				act(const char* format, ...);
-	gender_s			getgender() const { return gender; }
-	variant_s			getkind() const { return kind.type; }
-	const char*			getname() const { return name; }
-	race_s				getrace() const;
-	int					getsubkind() const { return kind.value; }
-	void				random_name();
-	static const char*	random_name(gender_s gender, race_s race);
-	void				say(const char* format, ...) const;
-	void				setgender(gender_s v) { gender = v; }
-	void				setkind(variant v) { kind = v; }
-	void				setname(const char* v) { name = szdup(v); }
+	void						act(const char* format, ...);
+	gender_s					getgender() const { return gender; }
+	variant_s					getkind() const { return kind.type; }
+	const char*					getname() const { return name; }
+	race_s						getrace() const;
+	int							getsubkind() const { return kind.value; }
+	void						random_name();
+	static const char*			random_name(gender_s gender, race_s race);
+	void						say(const char* format, ...) const;
+	void						setgender(gender_s v) { gender = v; }
+	void						setkind(variant v) { kind = v; }
+	void						setname(const char* v) { name = szdup(v); }
 };
 class actor : public drawable, public nameable {
-	animate_s			action;
-	point				position, start, dest;
-	unsigned char		orientation; // What sight direction object have.
-	unsigned short		frame;
-	unsigned			duration; // This time stamp indicator when change frame
-	int					range;
-	map::node*			path;
-	coloration			colors;
-	targetreaction		action_target;
+	animate_s					action;
+	point						position, start, dest;
+	unsigned char				orientation; // What sight direction object have.
+	unsigned short				frame;
+	unsigned					duration; // This time stamp indicator when change frame
+	int							range;
+	short unsigned				path;
+	coloration					colors;
+	targetreaction				action_target;
 	//
-	void				clearpath();
-	bool				isready() const;
+	void						clearpath();
+	bool						isready() const;
 public:
-	virtual void		blockimpassable() const {}
-	void				choose_apearance(const char* title, const char* step_title);
-	void				clear();
-	void				clearcolors();
-	static res::tokens	getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
-	animate_s			getattackanimate(int number) const;
-	static point		getbackward(point start, int step, int orientation);
-	static point		getcamera();
-	static point		getcamerasize();
-	int					getcicle() const;
-	int					getciclecount(int cicle) const;
-	virtual class_s		getclass() const { return Fighter; }
-	const coloration&	getcolors() const { return colors; }
-	int					getflags() const;
-	unsigned			getfps() const override { return 12; }
-	static point		getforward(point start, int step, int orientation);
-	int					getframe() const { return frame; }
-	virtual int			gethits() const { return 0; }
-	virtual int			getbodyheight() const { return 40; }
-	int					getmovedistance(point destination, short unsigned minimum_reach) const;
-	int					getorientation() const { return orientation; }
-	virtual int			getportrait() const { return 0; }
-	point				getposition() const override { return position; }
-	point				getposition(int percent) const;
-	static point		getposition(point start, point dst, formation_s formation, int pos);
-	rect				getrect() const override;
-	virtual int			getsize() const { return 1; }
-	virtual int			getspeed() const { return 9; }
-	const sprite*		getsprite(int& wi) const;
-	sprite_type_s		getspritetype() const;
-	static const sprite* getsprite(res::tokens id, int wi);
-	virtual const item*	getwear(slot_s id) const { return 0; }
-	virtual int			getzorder() const override;
-	bool				hittest(point pt) const override;
-	virtual void		interacting(const targetreaction& e) {}
-	virtual bool		is(state_s id) const { return false; }
-	virtual bool		isblock(point value) const { return false; }
-	virtual bool		isselected() const { return false; }
-	virtual bool		isstunned() const { return false; }
-	bool				isvisible() const { return position.x != 0 || position.y != 0; }
-	bool				iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
-	static void			marker(int x, int y, int size, color c, bool flicking, bool double_border);
-	bool				move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0);
-	void				painting(point screen) const override;
-	void				paperdoll(int x, int y) const;
-	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type);
-	static void			paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animate_s animation, int orientation, item armor = NoItem, item weapon = NoItem, item offhand = NoItem, item helm = NoItem);
-	void				pickcolors(const point skin, const point hair, const point major, const point minor);
-	static void			pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
-	short unsigned		random_portrait() const;
-	void				render_attack(int number, point position);
-	void				render_hit(bool fatal);
-	void				render_path(const rect& rc, int mx, int my) const;
-	void				render_marker(const rect& rc, int ox, int oy) const;
-	void				set(animate_s value);
-	virtual void		set(state_s value) {}
-	void				set(const targetreaction& e) { action_target = e; }
-	static void			setcamera(point camera);
-	void				setorientation(unsigned char value) { orientation = value; }
-	void				setposition(point newpos);
-	static void			slide(const point camera);
-	void				stop();
-	void				testground();
-	void				update() override;
-	void				update_portrait();
-	void				wait(char percent = 0);
+	virtual void				blockimpassable() const {}
+	void						choose_apearance(const char* title, const char* step_title);
+	void						clear();
+	void						clearcolors();
+	static res::tokens			getanimation(race_s race, gender_s gender, class_s type, int ai, int& ws);
+	animate_s					getattackanimate(int number) const;
+	static point				getbackward(point start, int step, int orientation);
+	static point				getcamera();
+	static point				getcamerasize();
+	int							getcicle() const;
+	int							getciclecount(int cicle) const;
+	virtual class_s				getclass() const { return Fighter; }
+	const coloration&			getcolors() const { return colors; }
+	int							getflags() const;
+	unsigned					getfps() const override { return 12; }
+	static point				getforward(point start, int step, int orientation);
+	int							getframe() const { return frame; }
+	virtual int					gethits() const { return 0; }
+	virtual int					getbodyheight() const { return 40; }
+	int							getmovedistance(point destination, short unsigned minimum_reach) const;
+	int							getorientation() const { return orientation; }
+	virtual int					getportrait() const { return 0; }
+	point						getposition() const override { return position; }
+	point						getposition(int percent) const;
+	static point				getposition(point start, point dst, formation_s formation, int pos);
+	rect						getrect() const override;
+	virtual int					getsize() const { return 1; }
+	virtual int					getspeed() const { return 9; }
+	const sprite*				getsprite(int& wi) const;
+	sprite_type_s				getspritetype() const;
+	static const sprite*		getsprite(res::tokens id, int wi);
+	virtual const item*			getwear(slot_s id) const { return 0; }
+	virtual int					getzorder() const override;
+	bool						hittest(point pt) const override;
+	virtual void				interacting(const targetreaction& e) {}
+	virtual bool				is(state_s id) const { return false; }
+	virtual bool				isblock(point value) const { return false; }
+	virtual bool				isselected() const { return false; }
+	virtual bool				isstunned() const { return false; }
+	bool						isvisible() const { return position.x != 0 || position.y != 0; }
+	bool						iscolors() const { return colors.skin || colors.hair || colors.major || colors.minor; }
+	static void					marker(int x, int y, int size, color c, bool flicking, bool double_border);
+	bool						move(point destination, short unsigned maximum_range = 0, short unsigned minimum_reach = 0);
+	void						painting(point screen) const override;
+	void						paperdoll(int x, int y) const;
+	static void					paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type);
+	static void					paperdoll(int x, int y, const coloration& colors, race_s race, gender_s gender, class_s type, animate_s animation, int orientation, item armor = NoItem, item weapon = NoItem, item offhand = NoItem, item helm = NoItem);
+	void						pickcolors(const point skin, const point hair, const point major, const point minor);
+	static void					pickcolors(const point skin, const point hair, const point major, const point minor, coloration& colors);
+	short unsigned				random_portrait() const;
+	void						render_attack(int number, point position);
+	void						render_hit(bool fatal);
+	void						render_path(const rect& rc, int mx, int my) const;
+	void						render_marker(const rect& rc, int ox, int oy) const;
+	void						set(animate_s value);
+	virtual void				set(state_s value) {}
+	void						set(const targetreaction& e) { action_target = e; }
+	static void					setcamera(point camera);
+	void						setorientation(unsigned char value) { orientation = value; }
+	void						setposition(point newpos);
+	static void					slide(const point camera);
+	void						stop();
+	void						testground();
+	void						update() override;
+	void						update_portrait();
+	void						wait(char percent = 0);
 };
 struct monsteri {
 	const char*					id;

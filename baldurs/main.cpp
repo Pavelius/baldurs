@@ -38,8 +38,8 @@ static void quick_load() {
 	creature::moveto("AR4000");
 	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
-	//creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
 	p1->say("Ну что? Надерем пару задниц?");
+	//creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
 }
 
 static void join_game() {}

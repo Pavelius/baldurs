@@ -3,11 +3,38 @@
 
 using namespace map;
 
+namespace {
+struct nodei {
+	indext				index;
+	short unsigned		next;
+	void				clear() { index = Blocked; next = Blocked; }
+	constexpr explicit operator bool() const { return index != Blocked; }
+};
+}
+
+static move_directions	all_aroud[] = {Left, Right, Up, Down, LeftUp, LeftDown, RightUp, RightDown};
 static unsigned short	path_stack[256 * 256];
 static unsigned short	path_cost[256 * 256];
-static node				path_nodes[1024 * 8];
+static nodei			path_node[1024 * 8];
 unsigned char			map::width;
 unsigned char			map::height;
+
+static nodei* addnode() {
+	for(auto& e : path_node) {
+		if(!e)
+			return &e;
+	}
+	return 0;
+}
+
+static void addnode(short unsigned& ni, indext index) {
+	auto p = addnode();
+	if(!p)
+		return;
+	p->index = index;
+	p->next = ni;
+	ni = p - path_node;
+}
 
 void map::blockimpassable(short unsigned free_state) {
 	for(auto y = 0; y < map::height; y++) {
@@ -15,27 +42,6 @@ void map::blockimpassable(short unsigned free_state) {
 		for(auto i = map::getindex(0, y); i < i2; i++)
 			path_cost[i] = map::isblock(i) ? Blocked : free_state;
 	}
-}
-
-node* map::addnode() {
-	for(auto& e : path_nodes) {
-		if(!e.index) {
-			e.next = 0;
-			return &e;
-		}
-	}
-	path_nodes[0].index = 0;
-	path_nodes[0].next = 0;
-	return path_nodes;
-}
-
-int map::getnodecount() {
-	int result = 0;
-	for(auto& e : path_nodes) {
-		if(e.index)
-			result++;
-	}
-	return result;
 }
 
 unsigned short map::getcost(indext index) {
@@ -161,32 +167,27 @@ bool map::ispassable(indext i0, indext i1, int size) {
 	return true;
 }
 
-node* map::removeall(node* p) {
-	while(p) {
-		p->index = 0;
-		p = p->next;
-	}
-	return 0;
+short unsigned map::getnextpath(short unsigned node) {
+	if(node == Blocked)
+		return Blocked;
+	return path_node[node].next;
 }
 
-node* map::remove(node* p) {
-	auto p1 = p->next;
-	p->index = 0;
-	p->next = 0;
-	return p1;
+indext map::getpathindex(short unsigned node) {
+	if(node == Blocked)
+		return Blocked;
+	return path_node[node].index;
 }
 
-node* map::removeback(node* p) {
-	auto start = p;
-	node* result = 0;
-	while(p->next) {
-		result = p;
-		p = p->next;
-	}
-	result->next = 0;
-	p->index = 0;
-	p->next = 0;
-	return start;
+void map::removeall(short unsigned& start) {
+	while(start != Blocked)
+		remove(start);
+}
+
+void map::remove(short unsigned& start) {
+	auto p = path_node + start;
+	start = p->next;
+	p->clear();
 }
 
 int map::getrange(indext i0, indext i1) {
@@ -194,8 +195,6 @@ int map::getrange(indext i0, indext i1) {
 	int x1 = getx(i1); int y1 = gety(i1);
 	return imax(iabs(x0 - x1), iabs(y0 - y1));
 }
-
-static move_directions all_aroud[] = {Left, Right, Up, Down, LeftUp, LeftDown, RightUp, RightDown};
 
 // First, make wave and see what cell on map is passable
 void map::createwave(indext start, int size) {
@@ -245,7 +244,7 @@ indext map::stepto(indext index) {
 	auto current_value = Blocked;
 	for(auto d : all_aroud) {
 		auto i = to(index, d);
-		if(i >= Blocked-1)
+		if(i == Blocked)
 			continue;
 		if(path_cost[i] < current_value) {
 			current_value = path_cost[i];
@@ -273,28 +272,16 @@ indext map::stepfrom(indext index) {
 // Calculate path step by step to any cell on map analizing create_wave result.
 // Go form goal to start and get lowest weight.
 // When function return 'path_stack' has step by step path and 'path_push' is top of this path.
-map::node* map::route(indext start, pget proc, short unsigned maximum_range, short unsigned minimal_reach) {
-	node* result = 0;
-	node* p = 0;
-	auto n = proc(start);
-	auto w = 0;
-	minimal_reach += 1; // Base cost is one
-	for(; n != Blocked && path_cost[n] >= 1; n = proc(n)) {
-		if(!p) {
-			result = addnode();
-			p = result;
-		} else {
-			p->next = addnode();
-			p = p->next;
-		}
-		p->index = n;
-		w += 1;
-		if(minimal_reach >= path_cost[n])
+void map::route(short unsigned& ni, indext goal, pget proc, short unsigned minimum_range, short unsigned maximum_range) {
+	addnode(ni, goal);
+	for(auto n = proc(goal); n != Blocked && path_cost[n]; n = proc(n)) {
+		auto c = getcost(n);
+		if(maximum_range && c > maximum_range)
+			continue;
+		if(c <= minimum_range)
 			break;
-		if(maximum_range && w >= maximum_range)
-			break;
+		addnode(ni, n);
 	}
-	return result;
 }
 
 // Calculate path step by step to any cell on map analizing create_wave result.
@@ -385,29 +372,38 @@ bool map::islineofsight(indext start, indext goal) {
 }
 
 indext map::getminimalcost(indext start, int maximum_range, bool need_line_of_sight) {
+	if(start == Blocked)
+		return Blocked;
+	if(!maximum_range) {
+		if(getcost(start) == Blocked)
+			return Blocked;
+		return start;
+	}
 	auto x1 = getx(start);
 	auto y1 = gety(start);
-	indext result = Blocked;
-	indext result_cost = Blocked;
-	for(auto r = 0; r < maximum_range; r++) {
-		auto x2 = x1 + r;
-		for(auto x = x1 - r; x <= x2; x++) {
-			if(x < 0 || x>=map::width)
-				continue;
-			auto y2 = y1 + r;
-			for(auto y = y1 - r; y <= y2; y++) {
-				if(y < 0 || y >= map::height)
+	indext result = start;
+	indext result_cost = getcost(start);
+	if(result_cost == Blocked) {
+		for(auto r = 0; r < maximum_range; r++) {
+			auto x2 = x1 + r;
+			for(auto x = x1 - r; x <= x2; x++) {
+				if(x < 0 || x >= map::width)
 					continue;
-				auto i = getindex(x, y);
-				auto c = getcost(i);
-				if(c >= result_cost)
-					continue;
-				if(need_line_of_sight) {
-					if(!islineofsight(i, start))
+				auto y2 = y1 + r;
+				for(auto y = y1 - r; y <= y2; y++) {
+					if(y < 0 || y >= map::height)
 						continue;
+					auto i = getindex(x, y);
+					auto c = getcost(i);
+					if(c >= result_cost)
+						continue;
+					if(need_line_of_sight) {
+						if(!islineofsight(i, start))
+							continue;
+					}
+					result = i;
+					result_cost = c;
 				}
-				result = i;
-				result_cost = c;
 			}
 		}
 	}
@@ -434,21 +430,7 @@ int map::getfree(indext index, int radius, int size) {
 	return index;
 }
 
-//void map::set(short unsigned index, bool isblock, int size) {
-//	if(size == 1) {
-//		set(index, size);
-//		return;
-//	}
-//	auto xc = getx(index);
-//	auto yc = gety(index);
-//	if(xc + size >= map::width || xc - size < 0)
-//		return;
-//	if(yc + size >= map::height || yc - size < 0)
-//		return;
-//	auto y2 = yc + size;
-//	auto x2 = xc + size;
-//	for(auto y = yc - size; y < y2; y++) {
-//		for(auto x = xc - size; x < x2; x++)
-//			set(getindex(x, y), isblock);
-//	}
-//}
+void map::initialize() {
+	for(auto& e : path_node)
+		e.clear();
+}

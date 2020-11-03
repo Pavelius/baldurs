@@ -510,12 +510,14 @@ creature* creature::create(monster_s type, reaction_s reaction, point postition)
 }
 
 void creature::create(monster_s type, reaction_s reaction, point position, unsigned char orientation, int count) {
+	map::blockimpassable();
 	auto formation = Formation3by2;
 	auto index = 0;
 	point start = getbackward(position, 5, orientation);
 	for(int i = 0; i < count; i++) {
 		auto p = create(type, reaction, getposition(start, position, formation, index++));
 		p->setorientation(orientation);
+		p->blockimpassable();
 	}
 }
 
@@ -605,7 +607,7 @@ void creature::attack(const variant& e) {
 void creature::attack(creature& enemy) {
 	auto player_index = getindex();
 	auto enemy_index = enemy.getindex();
-	auto reach = map::getrange(getreach());
+	//auto reach = map::getrange(getreach());
 	attacki ai = {}; get(ai, QuickWeapon, enemy);
 	res::tokens thrown_res = res::NONE;
 	auto thrown_speed = 300;

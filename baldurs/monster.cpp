@@ -12,8 +12,8 @@ void creature::create(monster_s type, reaction_s reaction) {
 	clear();
 	setkind(type);
 	setgender(Male);
-	this->reaction = reaction;
-	for(auto i = Commoner; i <= Undead; i = (class_s)(i+1)) {
+	set(reaction);
+	for(auto i = Commoner; i <= LastClass; i = (class_s)(i+1)) {
 		if(!ei.classes[i])
 			continue;
 		apply(i);
@@ -29,6 +29,6 @@ void creature::create(monster_s type, reaction_s reaction) {
 		set(ft);
 		add(it);
 	}
-	this->name = ei.name;
+	name = ei.name;
 	finish();
 }

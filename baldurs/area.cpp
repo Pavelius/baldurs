@@ -71,6 +71,7 @@ void map::clear() {
 		delete sprites_minimap;
 		sprites_minimap = 0;
 	}
+	initialize();
 	height = width = max_height = 0;
 	memset(tilemap, 0, sizeof(tilemap));
 	memset(heightmap, 0, sizeof(heightmap));

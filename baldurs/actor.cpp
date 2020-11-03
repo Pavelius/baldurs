@@ -147,8 +147,7 @@ void actor::clearcolors() {
 }
 
 void actor::clearpath() {
-	if(path)
-		path = map::removeall(path);
+	map::removeall(path);
 }
 
 int	actor::getzorder() const {
@@ -241,22 +240,18 @@ bool actor::move(point destination, short unsigned maximum_range, short unsigned
 		return false;
 	if(map::getindex(position) == map::getindex(destination))
 		return true;
-	dest = destination;
 	auto s = getsize();
-	auto i = map::getindex(position, s);
 	auto start = map::getindex(position, s);
 	auto goal = map::getindex(destination, s);
-	map::blockimpassable(Blocked - 1);
+	map::blockimpassable();
 	blockimpassable();
-	map::setcost(start, Blocked - 1);
-	map::createwave(goal, s);
-	auto cost = map::getcost(start);
-	if(cost >= Blocked - 1)
+	map::createwave(start, s);
+	goal = map::getminimalcost(goal, minimum_reach, true);
+	if(goal == Blocked)
 		return false;
-	if(minimum_reach && cost <= minimum_reach)
-		return true;
-	path = map::route(start, map::stepto, maximum_range, minimum_reach);
-	if(!path)
+	dest = map::getposition(goal, getsize());
+	map::route(path, goal, map::stepto, 1, maximum_range);
+	if(path == Blocked)
 		return false;
 	set(AnimateMove);
 	this->start = position;
@@ -300,14 +295,14 @@ void actor::update() {
 		point newpos = position;
 		range += getspeed();
 		while(true) {
-			if(!path) {
+			if(path==Blocked) {
 				auto e = action_target;
 				stop();
 				if(e.method)
 					interacting(e);
 				return;
 			}
-			newpos = map::getposition(path->index, s);
+			newpos = map::getposition(map::getpathindex(path), s);
 			if(position != newpos)
 				orientation = map::getorientation(position, newpos);
 			int m = distance(start, newpos);
@@ -317,7 +312,7 @@ void actor::update() {
 				setposition(newpos);
 				start = position;
 				range -= m;
-				path = map::remove(path);
+				map::remove(path);
 				continue;
 			}
 			newpos.x = start.x + dx * range / m;
@@ -498,8 +493,8 @@ void actor::render_path(const rect& rc, int mx, int my) const {
 		auto s = getsize();
 		p1.x = position.x - mx + rc.x1;
 		p1.y = position.y - my + rc.y1;
-		for(auto p = path; p; p = p->next) {
-			point p2 = map::getposition(p->index, s);
+		for(auto p = path; p != Blocked; p = map::getnextpath(p)) {
+			point p2 = map::getposition(map::getpathindex(p), s);
 			p2.x = p2.x - mx + rc.x1;
 			p2.y = p2.y - my + rc.y1;
 			draw::line(p1, p2, colors::yellow);
@@ -514,10 +509,10 @@ void actor::clear() {
 	position.clear();
 	dest.clear();
 	start.clear();
+	path = Blocked;
 	frame = 0;
 	orientation = 0;
 	duration = 0;
-	path = 0;
 	range = 0;
 }
 
