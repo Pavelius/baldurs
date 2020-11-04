@@ -233,13 +233,6 @@ bool map::isblock(short unsigned index) {
 	return a == 0 || a == 8 || a == 10 || a == 12 || a == 13;
 }
 
-//void map::set(short unsigned index, bool isblock) {
-//	if(isblock)
-//		statemap[index] |= StateBlocked;
-//	else
-//		statemap[index] &= ~StateBlocked;
-//}
-
 const sprite* map::getminimap() {
 	return sprites_minimap;
 }

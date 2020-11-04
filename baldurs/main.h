@@ -74,7 +74,7 @@ enum skill_s : unsigned char {
 	FirstSkill = Appraise, LastSkill = UseRope,
 };
 enum tag_s : unsigned char {
-	ArmorCheck, Balanced, Precise, Deadly, Light, Trained, TwoHanded,
+	ArmorCheck, Balanced, Precise, ReachItem, Deadly, Light, Trained, TwoHanded,
 };
 enum feat_s : unsigned char {
 	Alertness,
@@ -1139,6 +1139,8 @@ public:
 	static creature*			getcreature(point position);
 	static creature*			getcreature(short unsigned index);
 	diety_s						getdiety() const { return diety; }
+	int							getdistance(map::indext goal) const;
+	int							getdistance(point position) const;
 	int							getfeats() const;
 	short unsigned				getid() const;
 	void						getin(const variant& e);

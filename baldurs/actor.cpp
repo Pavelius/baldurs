@@ -238,21 +238,24 @@ bool actor::move(point destination, short unsigned minimum_reach, short unsigned
 	clearpath();
 	if(!destination)
 		return false;
-	if(map::getindex(position) == map::getindex(destination))
-		return true;
 	auto s = getsize();
 	auto start = map::getindex(position, s);
 	auto goal = map::getindex(destination, s);
+	if(start == goal)
+		return true;
+	if(minimum_reach && map::getdistance(start, goal) <= minimum_reach)
+		return true;
 	map::blockimpassable();
 	blockimpassable();
 	map::createwave(start, s);
 	goal = map::getminimalcost(goal, minimum_reach, true);
 	if(goal == Blocked)
 		return false;
-	dest = map::getposition(goal, getsize());
 	map::route(path, goal, map::stepto, maximum_range);
 	if(path == Blocked)
 		return false;
+	goal = map::getpathgoal(path);
+	dest = map::getposition(goal, getsize());
 	set(AnimateMove);
 	this->start = position;
 	range = 0;

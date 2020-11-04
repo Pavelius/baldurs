@@ -183,13 +183,17 @@ void item::setcount(int value) {
 void item::apply(attacki& e) const {
 	auto& ei = geti();
 	e.damage = ei.ai.damage;
-	e.range = ei.ai.range;
+	e.range = bsdata<rangei>::elements[ei.ai.range].get(0);
 	if(is(Deadly))
 		e.multiplier++;
 	if(is(Balanced))
 		e.critical++;
 	if(is(Precise))
 		e.critical++;
+	if(!e.range)
+		e.range = 5;
+	if(is(ReachItem))
+		e.range += 5;
 }
 
 const int itemi::poweri::getweight() const {

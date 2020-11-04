@@ -631,15 +631,16 @@ void creature::attack(creature& enemy) {
 
 void creature::get(attacki& result, slot_s slot) const {
 	memset(&result, 0, sizeof(result));
-	auto pitem = getwear(slot);
-	if(pitem) {
-		pitem->apply(result);
-		if(*pitem)
-			result.weapon = const_cast<item*>(pitem);
-	}
+	result.weapon = const_cast<item*>(getwear(slot));
+	if(!result.weapon || !(*result.weapon))
+		result.weapon = 0;
 	if(result.weapon) {
-		if(result.weapon->isranged())
+		result.weapon->apply(result);
+		if(result.weapon->isranged()) {
 			result.bonus += get(Dexterity);
+			if(is(FarShoot))
+				result.range = result.range * 15 / 10;
+		}
 		else {
 			result.bonus += get(Strenght);
 			result.damage.b += get(Strenght);
@@ -811,12 +812,21 @@ void creature::close(const variant& e) {
 		e.getdoor()->setopened(false);
 }
 
+int creature::getdistance(map::indext goal) const {
+	auto start = map::getindex(getposition(), getsize());
+	return map::getdistance(start, goal);
+}
+
+int creature::getdistance(point position) const {
+	return getdistance(map::getindex(position, 1));
+}
+
 void creature::interact(const targetreaction& e, short unsigned maximum_range, bool synchronized) {
 	point position;
 	short unsigned reach = 0;
 	switch(e.target.type) {
 	case Door:
-		if(getmovedistance(e.target.getdoor()->points[0], map::getrange(getreach())))
+		if(getmovedistance(e.target.getdoor()->points[0], 0))
 			position = e.target.getdoor()->points[0];
 		else
 			position = e.target.getdoor()->points[1];
@@ -828,10 +838,7 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 		position = e.target.getcreature()->getposition();
 		if(e.method == &creature::attack) {
 			attacki ai; get(ai, QuickWeapon, *e.target.getcreature());
-			if(ai.range)
-				reach = map::getrange(ai.range);
-			else
-				reach = map::getrange(getreach());
+			reach = map::getrange(ai.range);
 		}
 		break;
 	case ItemGround:
@@ -861,6 +868,8 @@ void creature::interact(const targetreaction& e, short unsigned maximum_range, b
 	} else if(move(position, reach, maximum_range)) {
 		if(synchronized) {
 			wait();
+			if(reach && getdistance(position) > reach)
+				return;
 			if(e.method)
 				(this->*e.method)(e.target);
 		}

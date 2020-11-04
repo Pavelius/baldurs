@@ -695,7 +695,7 @@ static void party_interact(point destination) {
 	if(creature::iscombatmode()) {
 		auto player = creature::getactive();
 		if(player) {
-			player->move(destination, map::getrange(player->getmovement()));
+			player->move(destination, 0, map::getrange(player->getmovement()));
 			player->wait();
 		}
 	} else if(game.selected) {

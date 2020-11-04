@@ -13,12 +13,14 @@ void					blockimpassable(indext free_state = 0);
 void					createwave(indext start, int size);
 void					createwave(indext start, int size, short unsigned max_cost);
 unsigned short			getcost(indext index);
+unsigned short			getdistance(indext start, indext goal);
 int						getfree(indext index, int radius, int size);
 int						getrange(indext i0, indext i1);
 inline unsigned short	getindex(int x, int y) { return y * 256 + x; }
 indext					getminimalcost(indext start, int maximum_range = 5, bool need_line_of_sight = false);
 short unsigned			getnextpath(short unsigned node);
 indext					getpathindex(short unsigned node);
+indext					getpathgoal(short unsigned node);
 inline int				getx(indext index) { return index % 256; }
 inline int				gety(indext index) { return index / 256; }
 extern unsigned char	height; // current map height

@@ -179,6 +179,15 @@ indext map::getpathindex(short unsigned node) {
 	return path_node[node].index;
 }
 
+indext map::getpathgoal(short unsigned node) {
+	indext r = Blocked;
+	while(node != Blocked) {
+		r = path_node[node].index;
+		node = path_node[node].next;
+	}
+	return r;
+}
+
 void map::removeall(short unsigned& start) {
 	while(start != Blocked)
 		remove(start);
@@ -259,7 +268,7 @@ indext map::stepfrom(indext index) {
 	auto current_value = 0;
 	for(auto d : all_aroud) {
 		auto i = to(index, d);
-		if(i >= Blocked-1)
+		if(i >= Blocked - 1)
 			continue;
 		if(path_cost[i] > current_value) {
 			current_value = path_cost[i];
@@ -273,8 +282,7 @@ indext map::stepfrom(indext index) {
 // Go form goal to start and get lowest weight.
 // When function return 'path_stack' has step by step path and 'path_push' is top of this path.
 void map::route(short unsigned& ni, indext goal, pget proc, short unsigned maximum_range) {
-	addnode(ni, goal);
-	for(auto n = proc(goal); n != Blocked && path_cost[n]; n = proc(n)) {
+	for(auto n = goal; n != Blocked && path_cost[n]; n = proc(n)) {
 		auto c = getcost(n);
 		if(maximum_range && c > maximum_range)
 			continue;
@@ -383,27 +391,25 @@ indext map::getminimalcost(indext start, int maximum_range, bool need_line_of_si
 	auto y1 = gety(start);
 	indext result = start;
 	indext result_cost = getcost(start);
-	if(result_cost == Blocked) {
-		for(auto r = maximum_range; r > 0; r--) {
-			auto x2 = x1 + r;
-			for(auto x = x1 - r; x <= x2; x++) {
-				if(x < 0 || x >= map::width)
+	for(auto r = maximum_range; r > 0; r--) {
+		auto x2 = x1 + r;
+		for(auto x = x1 - r; x <= x2; x++) {
+			if(x < 0 || x >= map::width)
+				continue;
+			auto y2 = y1 + r;
+			for(auto y = y1 - r; y <= y2; y++) {
+				if(y < 0 || y >= map::height)
 					continue;
-				auto y2 = y1 + r;
-				for(auto y = y1 - r; y <= y2; y++) {
-					if(y < 0 || y >= map::height)
+				auto i = getindex(x, y);
+				auto c = getcost(i);
+				if(c >= result_cost)
+					continue;
+				if(need_line_of_sight) {
+					if(!islineofsight(i, start))
 						continue;
-					auto i = getindex(x, y);
-					auto c = getcost(i);
-					if(c >= result_cost)
-						continue;
-					if(need_line_of_sight) {
-						if(!islineofsight(i, start))
-							continue;
-					}
-					result = i;
-					result_cost = c;
 				}
+				result = i;
+				result_cost = c;
 			}
 		}
 	}
@@ -428,6 +434,14 @@ int map::getfree(indext index, int radius, int size) {
 		}
 	}
 	return index;
+}
+
+unsigned short map::getdistance(indext start, indext goal) {
+	if(start == Blocked || goal == Blocked)
+		return Blocked;
+	auto dx = iabs(getx(start) - getx(goal));
+	auto dy = iabs(gety(start) - gety(goal));
+	return dx > dy ? dx : dy;
 }
 
 void map::initialize() {
