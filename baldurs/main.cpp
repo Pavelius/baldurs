@@ -25,6 +25,16 @@ static creature* create(class_s type, race_s race, gender_s gender, reaction_s r
 	return p;
 }
 
+static void test_drop_items(map::indext i) {
+	map::drop(i, ChainMail);
+	map::drop(i, Helm);
+	map::drop(i, Longsword);
+	map::drop(i, Longbow);
+	map::drop(i, ShieldSmall);
+	map::drop(i, BlueQuarz);
+	map::drop(i, CarvedStone);
+}
+
 static void quick_load() {
 	msdbg("Создание партии персонажей...");
 	auto p1 = create(Fighter, Human, Male);
@@ -36,10 +46,10 @@ static void quick_load() {
 	for(auto p : game.party)
 		p->random_equip(false);
 	creature::moveto("AR4000");
-	map::drop(map::getindex(21, 51), ChainMail);
 	generate_treasure();
 	p1->say("Ну что? Надерем пару задниц?");
-	creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
+	test_drop_items(map::getindex({700, 2100}));
+	//creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
 }
 
 static void join_game() {}

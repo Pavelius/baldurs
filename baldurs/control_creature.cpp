@@ -126,9 +126,9 @@ static int choose_portrait(const char* title, const char* step_title, gender_s g
 		image(252, 61, gres(res::GUIA), 1, 0);
 		image(23, 151, res::PORTL, 0);
 		image(295, 115, gres(res::PORTL), portrait_indicies[index], 0);
-		if(button(260, 265, 0, res::GBTNPOR, 0, 0, 1, -1, 0, KeyLeft, 0, false))
+		if(button(260, 265, 0, res::GBTNPOR, 0, 0, 1, -1, 0, KeyLeft, 0))
 			execute(buttonparam, PreviousPortrait);
-		if(button(512, 265, 0, res::GBTNPOR, 0, 2, 3, -1, 0, KeyRight, 0, false))
+		if(button(512, 265, 0, res::GBTNPOR, 0, 2, 3, -1, 0, KeyRight, 0))
 			execute(buttonparam, NextPortrait);
 		command_buttons();
 		button(478, 550, buttonok, 0, 0, res::GBTNSTD, "Далее", KeyEnter);
@@ -217,12 +217,15 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 		}
 		return true;
 	}
-	struct scroll : public clist {
+	struct scroll : public cbox {
 		varianta&			elements;
 		creature			copy;
 		creature&			player;
 		char				points_per_skill, points;
-		void row(rect rc, int i) override {
+		const char* getname(stringbuilder& sb, int n) const {
+			return getstr((skill_s)elements[n].value);
+		}
+		void row(rect rc, int i) const override {
 			auto id = (skill_s)elements[i].value;
 			int value = player.get(id);
 			int value_cost = player.getcost(id);
@@ -246,8 +249,14 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 				iv.addinfo(sb);
 			}
 		}
-		scroll(creature& player, varianta& elements) : player(player), copy(player), elements(elements) {
-			maximum = elements.count;
+		int getmaximum() const override {
+			return elements.getcount();
+		}
+		int getpixelsperline() const override {
+			return 36;
+		}
+		scroll(creature& player, varianta& elements) : cbox({280, 154, 526, 506}, {529, 154, 540, 506}),
+			player(player), copy(player), elements(elements) {
 		}
 	} table(*this, elements);
 	char temp[32];
@@ -262,7 +271,7 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 		label(279, 116, 205, 28, "Осталось очков навыков");
 		sznum(temp, table.points);
 		label(492, 118, 32, 28, temp);
-		view({280, 154, 526, 506}, {529, 154, 540, 506}, 36, table);
+		table.view();
 		command_buttons();
 		button(478, 550, buttonok, 0, (table.points <= 1) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
 		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);

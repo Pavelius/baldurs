@@ -806,28 +806,13 @@ static void item_to_container() {
 	case Container:
 		current_target.getcontainer()->add(*pi);
 		break;
+	case ItemGround:
+		map::drop(current_target.getitemground()->index, *pi);
+		break;
 	default:
 		return;
 	}
 	pi->clear();
-}
-
-static void render_container(rect& rcs, int frame, citem& container, citem& backpack) {
-	char temp[260]; stringbuilder sb(temp);
-	int x = 0, y = 476;
-	image(x, y, res::GUICONT, 1, 0);
-	image(x + 59, y + 25, res::CONTAINER, frame, 0);
-	auto player = creature::getactive();
-	if(player) {
-		image(x + 430, y + 28, res::CONTAINER, 1, 0);
-		container.view(player, x + 150, y + 22, 44, 43, {x + 375, y + 24, x + 387, y + 100}, item_to_backpack);
-		backpack.update(player, 2);
-		backpack.view(player, x + 509, y + 22, 44, 43, {x + 602, y + 24, x + 614, y + 100}, item_to_container);
-		//button(x + 684, y + 28, cmpr(buttonparam, 52), 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
-		sb.add("%1i", player->getmoney() / SP);
-		labelr(x + 661, y + 78, 70, 20, temp); // NORMAL
-	}
-	rcs.y2 -= 107;
 }
 
 static bool translate_mouse(const targetreaction& tg) {
@@ -892,8 +877,9 @@ static void getin_container() {
 	animation shifter;
 	if(!current_target)
 		setpage();
-	citem backpack(2, 2);
-	citem container(5, 2);
+	char temp[260]; stringbuilder sb(temp);
+	citem container(142, 476 + 24, {375, 476 + 24, 387, 576}, 6, 2);
+	citem backpack(501, 476 + 24, {602, 476 + 24, 614, 575}, 2, 2);
 	short unsigned current_index = Blocked;
 	if(current_target.type == ItemGround)
 		current_index = current_target.getitemground()->index;
@@ -904,15 +890,27 @@ static void getin_container() {
 		auto container_frame = 10;
 		switch(current_target.type) {
 		case Container:
-			container.update(current_target.getcontainer(), 5);
+			container.update(current_target.getcontainer());
 			container_frame = current_target.getcontainer()->getframe();
 			break;
 		case ItemGround:
-			container.update(current_index, 5);
+			container.update(current_index);
 			break;
 		}
 		rect rcs = {0, 0, getwidth(), getheight()};
-		render_container(rcs, container_frame, container, backpack);
+		int x = 0, y = 476;
+		image(x, y, res::GUICONT, 1, 0);
+		image(x + 59, y + 25, res::CONTAINER, container_frame, 0);
+		if(player) {
+			image(x + 430, y + 28, res::CONTAINER, 1, 0);
+			container.view(player, item_to_backpack);
+			backpack.update(player);
+			backpack.view(player, item_to_container);
+			button(x + 684, y + 28, 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
+			sb.clear(); sb.add("%1i", player->getmoney() / SP);
+			labelr(x + 661, y + 78, 70, 20, temp); // NORMAL
+		}
+		rcs.y2 -= 107;
 		auto tg = render_area(rcs, hot.mouse, 0);
 		render_shifter(shifter, cur);
 		domodal();

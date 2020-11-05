@@ -1974,9 +1974,6 @@ void surface::convert(int new_bpp, color* pallette) {
 }
 
 void draw::buttonparam() {
-	auto h = hot;
-	h.key = h.param;
-	h.param = 0;
-	h.pressed = false;
-	execute(h);
+	hot.key = hot.param;
+	hot.param = 0;
 }

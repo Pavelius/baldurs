@@ -2,8 +2,6 @@
 
 using namespace draw;
 
-static citem ground(2, 3);
-
 void creature::show(const char* header, item& it) {
 	screenshoot screen(true);
 	cursorset set;
@@ -19,7 +17,7 @@ void creature::show(const char* header, item& it) {
 			setclip({x + 429, y + 20, x + 493, y + 84});
 			auto sp = gres(res::ITEMS);
 			auto& fr = sp->get(it.getportrait() + 1);
-			image(x + 429 + 2 + (sx - fr.sx)/2, y + 20 + 2 + (sy - fr.sy) / 2, res::ITEMS, it.getportrait() + 1, ImageNoOffset);
+			image(x + 429 + 2 + (sx - fr.sx) / 2, y + 20 + 2 + (sy - fr.sy) / 2, res::ITEMS, it.getportrait() + 1, ImageNoOffset);
 		}
 		char temp[512]; stringbuilder sb(temp);
 		it.addinfo(sb);
@@ -88,7 +86,7 @@ static bool get_drag_target(creature* player, itemdrag& di) {
 		di.target_slot = Backpack;
 		player->invertory(&di);
 		menumodal(false);
-		if(hot.key == MouseLeft || hot.key== (MouseLeft | Shift))
+		if(hot.key == MouseLeft || hot.key == (MouseLeft | Shift))
 			return true;
 	}
 	return false;
@@ -201,6 +199,8 @@ void creature::invertory(itemdrag* pd) {
 	const int d = 38;
 	char temp[260]; stringbuilder sb(temp);
 	int x, y;
+	//static citem ground({574, 302, 650, 414}, {655, 302, 667, 414}, 2, 3);
+	static citem ground(571, 298, {655, 302, 667, 414}, 2, 3);
 	updategame();
 	draw::image(0, 0, gres(res::GUIINV), 0, 0);
 	label(22, 23, 206, 28, getname(), 2);
@@ -214,12 +214,8 @@ void creature::invertory(itemdrag* pd) {
 	for(auto i = 0; i < 3; i++)
 		icon(572 + 39 * i, 228, wears + QuickItem + i, QuickItem, pd, choose_item);
 	label(574, 270, 111, 22, "Земля");
-	ground.update(map::getindex(getposition(), getsize()), 2);
-	for(auto i = 0; i < 6; i++) {
-		auto j = ground.maximum_items - ground.origin * 2;
-		icon(572 + 39 * (i % 2), 298 + 39 * (i / 2), (i < j) ? ground.data[i] : 0, LastBackpack, pd, choose_item);
-	}
-	view({574, 302, 650, 414}, {655, 302, 667, 414}, 64, ground);
+	ground.update(map::getindex(getposition(), getsize()));
+	ground.view(this, choose_item, pd);
 	sb.clear(); sb.add("%1i", getac(false)); label(721, 243, 34, 32, temp, 3);
 	sb.clear(); sb.add("%1i", gethits()); label(710, 354, 54, 16, temp, 3);
 	sb.clear(); sb.add("%1i", gethitsmax()); label(710, 372, 54, 16, temp, 3);

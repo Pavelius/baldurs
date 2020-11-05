@@ -220,7 +220,7 @@ void					circlef(int x, int y, int radius, const color c1, unsigned char alpha =
 void					create(int x, int y, int width, int height, unsigned flags, int bpp);
 void					decortext(unsigned flags);
 extern fnevent			domodal;
-void					execute(void(*callback)(), int value = 0, void* object = 0);
+void					execute(void(*callback)(), int value = 0, const void* object = 0);
 void					execute(const hotinfo& id);
 fnevent					getlayout();
 int						getbpp();

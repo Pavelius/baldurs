@@ -132,10 +132,13 @@
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="area.cpp" />
     <ClCompile Include="bstream.cpp" />
+    <ClCompile Include="control_base.cpp" />
     <ClCompile Include="control_dialog.cpp" />
     <ClCompile Include="control_help.cpp" />
+    <ClCompile Include="control_item.cpp" />
     <ClCompile Include="control_journal.cpp" />
     <ClCompile Include="control_label.cpp" />
+    <ClCompile Include="control_listbox.cpp" />
     <ClCompile Include="control_scroll.cpp" />
     <ClCompile Include="control_setting.cpp" />
     <ClCompile Include="control_sheet.cpp" />

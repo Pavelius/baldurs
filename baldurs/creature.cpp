@@ -165,8 +165,8 @@ void creature::set(variant id) {
 	switch(id.type) {
 	case Alignment: set((alignment_s)id.value); break;
 	case Class: classes[id.value] = 1; break;
-	case Gender: set((gender_s)id.value); break;
-	case Race: set((race_s)id.value); break;
+	case Gender: setgender((gender_s)id.value); break;
+	case Race: setkind((race_s)id.value); break;
 	case Spell: setknown((spell_s)id.value); break;
 	}
 }

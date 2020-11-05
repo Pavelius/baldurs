@@ -344,6 +344,7 @@ union variant {
 	constexpr variant(feat_s v) : variant(Feat, v) {}
 	constexpr variant(race_s v) : variant(Race, v) {}
 	constexpr variant(reaction_s v) : variant(Reaction, v) {}
+	constexpr variant(school_s v) : variant(School, v) {}
 	constexpr variant(skill_s v) : variant(Skill, v) {}
 	constexpr variant(spell_s v) : variant(Spell, v) {}
 	constexpr variant(variant_s v) : variant(Variant, v) {}
@@ -568,6 +569,12 @@ struct drawable {
 	virtual void			painting(point position) const = 0; // How to paint drawable.
 	virtual void			update() {}
 };
+struct itemdrag {
+	item*					source;
+	item*					target;
+	item					value;
+	slot_s					target_slot;
+};
 struct ctext {
 	int						origin;
 	int						maximum;
@@ -586,19 +593,52 @@ struct ctext {
 struct clist : ctext {
 	virtual void			row(rect rc, int n) = 0;
 	virtual int				getmaximum() const { return maximum; }
+	virtual int				getpixelsperline() const { return draw::texth() + 2; }
 };
-struct citem : clist {
-	item*					data[10];
-	int						maximum_items;
+struct ccontrol {
+	static ccontrol*		getfocus();
+	static void				input();
+	bool					isfocused() const;
+	void					setfocus(bool instant = false) const;
+	virtual void			translate() {}
+	virtual void			view() const = 0;
+};
+class cscroll : public ccontrol {
+	res::tokens				bar;
+	int						scroll_frame;
+	void					viewscroll(rect rc, sprite* pb, int i, int value) const;
+public:
+	rect					client, scroll;
+	int						origin;
+	cscroll(const rect& client, const rect& scroll);
+	int						getlinesperpage() const;
+	virtual int				getmaximum() const = 0;
+	int						getorigin() const { return origin; }
+	virtual int				getpixelsperline() const;
+	void					setorigin(int index);
+	void					view() const override;
+};
+struct cbox : cscroll {
+	int						current;
+	cbox(const rect& client, const rect& scroll);
+	void					ensurevisible(int index);
+	virtual const char*		getname(stringbuilder& sb, int index) const = 0;
+	virtual void			row(rect rc, int n) const;
+	virtual void			setcurrent(int index);
+	virtual void			translate();
+	virtual void			view() const override;
+};
+struct citem : cscroll, adat<item*, 6 * 2> {
+	static constexpr const int size = 39;
 	int						mx, my;
-	citem(int mx, int my) : maximum_items(0), mx(mx), my(my) {}
-	void					row(rect rc, int n) override {}
+	citem(int x, int y, const rect& scroll, int mx, int my);
 	item*					get(int index) const;
-	int						getcount() const { return mx * my; }
-	void					update(creature* player, int item_in_line);
-	void					update(container* object, int item_in_line);
-	void					update(short unsigned index, int item_in_line);
-	void					view(creature* player, int x, int y, int dx, int dy, const rect& rcs, fnitem item_proc);
+	int						getmaximum() const override;
+	int						getpixelsperline() const override { return size; }
+	void					update(creature* player);
+	void					update(container* object);
+	void					update(short unsigned index);
+	void					view(creature* player, fnitem item_proc, itemdrag* di = 0);
 };
 struct cursorset {
 	cursorset(res::tokens r = res::CURSORS, int f = 267, bool single = false);
@@ -703,12 +743,6 @@ struct selectable : drawable {
 	point					getposition() const override;
 	bool					hittest(point hittest) const;
 	void					painting(point screen) const override;
-};
-struct itemdrag {
-	item*					source;
-	item*					target;
-	item					value;
-	slot_s					target_slot;
 };
 struct itemground : item, drawable {
 	short unsigned			index;

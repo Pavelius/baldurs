@@ -280,6 +280,15 @@
     <ClCompile Include="nameable.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
+    <ClCompile Include="control_base.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_listbox.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_item.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h">

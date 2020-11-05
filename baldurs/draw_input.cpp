@@ -53,10 +53,10 @@ res::tokens	cursorset::getres() {
 	return cursor_sprite;
 }
 
-void draw::execute(void(*proc)(), int param, void* object) {
+void draw::execute(void(*proc)(), int param, const void* object) {
 	domodal = proc;
 	hot.param = param;
-	hot.object = object;
+	hot.object = const_cast<void*>(object);
 	hot.key = InputUpdate;
 }
 
