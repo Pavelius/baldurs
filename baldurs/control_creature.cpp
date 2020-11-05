@@ -53,15 +53,11 @@ static void next() {
 }
 
 static void button_plus() {
-	auto hi = hot;
-	hi.key = Plus;
-	execute(hi);
+	hot.key = Plus;
 }
 
 static void button_minus() {
-	auto hi = hot;
-	hi.key = Minus;
-	execute(hi);
+	hot.key = Minus;
 }
 
 static aref<variant> createlist(aref<variant> result, variant v1, variant v2) {
@@ -385,7 +381,7 @@ bool creature::choose_ability(const char* title, const char* step_title, bool ad
 			sb.clear(); sb.add("%+1i", value / 2 - 5);
 			label(454, 155 + i * dy, 33, 28, temp, 0, (bonus > 0) ? 0x4D : (bonus < 0) ? 0x4C : 0);
 			unsigned flags = 0;
-			if(ability[i] >= 18 || getabilitycost(ability, 0) > cost_maximum)
+			if(ability[i] >= 18 || getabilitycost(ability, 0) >= cost_maximum)
 				flags = Disabled;
 			button(491, 152 + i * dy, button_plus, i, flags, res::GBTNPLUS, 0);
 			flags = 0;

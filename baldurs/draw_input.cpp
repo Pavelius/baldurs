@@ -4,7 +4,6 @@ using namespace draw;
 
 static unsigned		timestamp;
 static bool			keep_hot;
-static hotinfo		keep_hot_value;
 static res::tokens	cursor_sprite = res::CURSORS;
 static int			cursor_frame = 0;
 static int			cursor_single = false;
@@ -58,11 +57,6 @@ void draw::execute(void(*proc)(), int param, const void* object) {
 	hot.param = param;
 	hot.object = const_cast<void*>(object);
 	hot.key = InputUpdate;
-}
-
-void draw::execute(const hotinfo& value) {
-	keep_hot = true;
-	keep_hot_value = value;
 }
 
 int draw::getresult() {

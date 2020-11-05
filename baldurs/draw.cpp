@@ -33,7 +33,7 @@ bool				draw::mouseinput = true;
 color*				draw::palt;
 rect				draw::clipping;
 char				draw::link[4096];
-hotinfo				draw::hot;
+hoti				draw::hot;
 fnevent				draw::domodal;
 // Locale draw variables
 static draw::surface default_surface;

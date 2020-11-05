@@ -134,7 +134,7 @@ extern int				scroll;
 }
 namespace draw {
 typedef void(*fnevent)();
-struct hotinfo {
+struct hoti {
 	unsigned			animate; // Frame tick count
 	unsigned			key; // [in] if pressed key or mouse this field has key
 	point				mouse; // current mouse coordinates
@@ -143,7 +143,7 @@ struct hotinfo {
 	void*				object; // Application defined object
 	explicit operator bool() const { return key != 0; }
 };
-extern hotinfo			hot;
+extern hoti				hot;
 struct surface {
 	struct plugin {
 		const char*		name;
@@ -221,7 +221,6 @@ void					create(int x, int y, int width, int height, unsigned flags, int bpp);
 void					decortext(unsigned flags);
 extern fnevent			domodal;
 void					execute(void(*callback)(), int value = 0, const void* object = 0);
-void					execute(const hotinfo& id);
 fnevent					getlayout();
 int						getbpp();
 color					getcolor(color normal, unsigned flags);
