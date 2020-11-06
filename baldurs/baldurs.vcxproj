@@ -139,7 +139,7 @@
     <ClCompile Include="control_journal.cpp" />
     <ClCompile Include="control_label.cpp" />
     <ClCompile Include="control_listbox.cpp" />
-    <ClCompile Include="control_scroll.cpp" />
+    <ClCompile Include="control_text.cpp" />
     <ClCompile Include="control_setting.cpp" />
     <ClCompile Include="control_sheet.cpp" />
     <ClCompile Include="control_area.cpp" />

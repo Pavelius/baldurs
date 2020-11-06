@@ -373,6 +373,7 @@ struct varianta : adat<variant, 512> {
 	void					match(const creature& e, bool ispresent = true);
 	void					select(const variant v1, const variant v2);
 	void					select(const variant v1, const variant v2, const creature& player, bool required_feats = true);
+	void					spells(const creature* player, class_s power, int level);
 	void					sort();
 	void					shuffle();
 };
@@ -575,26 +576,6 @@ struct itemdrag {
 	item					value;
 	slot_s					target_slot;
 };
-struct ctext {
-	int						origin;
-	int						maximum;
-	int						increment;
-	res::tokens				bar;
-	const char*				cache_text;
-	int						cache_height;
-	int						cache_origin;
-	int						scroll_frame;
-	//
-	ctext();
-	void					cashing(const char* text, int width);
-	virtual void			prerender();
-	void					reset();
-};
-struct clist : ctext {
-	virtual void			row(rect rc, int n) = 0;
-	virtual int				getmaximum() const { return maximum; }
-	virtual int				getpixelsperline() const { return draw::texth() + 2; }
-};
 struct ccontrol {
 	static ccontrol*		getfocus();
 	static void				input();
@@ -611,12 +592,31 @@ public:
 	rect					client, scroll;
 	int						origin;
 	cscroll(const rect& client, const rect& scroll);
+	void					correct();
 	int						getlinesperpage() const;
 	virtual int				getmaximum() const = 0;
 	int						getorigin() const { return origin; }
 	virtual int				getpixelsperline() const;
+	virtual int				getscrollstep() const { return 1; }
+	static void				initialize();
 	void					setorigin(int index);
 	void					view() const override;
+};
+class ctext : public cscroll {
+	const char*				text;
+	const char*				cache_text;
+	int						cache_height;
+	int						cache_origin;
+	int						text_height;
+public:
+	ctext(const rect& client, const rect& scroll, const char* text);
+	int						getmaximum() const { return text_height; }
+	int						getpixelsperline() const override { return 1; }
+	int						getscrollstep() const override { return draw::texth(); }
+	void					reset();
+	void					view() const override;
+	void					viewc();
+	void					update();
 };
 struct cbox : cscroll {
 	int						current;
@@ -1353,8 +1353,6 @@ void							scale2x(void* void_dst, unsigned dst_slice, const void* void_src, uns
 void							set(color * dest, unsigned char index, int start = 4, int count = 12);
 void							textblend(point pos, const char* text, unsigned duration);
 void							translate(hotkey* keys);
-void							view(rect rc, rect rcs, int pixels_per_line, clist& e);
-void							view(rect rc, rect rcs, const char* text, ctext& e);
 }
 int								compare_variant(const void* v1, const void* v2);
 extern const char*				getstr(const variant& e);

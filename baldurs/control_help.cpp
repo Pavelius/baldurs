@@ -17,8 +17,6 @@ struct listbox : cbox {
 	}
 };
 
-static ctext description_control;
-
 void creature::help() {
 	cursorset cur;
 	varianta topics;
@@ -35,6 +33,7 @@ void creature::help() {
 	char temp[8192]; stringbuilder sb(temp);
 	auto list_height = texth() + 2;
 	variant last_variant;
+	ctext textv({434, 70, 706, 70 + 288}, {720, 70, 720 + 12, 70 + 291}, temp);
 	while(ismodal()) {
 		background(res::GUIHELP);
 		label(300, 26, 200, 24, "Справка", 2);
@@ -45,8 +44,8 @@ void creature::help() {
 		elementv.view();
 		sb.clear(); elementv.get().addinfo(sb);
 		if(last_variant != elementv.get())
-			description_control.reset();
-		view({434, 70, 706, 70 + 288}, {720, 70, 720 + 12, 70 + 291}, temp, description_control);
+			textv.reset();
+		textv.viewc();
 		menumodal();
 		ccontrol::input();
 	}

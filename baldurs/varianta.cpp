@@ -85,3 +85,17 @@ void varianta::select(const variant v1, const variant v2) {
 	}
 	count = pb - data;
 }
+
+void varianta::spells(const creature* player, class_s power, int level) {
+	auto pb = data;
+	auto pe = pb + getmaximum();
+	for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
+		if(bsdata<spelli>::elements[e].levels[power] != level)
+			continue;
+		if(!player->isknown(e))
+			continue;
+		if(pb < pe)
+			*pb++ = e;
+	}
+	count = pb - data;
+}

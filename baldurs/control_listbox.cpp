@@ -14,11 +14,13 @@ static void pselect() {
 	p->setcurrent(hot.param);
 }
 
+void cscroll::initialize() {
+	standart_pixels_per_line = texth() + 2;
+}
+
 cscroll::cscroll(const rect& client, const rect& scroll) :
 	bar(res::GBTNSCRL), scroll_frame(4),
 	client(client), scroll(scroll), origin(0) {
-	if(!standart_pixels_per_line)
-		standart_pixels_per_line = texth() + 2;
 }
 
 int cscroll::getpixelsperline() const {
@@ -34,14 +36,18 @@ void cscroll::viewscroll(rect rc, sprite* pb, int i, int value) const {
 	}
 }
 
-void cscroll::setorigin(int index) {
-	origin = index;
+void cscroll::correct() {
 	auto lpp = getlinesperpage();
 	auto m = getmaximum();
 	if(origin + lpp >= m)
 		origin = m - lpp - 1;
 	if(origin < 0)
 		origin = 0;
+}
+
+void cscroll::setorigin(int index) {
+	origin = index;
+	correct();
 }
 
 int cscroll::getlinesperpage() const {
@@ -54,16 +60,16 @@ int cscroll::getlinesperpage() const {
 void cscroll::view() const {
 	if(draw::areb(client) || draw::areb(scroll)) {
 		switch(hot.key) {
-		case MouseWheelDown: execute(porigin, origin + 1, this); break;
-		case MouseWheelUp: execute(porigin, origin - 1, this); break;
+		case MouseWheelDown: execute(porigin, origin + getscrollstep(), this); break;
+		case MouseWheelUp: execute(porigin, origin - getscrollstep(), this); break;
 		}
 	}
 	auto lpp = getlinesperpage();
 	auto valid_maximum = getmaximum() - lpp  - 1;
 	sprite* pb = gres(bar);
 	if(pb && scroll) {
-		viewscroll({scroll.x1, scroll.y1, scroll.x2, scroll.y1 + scroll.width()}, pb, 0, origin - 1);
-		viewscroll({scroll.x1, scroll.y2 - scroll.width(), scroll.x2, scroll.y2}, pb, 2, origin + 1);
+		viewscroll({scroll.x1, scroll.y1, scroll.x2, scroll.y1 + scroll.width()}, pb, 0, origin - getscrollstep());
+		viewscroll({scroll.x1, scroll.y2 - scroll.width(), scroll.x2, scroll.y2}, pb, 2, origin + getscrollstep());
 		int h = scroll.height() - pb->get(0).sy - pb->get(2).sy - pb->get(scroll_frame).sy - 2;
 		int h1 = valid_maximum;
 		if(h1 > 0) {

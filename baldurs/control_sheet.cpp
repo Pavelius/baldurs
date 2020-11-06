@@ -8,7 +8,8 @@ enum info_page_s : unsigned char {
 
 static const char*		ability_short_name[] = {"Сил", "Лов", "Тел", "Инт", "Муд", "Хар"};
 static info_page_s		current_step;
-static ctext		textarea;
+static char				description[8192];
+static ctext			textarea({410, 64, 406 + 349, 64 + 288}, {768, 64, 780, 358}, description);
 
 static void choose_page() {
 	textarea.reset();
@@ -32,7 +33,6 @@ static void levelup() {}
 
 void creature::sheet() {
 	static const creature* cashe_player;
-	char temp[8192]; stringbuilder sb(temp);
 	varianta source;
 	// Чтобы корректно отображался текст, кэшируем когда меняется игрок
 	if(cashe_player != this) {
@@ -43,16 +43,17 @@ void creature::sheet() {
 	draw::image(20, 79, gres(res::PORTL), getportrait(), 0);
 	label(22, 23, 206, 28, getname(), 2);
 	label(258, 23, 115, 28, getstr(getrace()));
+	stringbuilder sb(description);
 	for(auto i = Strenght; i <= Charisma; i = (ability_s)(i + 1)) {
 		auto y = 78 + 39 * i;
 		auto value = get(i);
 		label(253, y, 45, 30, ability_short_name[i], 2);
-		sb.clear(); sb.add("%1i", getr(i)); label(304, y, 32, 30, temp);
-		sb.clear(); sb.add("%+1i", value); label(345, y, 32, 30, temp, 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
+		sb.clear(); sb.add("%1i", getr(i)); label(304, y, 32, 30, description);
+		sb.clear(); sb.add("%+1i", value); label(345, y, 32, 30, description, 0, (value > 0) ? 0x4D : (value < 0) ? 0x4C : 0);
 	}
-	sb.clear(); sb.add("%1i", getac(false)); label(463, 381, 32, 30, temp, 3);
-	sb.clear(); sb.add("%1i", gethits()); label(585, 378, 54, 16, temp, 3);
-	sb.clear(); sb.add("%1i", gethitsmax()); label(585, 399, 54, 16, temp, 3);
+	sb.clear(); sb.add("%1i", getac(false)); label(463, 381, 32, 30, description, 3);
+	sb.clear(); sb.add("%1i", gethits()); label(585, 378, 54, 16, description, 3);
+	sb.clear(); sb.add("%1i", gethitsmax()); label(585, 399, 54, 16, description, 3);
 	switcher(430, 22, InfoCharacter);
 	switcher(512, 22, InfoWeapons);
 	switcher(594, 22, InfoSkills);
@@ -73,5 +74,5 @@ void creature::sheet() {
 		addinfo(sb);
 		break;
 	}
-	view({410, 64, 406 + 349, 64 + 288}, {768, 64, 780, 358}, temp, textarea);
+	textarea.viewc();
 }

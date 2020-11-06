@@ -24,6 +24,7 @@ void draw::initialize() {
 	draw::fore = colors::text;
 	draw::syscursor(false);
 	draw::settimer(1000 / 30);
+	cscroll::initialize();
 }
 
 unsigned draw::getframe() {

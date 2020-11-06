@@ -1,14 +1,13 @@
 #include "main.h"
 
 static char				textdata[256 * 256 * 4];
+static ctext			scroll({12, 500, 542, 592}, {554, 497, 566, 592}, textdata);
 static stringbuilder	sb(textdata);
-static ctext			scroll;
-static rect				last_rect;
 
 static void update_log() {
-	scroll.reset();
-	if(scroll.origin + last_rect.height() >= scroll.maximum - 4)
-		scroll.origin = scroll.maximum;
+	scroll.update();
+	if(scroll.getorigin() + scroll.client.height() >= scroll.getorigin() - 4)
+		scroll.setorigin(scroll.getmaximum());
 }
 
 void msclear() {
@@ -23,8 +22,7 @@ void draw::mslog(const char* format, ...) {
 }
 
 void draw::mspaint(const rect& rc, const rect& rcs) {
-	last_rect = rc;
-	view(rc, rcs, textdata, scroll);
+	scroll.viewc();
 }
 
 void nameable::say(const char* format, ...) const {

@@ -657,6 +657,15 @@ static void character_test() {
 	//player->testground();
 	player->choose_target();
 }
+
+static void test_messages() {
+	static const char* speech[] = {"Чего надо?", "Не видишь я занят?", "Да, хороший день.", "Мне бы поесть и выпить..."};
+	auto player = creature::getactive();
+	if(!player)
+		return;
+	player->say(maprnd(speech));
+}
+
 #endif
 
 static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
@@ -668,6 +677,7 @@ static hotkey movement_keys[] = {{move_left, KeyLeft, "Двигать влево"},
 {layer_search, Alpha + Ctrl + 'S', "Наложить фильтр карты поиска"},
 {layer_path, Alpha + Ctrl + 'P', "Наложить фильтр карты пути"},
 {character_test, Alpha + 'T', "Тестирование анимации"},
+{test_messages, Ctrl + Alpha + 'M', "Тестирование сообщений"},
 #endif
 {}};
 

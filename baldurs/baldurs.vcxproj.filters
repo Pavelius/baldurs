@@ -217,9 +217,6 @@
     <ClCompile Include="control_picker.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
-    <ClCompile Include="control_scroll.cpp">
-      <Filter>Логика</Filter>
-    </ClCompile>
     <ClCompile Include="control_setting.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
@@ -287,6 +284,9 @@
       <Filter>Логика</Filter>
     </ClCompile>
     <ClCompile Include="control_item.cpp">
+      <Filter>Логика</Filter>
+    </ClCompile>
+    <ClCompile Include="control_text.cpp">
       <Filter>Логика</Filter>
     </ClCompile>
   </ItemGroup>

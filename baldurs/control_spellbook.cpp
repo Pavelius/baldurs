@@ -41,10 +41,9 @@ static void info_power() {
 	creature::spellinfo(id);
 }
 
-static struct scrollspell : clist {
-	variant		data[64];
-	int			free;
-	void row(rect rc, int n) {
+static struct scrollspell : cbox, varianta {
+	int				free;
+	void row(rect rc, int n) const override {
 		static int offset[8] = {1, 0, -1, -2, -1, -2, -3, -4};
 		auto id = (spell_s)data[n].value;
 		auto oy = offset[n - origin];
@@ -57,7 +56,18 @@ static struct scrollspell : clist {
 				draw::execute(add_power, id);
 		}
 	}
-} known;
+	int getmaximum() const override {
+		return getcount();
+	}
+	const char* getname(stringbuilder& sb, int i) const override {
+		return bsdata<spelli>::elements[data[i].value].name;
+	}
+	int getpixelsperline() const override {
+		return 43;
+	}
+	scrollspell(const rect& client, const rect& scroll) : cbox(client, scroll), free(0) {
+	}
+} known({492, 79, 702, 409}, {708, 79, 720, 409});
 
 void creature::spellbook() {
 	adat<preparation*> memorized;
@@ -117,18 +127,8 @@ void creature::spellbook() {
 			y += 39;
 		}
 		// Создадим фильтр доступных
-		auto pb = known.data;
-		auto pe = pb + sizeof(known.data) / sizeof(known.data[0]);
-		for(auto e = FirstSpell; e <= LastSpell; e = (spell_s)(e + 1)) {
-			if(bsdata<spelli>::elements[e].levels[current_power.value] != current_level)
-				continue;
-			if(!isknown(e))
-				continue;
-			if(pb < pe)
-				*pb++ = e;
-		}
-		known.maximum = pb - known.data;
-		qsort(known.data, known.maximum, sizeof(known.data[0]), compare_variant);
+		known.spells(this, (class_s)current_power.value, current_level);
+		known.sort();
 		// Запомненные заклинания
 		x = 254; y = 85; auto index = 0;
 		for(auto& e : powers) {
@@ -151,7 +151,8 @@ void creature::spellbook() {
 				}
 			}
 		}
-		view({492, 79, 702, 409}, {708, 79, 720, 409}, 43, known);
+		known.view();
+		//view({492, 79, 702, 409}, {708, 79, 720, 409}, 43, known);
 	}
 }
 

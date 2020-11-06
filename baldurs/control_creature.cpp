@@ -22,7 +22,7 @@ BSDATAF(genstepi)
 
 static variant			current_variant;
 static char				description[1024 * 16];
-static ctext		description_control;
+static ctext			descriptionv({570, 153, 754, 478}, {765, 151, 777, 481}, description);
 static char				ability_cost[] = {0, 1, 2, 3, 4, 5, 6, 8, 10, 13, 16};
 
 static void biography() {}
@@ -46,6 +46,7 @@ static void select_variant() {
 	current_variant = hot.param;
 	stringbuilder sb(description);
 	current_variant.addinfo(sb);
+	descriptionv.update();
 }
 
 static void next() {
@@ -96,7 +97,7 @@ variant creature::choose(const char* title, const char* step_title, varianta& el
 		}
 		command_buttons();
 		button(478, 550, next, 0, current_variant ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 	}
 	current_variant = 0;
@@ -128,7 +129,7 @@ static int choose_portrait(const char* title, const char* step_title, gender_s g
 			execute(buttonparam, NextPortrait);
 		command_buttons();
 		button(478, 550, buttonok, 0, 0, res::GBTNSTD, "Далее", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 		switch(hot.key) {
 		case NextPortrait:
@@ -188,7 +189,7 @@ static variant choose_gender(const creature& player, const char* title, const ch
 		button(274, y + dy * 1, select_variant, variant(Female), (current_variant == variant(Female)) ? Checked : 0, res::GBTNLRG, "Женщина", Alpha + '2');
 		command_buttons();
 		button(478, 550, next, 0, current_variant ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 	}
 	current_variant = 0;
@@ -270,7 +271,7 @@ bool creature::choose_skills(const char* title, const char* step_title, varianta
 		table.view();
 		command_buttons();
 		button(478, 550, buttonok, 0, (table.points <= 1) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 		switch(hot.key) {
 		case Plus:
@@ -300,12 +301,12 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 		}
 		return true;
 	}
-	struct scroll : clist {
+	struct scroll : cbox {
 		varianta&	elements;
 		creature	copy;
 		creature&	player;
 		char		points;
-		void row(rect rc, int i) override {
+		void row(rect rc, int i) const override {
 			auto id = (feat_s)elements[i].value;
 			auto value = player.get(id);
 			auto dy = rc.height() - 8;
@@ -325,8 +326,16 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 				iv.addinfo(sb);
 			}
 		}
-		scroll(creature& player, varianta& elements) : player(player), copy(player), elements(elements) {
-			maximum = elements.count;
+		const char* getname(stringbuilder& sb, int n) const override {
+			return bsdata<feati>::elements[elements[n].value].name;
+		}
+		int getmaximum() const override {
+			return elements.count;
+		}
+		int getpixelsperline() const override {
+			return 36;
+		}
+		scroll(creature& player, varianta& elements) : cbox({280, 154, 526, 506}, {529, 154, 540, 506}), player(player), copy(player), elements(elements) {
 		}
 	} table(*this, elements);
 	char temp[32];
@@ -340,10 +349,10 @@ bool creature::choose_feats(const char* title, const char* step_title, varianta&
 		label(279, 116, 205, 28, "Осталось особенностей");
 		sznum(temp, table.points);
 		label(492, 118, 32, 28, temp);
-		view({280, 154, 526, 506}, {529, 154, 540, 506}, 36, table);
+		table.view();
 		command_buttons();
 		button(478, 550, buttonok, 0, (table.points <= 0) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 		switch(hot.key) {
 		case Plus:
@@ -396,7 +405,7 @@ bool creature::choose_ability(const char* title, const char* step_title, bool ad
 		label(492, 118, 32, 28, temp);
 		command_buttons();
 		button(478, 550, buttonok, 0, (left_cost == 0) ? 0 : Disabled, res::GBTNSTD, "Далее", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 		switch(hot.key) {
 		case Plus: ability[hot.param]++; break;
@@ -451,7 +460,7 @@ static variant_s choose_step(creature& player, const char* title, const char* st
 		}
 		command_buttons(current);
 		button(478, 550, next, 1, (current == Finish) ? 0 : Disabled, res::GBTNSTD, "Закончить", KeyEnter);
-		view({570, 153, 754, 478}, {765, 151, 777, 481}, description, description_control);
+		descriptionv.viewc();
 		domodal();
 		switch(hot.key) {
 		case CreateNew:

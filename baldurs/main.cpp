@@ -95,15 +95,15 @@ static void test_generate() {
 	player.set(Male);
 	player.set(LawfulGood);
 	player.setportrait(12);
-	//player.set(Strenght, 15);
-	//player.set(Dexterity, 11);
-	//player.set(Constitution, 14);
-	//player.set(Intellegence, 8);
-	//player.set(Wisdow, 8);
-	//player.set(Charisma, 8);
-	//player.set(Fighter, 1);
-	//varianta elements;
-	player.choose_ability("Тестирование", "Тест выбора атрибутов", true);
+	player.set(Strenght, 15);
+	player.set(Dexterity, 11);
+	player.set(Constitution, 14);
+	player.set(Intellegence, 8);
+	player.set(Wisdow, 8);
+	player.set(Charisma, 8);
+	player.set(Fighter, 1);
+	varianta elements;
+	player.choose_skills("Тест выбора", elements, true);
 }
 
 int main(int argc, char* argv[]) {
@@ -118,8 +118,8 @@ int main(int argc, char* argv[]) {
 		return -1;
 	util_main();
 	//test_character();
-	test_generate();
-	//setlayout(start_scene);
+	//test_generate();
+	setlayout(start_scene);
 }
 
 int _stdcall WinMain(void* ci, void* pi, char* cmd, int sw) {
