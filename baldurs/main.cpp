@@ -25,6 +25,12 @@ static creature* create(class_s type, race_s race, gender_s gender, reaction_s r
 	return p;
 }
 
+static void test_magic_sword(creature* p) {
+	item it = Longsword;
+	it.setmagic();
+	p->add(it);
+}
+
 static void test_drop_items(map::indext i) {
 	map::drop(i, ChainMail);
 	map::drop(i, Helm);
@@ -48,6 +54,7 @@ static void quick_load() {
 	creature::moveto("AR4000");
 	generate_treasure();
 	p1->say("Ну что? Надерем пару задниц?");
+	test_magic_sword(p1);
 	test_drop_items(map::getindex({700, 2100}));
 	//creature::create(Goblin, Hostile, {1108, 2209}, 6, 4);
 }

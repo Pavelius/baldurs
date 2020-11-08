@@ -452,6 +452,7 @@ struct itemi {
 		variant				power;
 		const char*			text;
 		const int			getweight() const;
+		constexpr explicit operator bool() const { return rate != Mundane; }
 	};
 	struct combati {
 		dicei				damage;
@@ -468,7 +469,7 @@ struct itemi {
 	unsigned char			count;
 	int						weight;
 	int						cost; // Цена в золотых монетах
-	aref<poweri>			power;
+	aref<poweri>			powers;
 	const char*				name;
 	const char*				text;
 };
@@ -487,6 +488,7 @@ public:
 	void					addinfo(stringbuilder& sb) const;
 	void					apply(attacki& a) const;
 	void					clear();
+	void					create_magical();
 	void					equip(const item& it);
 	int						getac() const;
 	int						getarmorindex() const;
@@ -503,6 +505,7 @@ public:
 	constexpr itemi&		geti() const { return bsdata<itemi>::elements[type]; }
 	const char*				getname() const { return geti().name; }
 	int						getportrait() const { return type * 2; }
+	itemi::poweri*			getpower() const;
 	int						getdragportrait() const { return type * 2 + 1; }
 	creature*				getowner() const;
 	item_s					gettype() const { return type; }
@@ -520,6 +523,7 @@ public:
 	bool					isxbow() const;
 	void					remove();
 	void					setcount(int value);
+	void					setmagic();
 };
 struct abilityi {
 	const char*				id;

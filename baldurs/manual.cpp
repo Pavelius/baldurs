@@ -260,10 +260,17 @@ void item::addinfo(stringbuilder& sb) const {
 	if(ei.ai.deflect_critical)
 		sb.addn("Шанс %1i%% превратить критический удар по вам в обычный удар.", ei.ai.deflect_critical);
 	attacki ai = {}; apply(ai);
+	if(ai.bonus)
+		addm(sb, "Бонус к атаке", "%+1i", ai.bonus);
 	addm(sb, ai.damage);
 	auto ac = getac();
 	if(ac)
 		addm(sb, getstr(ArmorClass), "%+1i", ac);
+	auto pi = getpower();
+	if(pi) {
+		if(pi->bonus)
+			addm(sb, "Волшебный бонус", "%+1i", pi->bonus);
+	}
 	if(ei.feat[0])
 		addm(sb, "Требует", getstr(ei.feat[0]));
 	addm(sb, "Вес", "%1i фунтов", ei.weight);

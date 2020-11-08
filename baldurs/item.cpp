@@ -17,7 +17,7 @@ BSDATA(itemi) = {{"NoItem", {"IHANDGF", "GGEM01"}},
 {"Mace", {"IMACEB1", "GBLUN06", res::WQSMC}, QuickOffhand, {ProficiencyMace, FocusMaces}, {}, {{Bludgeon, 1, 6, 1}}},
 {"Spear", {"ISPERB1", "GSPER01", res::WQSSP}, QuickWeapon, {ProficiencySpear, FocusPolearm}, {}, {{Pierce, 1, 8}}},
 {"Staff", {"ISTAFB1", "GSTAF01", res::WQSQS}, QuickWeapon, {ProficiencySimple, FocusPolearm}, {TwoHanded}, {{Bludgeon, 1, 6}}},
-{"Crossbow",  {"IXBOWL01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyCrossbow, FocusShooting}, {}, {{Pierce, 1, 8}}},
+{"Crossbow", {"IXBOWL01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyCrossbow, FocusShooting}, {}, {{Pierce, 1, 8}}},
 {"HeavyCrossbow", {"IXBOWH01", "GXBOW01", res::WQSBW}, QuickWeapon, {ProficiencyHeavyCrossbow, FocusShooting}, {}, {{Pierce, 1, 10}}},
 {"Sling", {"ISLNGB1", "GSLNG01", res::WQSSL}, QuickWeapon, {ProficiencySimple}, {}, {{Bludgeon, 1, 4}, 0, Range50}},
 
@@ -194,6 +194,13 @@ void item::apply(attacki& e) const {
 		e.range = 5;
 	if(is(ReachItem))
 		e.range += 5;
+	auto pi = getpower();
+	if(pi) {
+		if(ei.ai.damage) {
+			e.bonus += pi->bonus;
+			e.damage.b += pi->bonus;
+		}
+	}
 }
 
 const int itemi::poweri::getweight() const {
@@ -223,4 +230,25 @@ void item::remove() {
 	clear();
 	if(p)
 		p->dresson();
+}
+
+itemi::poweri* item::getpower() const {
+	if(!identified)
+		return 0;
+	auto& ei = geti();
+	if(!ei.powers)
+		return 0;
+	auto& ep = ei.powers[effect];
+	return ep ? &ep : 0;
+}
+
+void item::setmagic() {
+	auto& ei = geti();
+	auto count = ei.powers.getcount();
+	if(!count)
+		return;
+	auto start = 0;
+	if(!ei.powers[0].power)
+		start++;
+	effect = xrand(start, count - 1);
 }
