@@ -121,7 +121,7 @@ static void add(stringbuilder& sb, const std::initializer_list<feat_s>& source) 
 
 static void add(stringbuilder& sb, const char* header, const classa& source) {
 	auto count = 0;
-	for(auto i = FirstClass; i <= LastClass; i = (class_s)(i+1)) {
+	for(auto i = FirstClass; i <= LastClass; i = (class_s)(i + 1)) {
 		if(!source.data[i])
 			continue;
 		if(count == 0)
@@ -163,8 +163,7 @@ static void add(stringbuilder& sb, const char* header, item_s v1, item_s v2, con
 }
 
 static void addm(stringbuilder& sb, const char* header) {
-	sb.add("\n");
-	sb.add(header);
+	sb.addn(header);
 	sb.add(": ");
 }
 
@@ -173,14 +172,33 @@ static void addm(stringbuilder& sb, const char* header, const char* format, ...)
 	sb.addv(format, xva_start(format));
 }
 
-static void addm(stringbuilder& sb, const dicei& e) {
-	if(!e)
-		return;
-	addm(sb, "Повреждения");
+static void addv(stringbuilder& sb, const dicei& e) {
 	if(e.b)
 		sb.add("%1id%2i%+3i", e.c, e.d, e.b);
 	else
 		sb.add("%1id%2i", e.c, e.d);
+}
+
+static void adddamage(stringbuilder& sb, const attacki& ai) {
+	addv(sb, ai.damage);
+	sb.add(" ");
+	sb.add(getstr(ai.damage.type));
+	if(ai.weapon) {
+		auto pp = ai.weapon->getpower();
+		if(pp) {
+			auto power = pp->power;
+			if(power) {
+				switch(power.type) {
+				case DamageVariant:
+					sb.add(" и 1d6 %1", getstr(power));
+					break;
+				case Race:
+					sb.add(" и дополнительно 2d6 если цель %1", getstr(power));
+					break;
+				}
+			}
+		}
+	}
 }
 
 void creature::add(stringbuilder& sb, const aref<variant>& elements, const char* title) const {
@@ -197,7 +215,7 @@ void creature::add(stringbuilder& sb, const aref<variant>& elements, const char*
 }
 static void add_skill_ability(stringbuilder& sb, const char* header, ability_s id) {
 	varianta elements;
-	for(auto e = FirstSkill; e <= LastSkill; e = (skill_s)(e+1)) {
+	for(auto e = FirstSkill; e <= LastSkill; e = (skill_s)(e + 1)) {
 		if(bsdata<skilli>::elements[e].ability == id)
 			elements.add(e);
 	}
@@ -249,6 +267,30 @@ static void addm(stringbuilder& sb, const char* header, const feata& feats) {
 	}
 }
 
+static void addweapon(stringbuilder& sb, const creature* p, item* pi, bool isoffhand) {
+	attacki ai; p->get(ai, pi, isoffhand);
+	if(!ai)
+		return;
+	if(!(*pi))
+		return;
+	sb.addn("%+1 %+2i от ", "ближняя атака", ai.bonus);
+	sb.add(pi->getname());
+	sb.addn("При попадании ");
+	adddamage(sb, ai);
+}
+
+static void addweapons(stringbuilder& sb, const creature* p, slot_s weapon, const char* header) {
+	auto p1 = (item*)p->getwearr(weapon);
+	auto p2 = (item*)p->getwearr((slot_s)(weapon + 1));
+	if(!p1 || !p2)
+		return;
+	if(!(*p1) && !(*p2))
+		return;
+	sb.addh(header);
+	addweapon(sb, p, p1, false);
+	addweapon(sb, p, p2, true);
+}
+
 void item::addinfo(stringbuilder& sb) const {
 	auto& ei = bsdata<itemi>::elements[type];
 	if(ei.text && ei.text[0])
@@ -262,7 +304,17 @@ void item::addinfo(stringbuilder& sb) const {
 	attacki ai = {}; apply(ai);
 	if(ai.bonus)
 		addm(sb, "Бонус к атаке", "%+1i", ai.bonus);
-	addm(sb, ai.damage);
+	if(ai.damage) {
+		addm(sb, "Урон");
+		adddamage(sb, ai);
+		addm(sb, "Критический удар");
+		sb.add("при ");
+		if(ai.critical)
+			sb.add("%1i-20", 20 - ai.critical);
+		else
+			sb.add("20", 20 - ai.critical);
+		sb.add(" урон х%1i", 2 + ai.multiplier);
+	}
 	auto ac = getac();
 	if(ac)
 		addm(sb, getstr(ArmorClass), "%+1i", ac);
@@ -270,6 +322,9 @@ void item::addinfo(stringbuilder& sb) const {
 	if(pi) {
 		if(pi->bonus)
 			addm(sb, "Волшебный бонус", "%+1i", pi->bonus);
+		auto power = pi->power;
+		if(power) {
+		}
 	}
 	if(ei.feat[0])
 		addm(sb, "Требует", getstr(ei.feat[0]));
@@ -349,23 +404,10 @@ void creature::addinfo(stringbuilder& sb) const {
 	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
 }
 
-void creature::addinfocombar(stringbuilder& sb) const {
-	sb.addh("Уровни - уровень персонажа %1i", getcharlevel());
-	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
-		if(classes[e])
-			sb.addn("%1: %2i", getstr(e), classes[e]);
-	}
-	sb.addn("Любимый класс: Любой");
-	sb.addh("Опыт");
-	sb.addn("Текущий: %1i", experience);
-	sb.addn("Следующий уровень: %1i", 2000);
-	sb.addh("Раса");
-	sb.addn(getstr(getrace()));
-	sb.addh("Мировозрение");
-	sb.addn(getstr(alignment));
-	sb.addh("Спас-броски");
-	for(auto e = Fortitude; e <= Will; e = (ability_s)(e + 1))
-		sb.addn("%1: %+2i", getstr(e), get(e));
-	sb.addh("Способности атрибутов");
-	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
+void creature::addinfocombat(stringbuilder& sb) const {
+	auto active_slot = (slot_s)(QuickWeapon + active_weapon * 2);
+	addweapons(sb, this, active_slot, "Полная атака");
+	for(auto i = QuickWeapon; i < QuickWeapon + 4 * 2; i = (slot_s)(i + 2))
+		if(i != active_slot)
+			addweapons(sb, this, i, "Вариант атаки");
 }

@@ -73,6 +73,9 @@ void creature::sheet() {
 	case InfoCharacter:
 		addinfo(sb);
 		break;
+	case InfoWeapons:
+		addinfocombat(sb);
+		break;
 	}
 	textarea.viewc();
 }

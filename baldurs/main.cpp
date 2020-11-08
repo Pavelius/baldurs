@@ -26,9 +26,8 @@ static creature* create(class_s type, race_s race, gender_s gender, reaction_s r
 }
 
 static void test_magic_sword(creature* p) {
-	item it = Longsword;
-	it.setmagic();
-	p->add(it);
+	item i1 = Longsword; i1.setmagic(); p->add(i1);
+	item i2 = Longsword; i2.setmagic(Goblinoid); p->add(i2);
 }
 
 static void test_drop_items(map::indext i) {

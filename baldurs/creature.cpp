@@ -612,29 +612,39 @@ void creature::attack(creature& enemy) {
 	enemy.wait();
 }
 
-void creature::get(attacki& result, slot_s slot) const {
+void creature::get(attacki& result, item* weapon, bool isoffhand) const {
 	memset(&result, 0, sizeof(result));
-	result.weapon = const_cast<item*>(getwear(slot));
+	result.weapon = weapon;
 	if(!result.weapon || !(*result.weapon))
 		result.weapon = 0;
 	if(result.weapon) {
 		result.weapon->apply(result);
 		if(result.weapon->isranged()) {
-			result.bonus += get(Dexterity);
+			if(!isoffhand)
+				result.bonus += get(Dexterity);
 			if(is(FarShoot))
 				result.range = result.range * 15 / 10;
-		}
-		else {
-			result.bonus += get(Strenght);
-			result.damage.b += get(Strenght);
+		} else {
+			if(isoffhand)
+				result.bonus += get(Strenght);
+			else {
+				result.bonus += get(Strenght);
+				result.damage.b += get(Strenght);
+			}
 		}
 	} else {
-		result.damage.c = 1;
-		result.damage.d = 3;
-		result.damage.b += get(Strenght);
+		if(!isoffhand) {
+			result.damage.c = 1;
+			result.damage.d = 3;
+			result.damage.b += get(Strenght);
+		}
 	}
 	if(is(ImprovedCritical))
 		result.critical++;
+}
+
+void creature::get(attacki& result, slot_s slot) const {
+	get(result, const_cast<item*>(getwear(slot)), slot == QuickOffhand);
 }
 
 bool creature::roll(rolli& e) const {

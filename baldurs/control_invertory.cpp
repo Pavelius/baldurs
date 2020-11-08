@@ -2,15 +2,17 @@
 
 using namespace draw;
 
-void creature::show(const char* header, item& it) {
+void creature::show(item& it) {
+	char temp[512]; stringbuilder sb(temp);
 	screenshoot screen(true);
 	cursorset set;
 	while(ismodal()) {
 		int x = 144, y = 15;
 		screen.restore();
 		image(x, y, res::GIITMH08, 0, 0);
-		label(x + 36, y + 37, 357, 30, header, 2); // STONEBIG
-		rectb({x + 480, y + 109, x + 492, y + 420}, colors::white);
+		sb.clear(); it.getname(sb);
+		label(x + 36, y + 37, 357, 30, temp, 2); // STONEBIG
+		//rectb({x + 480, y + 109, x + 492, y + 420}, colors::white);
 		if(true) {
 			const auto sx = 64, sy = 64;
 			draw::state push;
@@ -19,8 +21,7 @@ void creature::show(const char* header, item& it) {
 			auto& fr = sp->get(it.getportrait() + 1);
 			image(x + 429 + 2 + (sx - fr.sx) / 2, y + 20 + 2 + (sy - fr.sy) / 2, res::ITEMS, it.getportrait() + 1, ImageNoOffset);
 		}
-		char temp[512]; stringbuilder sb(temp);
-		it.addinfo(sb);
+		sb.clear(); it.addinfo(sb);
 		textf(x + 25, y + 113, 425, temp);
 		if(!it.isknown())
 			button(x + 179, y + 432, 0, res::GBTNMED, 0, 1, 2, 3, "Опознать", 0, 0);
@@ -35,7 +36,7 @@ static void item_description() {
 	auto pi = (item*)hot.param;
 	if(!p || !pi)
 		return;
-	p->show(pi->getname(), *pi);
+	p->show(*pi);
 }
 
 static void enchant_item() {

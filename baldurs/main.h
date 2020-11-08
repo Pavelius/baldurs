@@ -292,7 +292,7 @@ enum tile_s : unsigned char {
 enum variant_s : unsigned char {
 	NoVariant,
 	Ability, Alignment, Apearance, Class, Container, Creature,
-	Diety, Door, Gender, Feat, Item, ItemCont, ItemGround, Monster, Name,
+	DamageVariant, Diety, Door, Gender, Feat, Item, ItemCont, ItemGround, Monster, Name,
 	Position, Race, Reaction, Region, School, Skill, Spell,
 	Finish, Variant,
 };
@@ -338,6 +338,7 @@ union variant {
 	constexpr variant(ability_s v) : variant(Ability, v) {}
 	constexpr variant(alignment_s v) : variant(Alignment, v) {}
 	constexpr variant(class_s v) : variant(Class, v) {}
+	constexpr variant(damage_s v) : variant(DamageVariant, v) {}
 	constexpr variant(gender_s v) : variant(Gender, v) {}
 	constexpr variant(item_s v) : variant(Item, v) {}
 	constexpr variant(monster_s v) : variant(Monster, v) {}
@@ -404,6 +405,7 @@ struct rolli {
 struct damagei {
 	const char*				id;
 	const char*				name;
+	const char*				text;
 };
 struct reactioni {
 	const char*				id;
@@ -434,8 +436,8 @@ struct attacki : rolli {
 	dicei					damage;
 	char					critical, multiplier;
 	short					range;
-	item*					weapon;
-	item*					ammunition;
+	const item*				weapon;
+	const item*				ammunition;
 	constexpr explicit operator bool() const { return damage.c != 0; }
 };
 struct itemi {
@@ -472,6 +474,8 @@ struct itemi {
 	aref<poweri>			powers;
 	const char*				name;
 	const char*				text;
+	static int				bonus_damage_dice[6];
+	static int				bonus_save_throw[6];
 };
 class item {
 	item_s					type;
@@ -488,7 +492,6 @@ public:
 	void					addinfo(stringbuilder& sb) const;
 	void					apply(attacki& a) const;
 	void					clear();
-	void					create_magical();
 	void					equip(const item& it);
 	int						getac() const;
 	int						getarmorindex() const;
@@ -504,6 +507,7 @@ public:
 	int						getframe() const;
 	constexpr itemi&		geti() const { return bsdata<itemi>::elements[type]; }
 	const char*				getname() const { return geti().name; }
+	void					getname(stringbuilder& sb) const;
 	int						getportrait() const { return type * 2; }
 	itemi::poweri*			getpower() const;
 	int						getdragportrait() const { return type * 2 + 1; }
@@ -524,6 +528,7 @@ public:
 	void					remove();
 	void					setcount(int value);
 	void					setmagic();
+	void					setmagic(variant power);
 };
 struct abilityi {
 	const char*				id;
@@ -1128,7 +1133,7 @@ public:
 	void						add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
 	void						addinfo(stringbuilder& sb) const;
 	void						addinfo(stringbuilder& sb, variant_s step) const;
-	void						addinfocombar(stringbuilder& sb) const;
+	void						addinfocombat(stringbuilder& sb) const;
 	static void					adventure_combat();
 	static void					adventure();
 	bool						affect(spell_s id, int level, bool run);
@@ -1166,6 +1171,7 @@ public:
 	item*						get(slot_s id) { return wears + id; }
 	void						get(attacki& result, slot_s slot) const;
 	void						get(attacki& result, slot_s slot, const creature& enemy) const;
+	void						get(attacki& result, item* weapon, bool isoffhand) const;
 	static ability_s			getability(ability_s id) { return bsdata<abilityi>::elements[id].base; }
 	int							getac(bool flatfooted) const;
 	static creature*			getactive();
@@ -1208,6 +1214,7 @@ public:
 	int							getquick() const { return active_weapon; }
 	const item&					getweapon() const { return wears[QuickWeapon + active_weapon * 2]; }
 	const item*					getwear(slot_s id) const override;
+	const item*					getwearr(slot_s id) const { return wears + id; }
 	bool						have(variant id) const;
 	static void					help();
 	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background = true);
@@ -1265,7 +1272,7 @@ public:
 	void						setprepared(spell_s id, variant type, int count);
 	void						setquick(int value) { active_weapon = value; }
 	void						sheet();
-	void						show(const char* header, item& it);
+	void						show(item& it);
 	void						spellbook();
 	static void					spellinfo(spell_s id);
 	void						talk(const variant& e) {}
