@@ -5,13 +5,8 @@ using namespace draw;
 static int standart_pixels_per_line;
 
 static void porigin() {
-	auto p = (cbox*)hot.object;
+	auto p = (cscroll*)hot.object;
 	p->setorigin(hot.param);
-}
-
-static void pselect() {
-	auto p = (cbox*)hot.object;
-	p->setcurrent(hot.param);
 }
 
 void cscroll::initialize() {
@@ -40,7 +35,7 @@ void cscroll::correct() {
 	auto lpp = getlinesperpage();
 	auto m = getmaximum();
 	if(origin + lpp >= m)
-		origin = m - lpp - 1;
+		origin = m - lpp;
 	if(origin < 0)
 		origin = 0;
 }
@@ -54,7 +49,7 @@ int cscroll::getlinesperpage() const {
 	auto ppl = getpixelsperline();
 	if(!ppl)
 		return 0;
-	return client.height() / ppl;
+	return (client.height() + ppl - 1) / ppl;
 }
 
 void cscroll::view() const {
@@ -65,20 +60,24 @@ void cscroll::view() const {
 		}
 	}
 	auto lpp = getlinesperpage();
-	auto valid_maximum = getmaximum() - lpp  - 1;
+	auto h1 = getmaximum() - lpp;
 	sprite* pb = gres(bar);
 	if(pb && scroll) {
 		viewscroll({scroll.x1, scroll.y1, scroll.x2, scroll.y1 + scroll.width()}, pb, 0, origin - getscrollstep());
 		viewscroll({scroll.x1, scroll.y2 - scroll.width(), scroll.x2, scroll.y2}, pb, 2, origin + getscrollstep());
-		int h = scroll.height() - pb->get(0).sy - pb->get(2).sy - pb->get(scroll_frame).sy - 2;
-		int h1 = valid_maximum;
+		int h = scroll.height() - scroll.width() * 2 - pb->get(scroll_frame).sy - 4;
 		if(h1 > 0) {
-			int my = origin*h / h1;
-			draw::image(scroll.x1, scroll.y1 + pb->get(0).sy + my, pb, scroll_frame, 0);
+			auto my = (origin * h) / h1;
+			draw::image(scroll.x1, scroll.y1 + scroll.width() + my + 2, pb, scroll_frame, ImageNoOffset);
 		}
 		//rectb(scroll, colors::red);
 	}
 	//rectb(client, colors::green);
+}
+
+static void pselect() {
+	auto p = (cbox*)hot.object;
+	p->setcurrent(hot.param);
 }
 
 cbox::cbox(const rect& client, const rect& scroll) : cscroll(client, scroll), current(0) {
@@ -127,11 +126,11 @@ void cbox::translate() {
 		ensurevisible(current);
 		break;
 	case KeyEnd:
-		setcurrent(getmaximum()-1);
+		setcurrent(getmaximum() - 1);
 		ensurevisible(current);
 		break;
 	case KeyPageDown:
-		n = getlinesperpage();
+		n = getlinesperpage() - 1;
 		if((getorigin() + n) != current)
 			setcurrent(getorigin() + n);
 		else
@@ -139,7 +138,7 @@ void cbox::translate() {
 		ensurevisible(current);
 		break;
 	case KeyPageUp:
-		n = getlinesperpage();
+		n = getlinesperpage() - 1;
 		if(getorigin() != current)
 			setcurrent(getorigin());
 		else
@@ -152,12 +151,12 @@ void cbox::translate() {
 void cbox::ensurevisible(int index) {
 	auto lpp = getlinesperpage();
 	auto origin = getorigin();
-	if(index >= origin && index <= origin + lpp)
+	if(index >= origin && index <= origin + lpp - 1)
 		return;
 	if(index < origin)
 		setorigin(index);
 	else
-		setorigin(index - lpp);
+		setorigin(index - lpp + 1);
 }
 
 void cbox::view() const {

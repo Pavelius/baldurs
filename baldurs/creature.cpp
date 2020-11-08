@@ -55,6 +55,10 @@ int	creature::get(ability_s id) const {
 	case Wisdow:
 	case Charisma:
 		return ability[id] / 2 - 5;
+	case Will:
+	case Fortitude:
+	case Reflexes:
+		return ability[id] + get(bsdata<abilityi>::elements[id].base);
 	default:
 		return ability[id];
 	}
@@ -224,27 +228,6 @@ void creature::add(stringbuilder& sb, variant v1, variant v2, const char* title,
 	if(sort_by_name)
 		elements.sort();
 	add(sb, elements, title);
-}
-
-void creature::addinfo(stringbuilder& sb) const {
-	sb.addh("Уровни - уровень персонажа %1i", getcharlevel());
-	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
-		if(classes[e])
-			sb.addn("%1: %2i", getstr(e), classes[e]);
-	}
-	sb.addn("Любимый класс: Любой");
-	sb.addh("Опыт");
-	sb.addn("Текущий: %1i", experience);
-	sb.addn("Следующий уровень: %1i", 2000);
-	sb.addh("Раса");
-	sb.addn(getstr(getrace()));
-	sb.addh("Мировозрение");
-	sb.addn(getstr(alignment));
-	sb.addh("Спас-броски");
-	for(auto e = Fortitude; e <= Will; e = (ability_s)(e + 1))
-		sb.addn("%1: %+2i", getstr(e), get(e));
-	sb.addh("Способности атрибутов");
-	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
 }
 
 int	creature::getskillpoints() const {

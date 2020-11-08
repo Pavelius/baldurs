@@ -648,13 +648,6 @@ static void character_test() {
 	auto player = creature::getactive();
 	if(!player)
 		return;
-	//varianta creatures; creatures.creatures(Hostile, true);
-	//if(!creatures)
-	//	return;
-	//auto player = creatures[0].getcreature();
-	//if(!player)
-	//	return;
-	//player->testground();
 	player->choose_target();
 }
 
@@ -803,6 +796,8 @@ static void checkcombat(unsigned& counter) {
 
 static void item_to_backpack() {
 	auto pi = (item*)hot.param;
+	if(!pi)
+		return;
 	auto player = creature::getactive();
 	if(!player)
 		return;
@@ -812,6 +807,8 @@ static void item_to_backpack() {
 
 static void item_to_container() {
 	auto pi = (item*)hot.param;
+	if(!pi)
+		return;
 	switch(current_target.type) {
 	case Container:
 		current_target.getcontainer()->add(*pi);
@@ -911,10 +908,12 @@ static void getin_container() {
 		int x = 0, y = 476;
 		image(x, y, res::GUICONT, 1, 0);
 		image(x + 59, y + 25, res::CONTAINER, container_frame, 0);
+		container.correct();
+		container.view(player, item_to_backpack);
 		if(player) {
 			image(x + 430, y + 28, res::CONTAINER, 1, 0);
-			container.view(player, item_to_backpack);
 			backpack.update(player);
+			backpack.correct();
 			backpack.view(player, item_to_container);
 			button(x + 684, y + 28, 0, res::GBTNOPT1, 0, 1, 2, 3, 0, 0, 0);
 			sb.clear(); sb.add("%1i", player->getmoney() / SP);

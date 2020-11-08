@@ -1,7 +1,7 @@
 #include "main.h"
 
 static char				textdata[256 * 256 * 4];
-static ctext			scroll({12, 500, 542, 592}, {554, 497, 566, 592}, textdata);
+static ctext			scroll({12, 500, 542, 592}, {554, 497, 565, 592}, textdata);
 static stringbuilder	sb(textdata);
 
 static void update_log() {

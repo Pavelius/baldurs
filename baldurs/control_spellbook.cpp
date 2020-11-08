@@ -118,7 +118,7 @@ void creature::spellbook() {
 		auto slots_maximum = getspellslots(current_power, current_level), slots_used = getprepared(current_power);
 		known.free = slots_maximum - slots_used;
 		// Надпись доступные слоты
-		//label(449, 390, 32, 20, szprints(temp, zendof(temp), "%1i", known.free));
+		sb.clear(); sb.add("%1i", known.free); label(449, 390, 32, 20, temp);
 		// Уровни заклинаний
 		x = 740; y = 62;
 		for(int i = 1; i <= 9; i++) {

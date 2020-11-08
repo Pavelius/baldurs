@@ -628,9 +628,11 @@ struct cbox : cscroll {
 	virtual void			translate();
 	virtual void			view() const override;
 };
-struct citem : cscroll, adat<item*, 6 * 2> {
+class citem : public cscroll, adat<item*, 6 * 2> {
 	static constexpr const int size = 39;
 	int						mx, my;
+	int						maximum_items;
+public:
 	citem(int x, int y, const rect& scroll, int mx, int my);
 	item*					get(int index) const;
 	int						getmaximum() const override;
@@ -1122,6 +1124,7 @@ public:
 	void						add(stringbuilder& sb, const aref<variant>& elements, const char* title) const;
 	void						addinfo(stringbuilder& sb) const;
 	void						addinfo(stringbuilder& sb, variant_s step) const;
+	void						addinfocombar(stringbuilder& sb) const;
 	static void					adventure_combat();
 	static void					adventure();
 	bool						affect(spell_s id, int level, bool run);

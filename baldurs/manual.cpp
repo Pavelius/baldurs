@@ -320,3 +320,45 @@ void abilityi::addinfo(stringbuilder& sb) const {
 	auto id = (ability_s)(this - bsdata<abilityi>::elements);
 	add_skill_ability(sb, "Навыки", id);
 }
+
+void creature::addinfo(stringbuilder& sb) const {
+	sb.addh("Уровни - уровень персонажа %1i", getcharlevel());
+	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
+		if(classes[e])
+			sb.addn("%1: %2i", getstr(e), classes[e]);
+	}
+	sb.addn("Любимый класс: Любой");
+	sb.addh("Опыт");
+	sb.addn("Текущий: %1i", experience);
+	sb.addn("Следующий уровень: %1i", 2000);
+	sb.addh("Раса");
+	sb.addn(getstr(getrace()));
+	sb.addh("Мировозрение");
+	sb.addn(getstr(alignment));
+	sb.addh("Спас-броски");
+	for(auto e = Fortitude; e <= Will; e = (ability_s)(e + 1))
+		sb.addn("%1: %+2i", getstr(e), get(e));
+	sb.addh("Способности атрибутов");
+	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
+}
+
+void creature::addinfocombar(stringbuilder& sb) const {
+	sb.addh("Уровни - уровень персонажа %1i", getcharlevel());
+	for(auto e = FirstClass; e <= LastClass; e = (class_s)(e + 1)) {
+		if(classes[e])
+			sb.addn("%1: %2i", getstr(e), classes[e]);
+	}
+	sb.addn("Любимый класс: Любой");
+	sb.addh("Опыт");
+	sb.addn("Текущий: %1i", experience);
+	sb.addn("Следующий уровень: %1i", 2000);
+	sb.addh("Раса");
+	sb.addn(getstr(getrace()));
+	sb.addh("Мировозрение");
+	sb.addn(getstr(alignment));
+	sb.addh("Спас-броски");
+	for(auto e = Fortitude; e <= Will; e = (ability_s)(e + 1))
+		sb.addn("%1: %+2i", getstr(e), get(e));
+	sb.addh("Способности атрибутов");
+	sb.addn("Доступный вес: %1i фунтов", getmaxcarry());
+}
