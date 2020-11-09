@@ -156,7 +156,7 @@ static bool act(int& x, int y, creature* player, slot_s s1, slot_s s2) {
 		x1 += 1;
 		y1 += 1;
 	}
-	player->icon(x1, y1, player->get(s2), s2, 0, 0, false);
+	player->icon(x1, y1, player->get(s2), s2, 0, 0, false, false);
 	player->icon(x1, y1, player->get(s1), s1, 0, 0, false);
 	x += 41;
 	return r;

@@ -130,7 +130,7 @@ void creature::icon(int x, int y, slot_s id, itemdrag* pd) {
 	icon(x, y, wears + id, id, pd, choose_item);
 }
 
-void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background) {
+void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background, bool allow_info) {
 	int m = 0;
 	rect rc = {x + 2, y + 2, x + 34, y + 34};
 	auto ar = area(rc);
@@ -158,7 +158,7 @@ void creature::icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc
 		if(hot.key == MouseLeft && ar == AreaHilitedPressed)
 			execute(proc, (int)pi, this);
 	}
-	if(hot.key == MouseRight && ar == AreaHilitedPressed)
+	if(allow_info && hot.key == MouseRight && ar == AreaHilitedPressed)
 		execute(item_description, (int)pi, this);
 	if(show_background) {
 		if(!pi || !(*pi)) {

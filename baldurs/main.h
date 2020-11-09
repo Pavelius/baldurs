@@ -1217,7 +1217,7 @@ public:
 	const item*					getwearr(slot_s id) const { return wears + id; }
 	bool						have(variant id) const;
 	static void					help();
-	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background = true);
+	void						icon(int x, int y, item* pi, slot_s id, itemdrag* pd, fnitem proc, bool show_background = true, bool allow_info = true);
 	void						icon(int x, int y, slot_s id, itemdrag* pd);
 	void						iconqw(int x, int y, int n, itemdrag* pd);
 	void						interact(const targetreaction& e, short unsigned maximum_range, bool synchronized);
