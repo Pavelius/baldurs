@@ -3,7 +3,9 @@
 using namespace draw;
 
 void creature::show(item& it) {
-	char temp[512]; stringbuilder sb(temp);
+	char temp[260]; stringbuilder sb(temp);
+	char description[512]; stringbuilder sbd(description); it.addinfo(sbd);
+	ctext descriptionv({169, 128, 594, 430}, {624, 124, 636, 435}, description);
 	screenshoot screen(true);
 	cursorset set;
 	while(ismodal()) {
@@ -21,8 +23,8 @@ void creature::show(item& it) {
 			auto& fr = sp->get(it.getportrait() + 1);
 			image(x + 429 + 2 + (sx - fr.sx) / 2, y + 20 + 2 + (sy - fr.sy) / 2, res::ITEMS, it.getportrait() + 1, ImageNoOffset);
 		}
-		sb.clear(); it.addinfo(sb);
-		textf(x + 25, y + 113, 425, temp);
+		descriptionv.viewc();
+		//textf(x + 25, y + 113, 425, temp);
 		if(!it.isknown())
 			button(x + 179, y + 432, 0, res::GBTNMED, 0, 1, 2, 3, "Опознать", 0, 0);
 		button(x + 338, y + 432, buttoncancel, 0, 0, res::GBTNMED, "Отмена", KeyEscape, 0); //4
